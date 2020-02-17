@@ -76,7 +76,7 @@ For other ways to select Kubernetes resources see [#Alternatives](https://github
 | json | JSON |
 
 #### Arrays and lists:
-kubesql does not support list fields.
+kubesql does not support resource paths that include or ends up with a list field.
 
 ## Examples
 
