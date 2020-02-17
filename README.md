@@ -64,9 +64,9 @@ For other ways to select Kubernetes resources see [#Alternatives](https://github
 | name | metadata.name |
 | namespace | metadata.namespace |
 | labels | metadata.labels |
-| creation | creation timestamp |
-| deletion | deletion timestamp |
 | annotations | metadata.annotations |
+| created | creation timestamp |
+| deleted | deletion timestamp |
 
 #### Output formats:
   - Table
