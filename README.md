@@ -25,6 +25,17 @@ go build -o kubesql cmd/kubesql/*.go
 kubesql let you select Kubernetes resources based on the value of one or more resource fields, using
 human readable easy to use SQL like query langauge.
 
+Available Operators:
+
+  - `=` : Equal
+  - `~=` : Match Regular expression
+  - `!=`, `!~` : Not Equal, Not matching Regular expression
+  - `>`, '<', '<=' and '>=' : Compere operators for strings and ints
+  - `is null`, `is not null` : Check field existance
+  - `or`, `and`, `not` and `( )`
+
+
+
 ## Examples
 
 ``` bash
