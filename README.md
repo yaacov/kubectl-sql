@@ -24,10 +24,12 @@ go build -o kubesql cmd/kubesql/*.go
 
 ## What doed it do
 
+kubesql provides a simple and easy to use way to search for Kubernetes resources.
+
 kubesql let you select Kubernetes resources based on the value of one or more resource fields, using
 human readable easy to use SQL like query langauge.
 
-Available Operators:
+#### Available Operators:
 
   - `=` : Equal
   - `~=` : Match Regular expression
@@ -35,6 +37,19 @@ Available Operators:
   - `>`, '<', '<=' and '>=' : Compere operators for strings and numbers
   - `is null`, `is not null` : Check field existance
   - `or`, `and`, `not` and `( )`
+
+#### Aliases:
+  - name -> metadata.name
+  - namespace -> metadata.namespace
+  - labels -> metadata.labels
+  - creation -> creation timestamp
+  - deletion -> deletion timestamp
+  - annotations -> metadata.annotations
+  
+#### Arrays and lists:
+kubesql does not support list fields.
+
+For more complete search solutions see [#Alternatives](https://github.com/yaacov/kubesql#alternatives).
 
 ## Examples
 
