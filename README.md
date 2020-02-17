@@ -42,7 +42,7 @@ For alternatives filtering solutions see [#Alternatives](https://github.com/yaac
   - `=` : Equal
   - `~=` : Match Regular expression
   - `!=`, `!~` : Not Equal, Not matching Regular expression
-  - `>`, '<', '<=' and '>=' : Compere operators for strings and numbers
+  - `>`, `<`, `<=` and `>=` : Compere operators for strings and numbers
   - `is null`, `is not null` : Check field existance
   - `or`, `and`, `not` and `( )`
 
