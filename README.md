@@ -45,7 +45,12 @@ human readable easy to use SQL like query langauge.
   - creation -> creation timestamp
   - deletion -> deletion timestamp
   - annotations -> metadata.annotations
-  
+
+#### Output formats:
+  - Table
+  - YAML
+  - JSON
+
 #### Arrays and lists:
 kubesql does not support list fields.
 
