@@ -19,10 +19,13 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"strings"
 	"time"
 
+	"gopkg.in/yaml.v2"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	"github.com/yaacov/tree-search-language/v5/pkg/tsl"
@@ -81,9 +84,9 @@ func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalF
 			return value, true
 		}
 
-		v, found, err := unstructured.NestedFieldNoCopy(item.Object, keys...)
-
 		if c.Bool("verbose") {
+			v, found, err := unstructured.NestedFieldNoCopy(item.Object, keys...)
+
 			log.Printf("Failed to parse query value, %v (%v) - %v\n", v, found, err)
 		}
 
@@ -109,6 +112,7 @@ func printItems(c *cli.Context, list *unstructured.UnstructuredList, namespace s
 		errExit("Failed to parse query itentifiers", err)
 	}
 
+	items := []unstructured.Unstructured{}
 	for _, item := range list.Items {
 		if namespace != "" && item.GetNamespace() != namespace {
 			continue
@@ -128,13 +132,98 @@ func printItems(c *cli.Context, list *unstructured.UnstructuredList, namespace s
 			}
 		}
 
-		switch c.String("output") {
-		case "yaml":
-			printItemYAML(item)
-		case "json":
-			printItemJSON(item)
-		default:
-			printItemTableRaw(item)
+		items = append(items, item)
+	}
+
+	switch c.String("output") {
+	case "yaml":
+		printItemYAML(items)
+	case "json":
+		printItemJSON(items)
+	default:
+		printItemTableRaw(c, items)
+	}
+}
+
+func printItemYAML(items []unstructured.Unstructured) {
+	for _, item := range items {
+		yaml, err := yaml.Marshal(item)
+		errExit("Failed to marshal item", err)
+
+		fmt.Printf("\n%+v\n", string(yaml))
+	}
+}
+
+func printItemJSON(items []unstructured.Unstructured) {
+	for _, item := range items {
+		yaml, err := json.Marshal(item)
+		errExit("Failed to marshal item", err)
+
+		fmt.Printf("\n%+v\n", string(yaml))
+	}
+}
+
+func printItemTableRaw(c *cli.Context, items []unstructured.Unstructured) {
+	var evalFunc func(string) (interface{}, bool)
+
+	fields := []tableField{
+		{
+			title: "NAMESPACE",
+			name:  "namespace",
+			width: 9,
+		},
+		{
+			title: "NAME",
+			name:  "name",
+			width: 4,
+		},
+		{
+			title: "CREATION_TIME(RFC3339)",
+			name:  "created",
+			width: 25,
+		},
+	}
+
+	// Calculte field widths
+	for _, item := range items {
+		evalFunc = evalFactory(c, item)
+
+		for i, field := range fields {
+			if value, found := evalFunc(field.name); found {
+				length := len(fmt.Sprintf("%v", value))
+
+				if length > fields[i].width {
+					fields[i].width = length
+				}
+			}
 		}
 	}
+
+	// Pring table head
+	for _, field := range fields {
+		template := fmt.Sprintf("%%-%ds\t", field.width)
+		fmt.Printf(template, field.title)
+	}
+	fmt.Print("\n")
+
+	// Print table rows
+	for _, item := range items {
+		evalFunc = evalFactory(c, item)
+
+		for _, field := range fields {
+			template := fmt.Sprintf("%%-%ds\t", field.width)
+			if value, found := evalFunc(field.name); found {
+				fmt.Printf(template, value)
+			} else {
+				fmt.Printf(template, "")
+			}
+		}
+		fmt.Print("\n")
+	}
+}
+
+type tableField struct {
+	title string
+	name  string
+	width int
 }

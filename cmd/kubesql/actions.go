@@ -19,14 +19,9 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"time"
-
-	"gopkg.in/yaml.v2"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 
@@ -90,22 +85,4 @@ func getRequst(c *cli.Context) (string, string) {
 	}
 
 	return resourceName, query
-}
-
-func printItemYAML(item unstructured.Unstructured) {
-	yaml, err := yaml.Marshal(item)
-	errExit("Failed to marshal item", err)
-
-	fmt.Printf("\n%+v\n", string(yaml))
-}
-
-func printItemJSON(item unstructured.Unstructured) {
-	yaml, err := json.Marshal(item)
-	errExit("Failed to marshal item", err)
-
-	fmt.Printf("\n%+v\n", string(yaml))
-}
-
-func printItemTableRaw(item unstructured.Unstructured) {
-	fmt.Printf("%-30s %-30s %-20s\n", item.GetNamespace(), item.GetName(), item.GetCreationTimestamp().Format(time.RFC3339))
 }
