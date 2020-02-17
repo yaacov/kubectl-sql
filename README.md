@@ -22,7 +22,7 @@ cd kubesql
 go build -o kubesql cmd/kubesql/*.go
 ```
 
-## What doed it do
+## What does it do ?
 
 kubesql provides a simple and easy to use way to search for Kubernetes resources.
 
