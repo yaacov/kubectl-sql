@@ -35,7 +35,7 @@ Example:
 kubesql get pods where "namespace ~= '^test-'"
 ```
 
-For alternatives filtering solutions see [#Alternatives](https://github.com/yaacov/kubesql#alternatives).
+For other ways to select Kubernetes resources see [#Alternatives](https://github.com/yaacov/kubesql#alternatives).
 
 #### Available Operators:
 
@@ -61,8 +61,6 @@ For alternatives filtering solutions see [#Alternatives](https://github.com/yaac
 
 #### Arrays and lists:
 kubesql does not support list fields.
-
-For more complete search solutions see [#Alternatives](https://github.com/yaacov/kubesql#alternatives).
 
 ## Examples
 
