@@ -80,7 +80,7 @@ kubesql does not support list fields.
 
 ``` bash
 # Get pods that hase name containing "ovs"
-./kubesql --all-namespaces get pods where "name ~= 'ovs'"
+kubesql --all-namespaces get pods where "name ~= 'ovs'"
 
 openshift-cnv                  ovs-cni-amd64-5vgcg            2020-02-10T23:26:31+02:00
 openshift-cnv                  ovs-cni-amd64-8ts4w            2020-02-10T22:01:59+02:00
@@ -99,7 +99,7 @@ default                        virt-launcher-test-bdw2p-lcrwx 2020-02-12T14:14:0
 
 ``` bash
 # Get all persistant volume clames that are less then 20Gi, and output as json.
-./kubesql -o json get pvc where "spec.resources.requests.storage ~= '^1[0-9]Gi' or spec.resources.requests.storage ~= '^[1-9]Gi'" | jq .Object.spec.resources.requests
+kubesql -o json get pvc where "spec.resources.requests.storage ~= '^1[0-9]Gi' or spec.resources.requests.storage ~= '^[1-9]Gi'" | jq .Object.spec.resources.requests
 
 {
   "storage": "10Gi"
@@ -109,14 +109,14 @@ default                        virt-launcher-test-bdw2p-lcrwx 2020-02-12T14:14:0
 
 ``` bash
 # Get replicas sets with 3 replicas but less ready relicas
-./kubesql -A -o yaml get rs where "spec.replicas = 3 and status.readyReplicas < 3"
+kubesql -A -o yaml get rs where "spec.replicas = 3 and status.readyReplicas < 3"
 
 ...
 ```
 ### Print help
 
 ```
-./kubesql --help
+kubesql --help
 
 kubesql - uses sql like language to query the Kubernetes cluster manager.
 
