@@ -45,20 +45,23 @@ For other ways to select Kubernetes resources see [#Alternatives](https://github
 
 #### Available Operators:
 
-  - `=` : Equal
-  - `~=` : Match Regular expression
-  - `!=`, `!~` : Not Equal, Not matching Regular expression
-  - `>`, `<`, `<=` and `>=` : Compere operators for strings and numbers
-  - `is null`, `is not null` : Check field existance
-  - `or`, `and`, `not` and `( )`
+| Opertors | Notes |
+|----|---|
+| `=`, `~=` | Equat, Match Regular expression |
+|`!=`, `!~` | Not Equal, Not matching Regular expression |
+|`>`, `<`, `<=` and `>=` | Compere operators for strings and numbers |
+|`is null`, `is not null` | Check field existance |
+|`or`, `and`, `not` and `( )`|  |
 
 #### Aliases:
-  - name -> metadata.name
-  - namespace -> metadata.namespace
-  - labels -> metadata.labels
-  - creation -> creation timestamp
-  - deletion -> deletion timestamp
-  - annotations -> metadata.annotations
+| Aliase | Resource Path |
+|----|---|
+| name | metadata.name |
+| namespace | metadata.namespace |
+| labels | metadata.labels |
+| creation | creation timestamp |
+| deletion | deletion timestamp |
+| annotations | metadata.annotations |
 
 #### Output formats:
   - Table
