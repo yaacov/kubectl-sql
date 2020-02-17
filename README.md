@@ -29,6 +29,8 @@ kubesql provides a simple and easy to use way to search for Kubernetes resources
 kubesql let you select Kubernetes resources based on the value of one or more resource fields, using
 human readable easy to use SQL like query langauge.
 
+For alternatives filtering solutions see [#Alternatives](https://github.com/yaacov/kubesql#alternatives).
+
 #### Available Operators:
 
   - `=` : Equal
