@@ -25,9 +25,52 @@ go build -o kubesql cmd/kubesql/*.go
 kubesql let you select Kubernetes resources based on the value of one or more resource fields, using
 human readable easy to use SQL like query langauge.
 
-For usage:
 ```
 ./kubesql --help
+
+kubesql - uses sql like language to query the Kubernetes cluster manager.
+
+Usage:
+  kubesql [global options] command [command options] [arguments...]
+
+Examples:
+  # Query pods with name that matches /^test-.+/ ( e.g. name starts with "test-" )
+  kubesql get pods where "name ~= '^test-.+'"
+
+  # Query replicasets where spec replicas is 3 or 5 and ready replicas is less then 3
+  get rs where "(spec.replicas = 3 or spec.replicas = 5) and status.readyReplicas < 3"
+
+  # Query virtual machine instanses that are missing the lable "flavor.template.kubevirt.io/medium" 
+  get vmis where "labels.flavor.template.kubevirt.io/medium is null"
+
+Special fields:
+  name -> metadata.name
+  namespace -> metadata.namespace
+  labels -> metadata.labels
+  creation -> creation timestamp
+  deletion -> deletion timestamp
+  annotations -> metadata.annotations
+
+Website:
+   https://github.com/yaacov/kubesql
+
+Options:
+   --kubeconfig value           Path to the kubeconfig file to use for CLI requests.
+   --namespace value, -n value  If present, the namespace scope for this CLI request.
+   --output value, -o value     Output format, options: table, yaml or json. (default: "table")
+   --all-namespaces, -A         Use all namespace scopes for this CLI request. (default: false)
+   --verbose, -V                Show verbose output (default: false)
+   --help, -h                   show help (default: false)
+   --version, -v                print the version (default: false)
+   
+Author:
+   Yaacov Zamir
+
+Copyright:
+   Apache License
+   Version 2.0, January 2004
+   http://www.apache.org/licenses/
+
 ```
 
 ## Examples
