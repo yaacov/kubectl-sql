@@ -101,7 +101,7 @@ default                        virt-launcher-test-bdw2p-lcrwx 2020-02-12T14:14:0
 
 ``` bash
 # Get replicas sets with 3 replicas but less ready relicas
-./kubesql -A -o yaml get rs where "spec.replicas = 3 and status.readyReplicas <= 3"
+./kubesql -A -o yaml get rs where "spec.replicas = 3 and status.readyReplicas < 3"
 
 ...
 ```
