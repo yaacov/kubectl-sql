@@ -1,6 +1,10 @@
 sudo: false
 language: go
   - "1.13.x"
+env:
+  - GO111MODULE=on
+nstall:
+  - go get -u golang.org/x/lint/golint
 script:
   - go build -o kubesql cmd/kubesql/*.go
   - golint cmd/kubesql/*.go
