@@ -69,9 +69,11 @@ For other ways to select Kubernetes resources see [#Alternatives](https://github
 | deleted | deletion timestamp |
 
 #### Output formats:
-  - Table
-  - YAML
-  - JSON
+| --output flag | Print format |
+|----|---|
+| table | Table |
+| yaml | YAML |
+| json | JSON |
 
 #### Arrays and lists:
 kubesql does not support list fields.
