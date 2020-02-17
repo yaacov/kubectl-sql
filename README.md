@@ -19,6 +19,11 @@ Use sql like language to query the Kubernetes cluster manager
 
 ## Install
 
+Using `go get` command:
+```
+GO111MODULE=on go get -v github.com/yaacov/kubesql/cmd/kubesql
+```
+
 From source:
 
 ``` bash
