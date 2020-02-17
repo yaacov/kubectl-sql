@@ -13,6 +13,8 @@ Use sql like language to query the Kubernetes cluster manager
 
 ## Install
 
+From source:
+
 ``` bash
 git clone git@github.com:yaacov/kubesql.git
 cd kubesql
