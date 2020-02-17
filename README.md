@@ -11,6 +11,12 @@
 
 Use sql like language to query the Kubernetes cluster manager
 
+  - [Install](#install)
+  - [What does it do ?](#what-does-it-do-)
+  - [Examples](#examples)
+  - [Query language](#query-language)
+  - [Alternatives](#alternatives)
+
 ## Install
 
 From source:
