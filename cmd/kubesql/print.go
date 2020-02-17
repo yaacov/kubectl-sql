@@ -35,6 +35,14 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+// tableField describes how to print a table column.
+type tableField struct {
+	title    string
+	name     string
+	width    int
+	template string
+}
+
 // checkColumnName checks if a coulumn name is valid in user space replace it
 // with the mapped column name and returns and error if not a valid name.
 func checkColumnName(s string) (string, error) {
@@ -87,7 +95,7 @@ func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalF
 		if c.Bool("verbose") {
 			v, found, err := unstructured.NestedFieldNoCopy(item.Object, keys...)
 
-			log.Printf("Failed to parse query value, %v (%v) - %v\n", v, found, err)
+			log.Printf("failed to parse query value, %v (%v) - %v\n", v, found, err)
 		}
 
 		// Missing value is interpated as null value.
@@ -123,7 +131,7 @@ func printItems(c *cli.Context, list *unstructured.UnstructuredList, namespace s
 			matchingFilter, err := semantics.Walk(tree, evalFactory(c, item))
 			if err != nil {
 				if c.Bool("verbose") {
-					log.Printf("Failed to query item: %v", err)
+					log.Printf("failed to query item: %v", err)
 				}
 				continue
 			}
@@ -135,17 +143,26 @@ func printItems(c *cli.Context, list *unstructured.UnstructuredList, namespace s
 		items = append(items, item)
 	}
 
+	// Check for items
+	if len(items) == 0 {
+		if c.Bool("verbose") {
+			log.Print("no matching items found")
+		}
+		return
+	}
+
+	// Print out
 	switch c.String("output") {
 	case "yaml":
-		printItemYAML(items)
+		printItemsYAML(items)
 	case "json":
-		printItemJSON(items)
+		printItemsJSON(items)
 	default:
-		printItemTableRaw(c, items)
+		printItemsTable(c, items)
 	}
 }
 
-func printItemYAML(items []unstructured.Unstructured) {
+func printItemsYAML(items []unstructured.Unstructured) {
 	for _, item := range items {
 		yaml, err := yaml.Marshal(item)
 		errExit("Failed to marshal item", err)
@@ -154,7 +171,7 @@ func printItemYAML(items []unstructured.Unstructured) {
 	}
 }
 
-func printItemJSON(items []unstructured.Unstructured) {
+func printItemsJSON(items []unstructured.Unstructured) {
 	for _, item := range items {
 		yaml, err := json.Marshal(item)
 		errExit("Failed to marshal item", err)
@@ -163,23 +180,52 @@ func printItemJSON(items []unstructured.Unstructured) {
 	}
 }
 
-func printItemTableRaw(c *cli.Context, items []unstructured.Unstructured) {
+// Get the fields for print for kind
+func getFields(kind string) []tableField {
+	switch kind {
+	case "Pod":
+		return []tableField{
+			{
+				title: "NAMESPACE",
+				name:  "namespace",
+			},
+			{
+				title: "NAME",
+				name:  "name",
+			},
+			{
+				title: "PHASE",
+				name:  "status.phase",
+			},
+			{
+				title: "CREATION_TIME(RFC3339)",
+				name:  "created",
+			},
+		}
+	default:
+		return []tableField{
+			{
+				title: "NAMESPACE",
+				name:  "namespace",
+			},
+			{
+				title: "NAME",
+				name:  "name",
+			},
+			{
+				title: "CREATION_TIME(RFC3339)",
+				name:  "created",
+			},
+		}
+	}
+}
+
+func printItemsTable(c *cli.Context, items []unstructured.Unstructured) {
 	var evalFunc func(string) (interface{}, bool)
 
-	fields := []tableField{
-		{
-			title: "NAMESPACE",
-			name:  "namespace",
-		},
-		{
-			title: "NAME",
-			name:  "name",
-		},
-		{
-			title: "CREATION_TIME(RFC3339)",
-			name:  "created",
-		},
-	}
+	// Get table fields for this item.
+	kind := items[0].GetKind()
+	fields := getFields(kind)
 
 	// Calculte field widths
 	for _, item := range items {
@@ -232,11 +278,4 @@ func printItemTableRaw(c *cli.Context, items []unstructured.Unstructured) {
 		}
 		fmt.Print("\n")
 	}
-}
-
-type tableField struct {
-	title    string
-	name     string
-	width    int
-	template string
 }
