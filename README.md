@@ -29,6 +29,12 @@ kubesql provides a simple and easy to use way to search for Kubernetes resources
 kubesql let you select Kubernetes resources based on the value of one or more resource fields, using
 human readable easy to use SQL like query langauge.
 
+Example:
+``` bash
+# Filter pods belonging to namespaces that start with "test-"
+kubesql get pods where "namespace ~= '^test-'"
+```
+
 For alternatives filtering solutions see [#Alternatives](https://github.com/yaacov/kubesql#alternatives).
 
 #### Available Operators:
