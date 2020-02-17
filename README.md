@@ -56,6 +56,12 @@ default                        virt-launcher-test-bdw2p-lcrwx 2020-02-12T14:14:0
 ...
 ```
 
+``` bash
+# Get replicas sets with 3 replicas but less ready relicas
+./kubesql -A -o yaml get rs where "spec.replicas = 3 and status.readyReplicas <= 3"
+
+...
+```
 ### Print help
 
 ```
@@ -71,10 +77,10 @@ Examples:
   kubesql get pods where "name ~= '^test-.+'"
 
   # Query replicasets where spec replicas is 3 or 5 and ready replicas is less then 3
-  get rs where "(spec.replicas = 3 or spec.replicas = 5) and status.readyReplicas < 3"
+  kubesql get rs where "(spec.replicas = 3 or spec.replicas = 5) and status.readyReplicas < 3"
 
   # Query virtual machine instanses that are missing the lable "flavor.template.kubevirt.io/medium" 
-  get vmis where "labels.flavor.template.kubevirt.io/medium is null"
+  kubesql get vmis where "labels.flavor.template.kubevirt.io/medium is null"
 
 Special fields:
   name -> metadata.name

@@ -30,10 +30,10 @@ Examples:
   {{.HelpName}} get pods where "name ~= '^test-.+'"
 
   # Query replicasets where spec replicas is 3 or 5 and ready replicas is less then 3
-  get rs where "(spec.replicas = 3 or spec.replicas = 5) and status.readyReplicas < 3"
+  {{.HelpName}} get rs where "(spec.replicas = 3 or spec.replicas = 5) and status.readyReplicas < 3"
 
   # Query virtual machine instanses that are missing the lable "flavor.template.kubevirt.io/medium" 
-  get vmis where "labels.flavor.template.kubevirt.io/medium is null"
+  {{.HelpName}} get vmis where "labels.flavor.template.kubevirt.io/medium is null"
 
 Special fields:
   name -> metadata.name
