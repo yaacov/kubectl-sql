@@ -67,7 +67,7 @@ func main() {
 			},
 		},
 		Commands: []*cli.Command{
-			&cli.Command{
+			{
 				Name:   "get",
 				Usage:  "Display one or many resources.",
 				Action: actionsGet,
@@ -86,7 +86,7 @@ func main() {
 					},
 				},
 			},
-			&cli.Command{
+			{
 				Name:   "namespace",
 				Usage:  "Display current namespace scope.",
 				Action: namespacePrinter,
