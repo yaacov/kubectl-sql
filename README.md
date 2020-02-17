@@ -61,6 +61,12 @@ default                        virt-launcher-test-bdw2p-lcrwx 2020-02-12T14:14:0
 ...
 ```
 
+## Query language
+
+qubesql uses Tree Search Language (TSL). TSL is a wonderful human readable filtering language.
+
+https://github.com/yaacov/tree-search-language
+
 ## Alternatives
 
 ### jq
