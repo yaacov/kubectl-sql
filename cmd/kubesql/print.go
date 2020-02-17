@@ -170,17 +170,14 @@ func printItemTableRaw(c *cli.Context, items []unstructured.Unstructured) {
 		{
 			title: "NAMESPACE",
 			name:  "namespace",
-			width: 9,
 		},
 		{
 			title: "NAME",
 			name:  "name",
-			width: 4,
 		},
 		{
 			title: "CREATION_TIME(RFC3339)",
 			name:  "created",
-			width: 25,
 		},
 	}
 
@@ -199,10 +196,24 @@ func printItemTableRaw(c *cli.Context, items []unstructured.Unstructured) {
 		}
 	}
 
+	// Calculte field template
+	for i, field := range fields {
+		if field.width > 0 {
+			// Ajdust for title length
+			width := len(field.title)
+			if width < field.width {
+				width = field.width
+			}
+
+			fields[i].template = fmt.Sprintf("%%-%ds\t", width)
+		}
+	}
+
 	// Pring table head
 	for _, field := range fields {
-		template := fmt.Sprintf("%%-%ds\t", field.width)
-		fmt.Printf(template, field.title)
+		if field.width > 0 {
+			fmt.Printf(field.template, field.title)
+		}
 	}
 	fmt.Print("\n")
 
@@ -211,11 +222,12 @@ func printItemTableRaw(c *cli.Context, items []unstructured.Unstructured) {
 		evalFunc = evalFactory(c, item)
 
 		for _, field := range fields {
-			template := fmt.Sprintf("%%-%ds\t", field.width)
-			if value, found := evalFunc(field.name); found {
-				fmt.Printf(template, value)
-			} else {
-				fmt.Printf(template, "")
+			if field.width > 0 {
+				if value, found := evalFunc(field.name); found {
+					fmt.Printf(field.template, value)
+				} else {
+					fmt.Printf(field.template, "")
+				}
 			}
 		}
 		fmt.Print("\n")
@@ -223,7 +235,8 @@ func printItemTableRaw(c *cli.Context, items []unstructured.Unstructured) {
 }
 
 type tableField struct {
-	title string
-	name  string
-	width int
+	title    string
+	name     string
+	width    int
+	template string
 }
