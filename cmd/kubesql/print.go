@@ -119,12 +119,12 @@ func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalF
 					break
 				}
 
-				ok = i < uint64(len(objectList))
+				ok = i <= uint64(len(objectList))
 				if !ok {
 					break
 				}
 
-				object = objectList[i]
+				object = objectList[i-1]
 			} else {
 				objectMap, ok = object.(map[string]interface{})
 				if !ok {
@@ -297,6 +297,33 @@ func getFields(kind string) []tableField {
 			{
 				title: "hostIP",
 				name:  "status.hostIP",
+			},
+			{
+				title: "CREATION_TIME(RFC3339)",
+				name:  "created",
+			},
+		}
+	case "Node":
+		return []tableField{
+			{
+				title: "NAMESPACE",
+				name:  "namespace",
+			},
+			{
+				title: "NAME",
+				name:  "name",
+			},
+			{
+				title: "WORKER",
+				name:  "labels.node-role.kubernetes.io/worker",
+			},
+			{
+				title: "MASTER",
+				name:  "labels.node-role.kubernetes.io/master",
+			},
+			{
+				title: "IP",
+				name:  "status.addresses.1.address",
 			},
 			{
 				title: "CREATION_TIME(RFC3339)",
