@@ -107,7 +107,7 @@ kubesql support resource paths that include lists by using the list index as a f
 
 ``` bash
 # Get the memory request for the first container.
-kubesql -A -s  get pods where "spec.containers.1.resources.requests.memory = 200M"
+kubesql -A -s get pods where "spec.containers.1.resources.requests.memory = 200Mi"
 ```
 
 #### Identifier escaping
