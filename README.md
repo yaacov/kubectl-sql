@@ -74,6 +74,15 @@ For other ways to select Kubernetes resources see [#Alternatives](https://github
 | created | creation timestamp |
 | deleted | deletion timestamp |
 
+#### SI Units ( when using the --si-units falg ):
+| Unit | Multiplier |
+|----|---|
+| Ki | 1024 |
+| Mi | 1024^2 |
+| Gi | 1024^3 |
+| Ti | 1024^4 |
+| Pi | 1024^5 |
+
 #### Output formats:
 | --output flag | Print format |
 |----|---|
