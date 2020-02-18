@@ -20,7 +20,7 @@ Use SQL like language to query the Kubernetes cluster manager
 ## Install
 
 Using `go get` command:
-```
+``` bash
 GO111MODULE=on go get -v github.com/yaacov/kubesql/cmd/kubesql
 ```
 
@@ -40,8 +40,8 @@ human readable easy to use SQL like query langauge.
 
 Example:
 ``` bash
-# Filter pods belonging to namespaces that start with "test-"
-kubesql get pods where "namespace ~= '^test-'"
+# Filter replica sets with less ready-replicas then replicas"
+kubesql --all-namespaces get rs where "status.readyReplicas < status.replicas"
 ```
 
 For other ways to select Kubernetes resources see [#Alternatives](https://github.com/yaacov/kubesql#alternatives).
@@ -54,7 +54,15 @@ For other ways to select Kubernetes resources see [#Alternatives](https://github
 |`!=`, `!~` | Not Equal, Not matching Regular expression |
 |`>`, `<`, `<=` and `>=` | Compere operators for strings and numbers |
 |`is null`, `is not null` | Check field existance |
-|`or`, `and`, `not` and `( )`|  |
+|`or`, `and` and `not`|  |
+
+#### Available Math Operators:
+
+| Opertors | Notes |
+|----|---|
+| `+`, `-` | Adition and Substruction |
+| `*`, `/` | Multiplation and Division |
+| `( )`|  |
 
 #### Aliases:
 | Aliase | Resource Path |
