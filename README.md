@@ -98,6 +98,11 @@ kubesql support resource paths that include lists by using the list index as a f
 kubesql -A -s  get pods where "spec.containers.1.resources.requests.memory = 200M"
 ```
 
+#### Identifier escaping
+
+If identifier include characters that need escaping ( e.g. "-" or ":") it is posible
+to escape the identifier name by wrapping it with `[...]` or `"..."`
+
 ## Examples
 
 ``` bash
@@ -122,7 +127,7 @@ default                        virt-launcher-test-bdw2p-lcrwx 2020-02-12T14:14:0
 ``` bash
 # Get all persistant volume clames that are less then 20Gi, and output as json.
 kubesql -o json --si-units get pvc where "spec.resources.requests.storage < 20Gi" | jq .Object.spec.resources.requests
-
+ 
 {
   "storage": "10Gi"
 }
