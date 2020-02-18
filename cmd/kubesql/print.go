@@ -46,7 +46,7 @@ type tableField struct {
 // checkColumnName checks if a coulumn name is valid in user space replace it
 // with the mapped column name and returns and error if not a valid name.
 func checkColumnName(s string) (string, error) {
-	// replace dots with underline
+	// replace aliases with complete resource path.
 	return s, nil
 }
 
