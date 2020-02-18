@@ -105,6 +105,8 @@ to escape the identifier name by wrapping it with `[...]` or `"..."`
 
 ## Examples
 
+#### All namespaces
+
 ``` bash
 # Get pods that hase name containing "ovs"
 kubesql --all-namespaces get pods where "name ~= 'ovs'"
@@ -116,6 +118,8 @@ openshift-cnv                  ovs-cni-amd64-gxvm4            2020-02-10T22:01:5
 ...
 ```
 
+#### Using Regexp
+
 ``` bash
 # Get all pods from current namespace scope, that has a name starting with "virt-" and
 # IP that ends with ".84"
@@ -123,6 +127,7 @@ openshift-cnv                  ovs-cni-amd64-gxvm4            2020-02-10T22:01:5
 default                        virt-launcher-test-bdw2p-lcrwx 2020-02-12T14:14:01+02:00
 ...
 ```
+#### SI Units
 
 ``` bash
 # Get all persistant volume clames that are less then 20Gi, and output as json.
@@ -134,13 +139,15 @@ kubesql -o json --si-units get pvc where "spec.resources.requests.storage < 20Gi
 ...
 ```
 
+#### Comparing fields
+
 ``` bash
 # Get replicas sets with 3 replicas but less ready relicas
 kubesql -A get rs where "spec.replicas = 3 and status.readyReplicas < spec.replicas"
 
 ...
 ```
-### Print help
+#### Print help
 
 ```
 kubesql --help
@@ -198,14 +205,14 @@ https://github.com/yaacov/tree-search-language
 
 ## Alternatives
 
-### jq
+#### jq
 
 `jq` is a lightweight and flexible command-line JSON processor. It is posible to
 pipe the kubectl command output into the `jq` command to create complicted searches.
 
 https://stedolan.github.io/jq/manual/#select(boolean_expression)
 
-### kubectl --field-selector
+#### kubectl --field-selector
 
 Field selectors let you select Kubernetes resources based on the value of one or more resource fields. Here are some examples of field selector queries.
 
