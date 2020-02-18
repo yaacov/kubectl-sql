@@ -54,6 +54,12 @@ func main() {
 				Usage:   "Output format, options: table, yaml or json.",
 			},
 			&cli.BoolFlag{
+				Name:    "si-units",
+				Aliases: []string{"s"},
+				Value:   false,
+				Usage:   "Parse values with SI units as numbers, (e.g. '1Ki' will be 1024).",
+			},
+			&cli.BoolFlag{
 				Name:    "all-namespaces",
 				Aliases: []string{"A"},
 				Value:   false,

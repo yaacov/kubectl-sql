@@ -22,6 +22,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
+	"strconv"
 	"strings"
 	"time"
 
@@ -62,11 +64,35 @@ func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalF
 		}
 
 		if len(key) > 7 && key[:7] == "labels." {
-			return item.GetLabels()[key[7:]], len(item.GetLabels()[key]) > 0
+			value, ok := item.GetLabels()[key[7:]]
+
+			// Empty label represent the label is present
+			if ok && len(value) == 0 {
+				value = "true"
+			}
+
+			// Missing value
+			if !ok {
+				return nil, true
+			}
+
+			return value, ok
 		}
 
 		if len(key) > 12 && key[:12] == "annotations." {
-			return item.GetAnnotations()[key[12:]], len(item.GetLabels()[key]) > 0
+			value, ok := item.GetLabels()[key[12:]]
+
+			// Empty annotations represent the annotations is present
+			if ok && len(value) == 0 {
+				value = "true"
+			}
+
+			// Missing value
+			if !ok {
+				return nil, true
+			}
+
+			return value, ok
 		}
 
 		if key == "created" {
@@ -80,16 +106,87 @@ func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalF
 		// Split the key to work with the `unstructured.Nested` functions.
 		keys := strings.Split(key, ".")
 
-		if value, ok, err := unstructured.NestedInt64(item.Object, keys...); ok && err == nil {
-			return value, true
+		var object interface{}
+		var objectList []interface{}
+		var objectMap map[string]interface{}
+		ok := true
+		object = item.Object
+
+		for _, key := range keys {
+			if i, err := strconv.ParseUint(key, 10, 64); err == nil && i > 0 {
+				objectList, ok = object.([]interface{})
+				if !ok {
+					break
+				}
+
+				ok = i < uint64(len(objectList))
+				if !ok {
+					break
+				}
+
+				object = objectList[i]
+			} else {
+				objectMap, ok = object.(map[string]interface{})
+				if !ok {
+					break
+				}
+
+				object, ok = objectMap[key]
+				if !ok {
+					break
+				}
+			}
 		}
 
-		if value, ok, err := unstructured.NestedFloat64(item.Object, keys...); ok && err == nil {
-			return value, true
-		}
+		if ok {
+			switch object.(type) {
+			case float64:
+				return object.(float64), true
+			case int64:
+				return float64(object.(int64)), true
+			case string:
+				if c.Bool("si-units") {
+					multiplier := 0.0
+					s := object.(string)
 
-		if value, ok, err := unstructured.NestedString(item.Object, keys...); ok && err == nil {
-			return value, true
+					// Remove SI `i` if exist
+					// Note: we support "K", "M", "G" and "Ki", "Mi", "Gi" postfix
+					if len(s) > 1 && s[len(s)-1:] == "i" {
+						s = s[:len(s)-1]
+					}
+
+					// Check for SI postfix
+					if len(s) > 1 {
+						postfix := s[len(s)-1:]
+						switch postfix {
+						case "K":
+							multiplier = 1024.0
+						case "M":
+							multiplier = math.Pow(1024, 2)
+						case "G":
+							multiplier = math.Pow(1024, 3)
+						case "T":
+							multiplier = math.Pow(1024, 4)
+						case "P":
+							multiplier = math.Pow(1024, 5)
+						}
+
+						if multiplier >= 1.0 {
+							s = s[:len(s)-1]
+
+							if i, err := strconv.ParseInt(s, 10, 64); err == nil {
+								newValue := float64(i) * multiplier
+								if c.Bool("verbose") {
+									log.Printf("converting units, %v (%f)\n", object, newValue)
+								}
+
+								return newValue, true
+							}
+						}
+					}
+				}
+				return object.(string), true
+			}
 		}
 
 		if c.Bool("verbose") {
@@ -198,6 +295,10 @@ func getFields(kind string) []tableField {
 				name:  "status.phase",
 			},
 			{
+				title: "hostIP",
+				name:  "status.hostIP",
+			},
+			{
 				title: "CREATION_TIME(RFC3339)",
 				name:  "created",
 			},
@@ -269,7 +370,7 @@ func printItemsTable(c *cli.Context, items []unstructured.Unstructured) {
 
 		for _, field := range fields {
 			if field.width > 0 {
-				if value, found := evalFunc(field.name); found {
+				if value, found := evalFunc(field.name); found && value != nil {
 					fmt.Printf(field.template, value)
 				} else {
 					fmt.Printf(field.template, "")
