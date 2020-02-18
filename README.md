@@ -13,9 +13,21 @@ Use SQL like language to query the Kubernetes cluster manager
 
   - [Install](#install)
   - [What does it do ?](#what-does-it-do-)
+    - [Operators](#available-operators)
+    - [Math Operators](#available-math-operators)
+    - [Aliases](#aliases)
+    - [SI Units](#si-units--when-using-the---si-units-falg-)
+    - [Formats](#output-formats)
+    - [Arrays](#arrays-and-lists)
+    - [Escapingg](#identifier-escaping)
   - [Examples](#examples)
+    - [All Namespaces](#all-namespaces)
+    - [Regexp](#using-regexp)
+    - [Compere Fields](#comparing-fields)
   - [Query language](#query-language)
   - [Alternatives](#alternatives)
+    - [jq](#jq)
+    - [Field Selector](#kubectl---field-selector)
 
 ## Install
 
