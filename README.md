@@ -116,7 +116,7 @@ default                        virt-launcher-test-bdw2p-lcrwx 2020-02-12T14:14:0
 
 ``` bash
 # Get all persistant volume clames that are less then 20Gi, and output as json.
-kubesql -o json get pvc where "spec.resources.requests.storage ~= '^1[0-9]Gi' or spec.resources.requests.storage ~= '^[1-9]Gi'" | jq .Object.spec.resources.requests
+kubesql -o json --si-units get pvc where "spec.resources.requests.storage < 20Gi" | jq .Object.spec.resources.requests
 
 {
   "storage": "10Gi"
