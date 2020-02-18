@@ -165,6 +165,7 @@ Options:
    --kubeconfig value           Path to the kubeconfig file to use for CLI requests.
    --namespace value, -n value  If present, the namespace scope for this CLI request.
    --output value, -o value     Output format, options: table, yaml or json. (default: "table")
+   --si-units, -s               Parse values with SI units as numbers, (e.g. '1Ki' will be 1024). (default: false)
    --all-namespaces, -A         Use all namespace scopes for this CLI request. (default: false)
    --verbose, -V                Show verbose output (default: false)
    --help, -h                   show help (default: false)
@@ -177,7 +178,6 @@ Copyright:
    Apache License
    Version 2.0, January 2004
    http://www.apache.org/licenses/
-
 ```
 
 ## Query language
