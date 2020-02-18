@@ -180,7 +180,7 @@ func printItemsJSON(items []unstructured.Unstructured) {
 	}
 }
 
-// Get the fields for print for kind
+// Get the table column titles and fields by resource kind.
 func getFields(kind string) []tableField {
 	switch kind {
 	case "Pod":
