@@ -39,8 +39,8 @@ Special fields:
   name -> metadata.name
   namespace -> metadata.namespace
   labels -> metadata.labels
-  creation -> creation timestamp
-  deletion -> deletion timestamp
+  created -> creation timestamp (RFC3339)
+  deleted -> deletion timestamp (RFC3339)
   annotations -> metadata.annotations
 
 Website:
