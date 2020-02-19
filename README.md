@@ -85,6 +85,7 @@ For other ways to select Kubernetes resources see [#Alternatives](https://github
 | annotations | metadata.annotations |
 | created | creation timestamp |
 | deleted | deletion timestamp |
+| phase | status.phase |
 
 #### SI Units ( when using the --si-units falg ):
 | Unit | Multiplier |
@@ -212,7 +213,7 @@ Copyright:
 
 ## Query language
 
-qubesql uses Tree Search Language (TSL). TSL is a wonderful human readable filtering language.
+kubesql uses Tree Search Language (TSL). TSL is a wonderful human readable filtering language.
 
 https://github.com/yaacov/tree-search-language
 
