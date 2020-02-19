@@ -43,6 +43,43 @@ func checkColumnName(s string) (string, error) {
 	return s, nil
 }
 
+// Retrun a nested object using a key
+func getNestedObject(object interface{}, key string) (interface{}, bool) {
+	keys := strings.Split(key, ".")
+
+	var objectList []interface{}
+	var objectMap map[string]interface{}
+	ok := true
+
+	for _, key := range keys {
+		if i, err := strconv.ParseUint(key, 10, 64); err == nil && i > 0 {
+			objectList, ok = object.([]interface{})
+			if !ok {
+				break
+			}
+
+			ok = i <= uint64(len(objectList))
+			if !ok {
+				break
+			}
+
+			object = objectList[i-1]
+		} else {
+			objectMap, ok = object.(map[string]interface{})
+			if !ok {
+				break
+			}
+
+			object, ok = objectMap[key]
+			if !ok {
+				break
+			}
+		}
+	}
+
+	return object, ok
+}
+
 // evalFactory extract a value from an item using a key.
 func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalFunc {
 	return func(key string) (interface{}, bool) {
@@ -94,95 +131,67 @@ func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalF
 			return item.GetDeletionTimestamp().Format(time.RFC3339), true
 		}
 
-		keys := strings.Split(key, ".")
-
-		var object interface{}
-		var objectList []interface{}
-		var objectMap map[string]interface{}
-		ok := true
-		object = item.Object
-
-		for _, key := range keys {
-			if i, err := strconv.ParseUint(key, 10, 64); err == nil && i > 0 {
-				objectList, ok = object.([]interface{})
-				if !ok {
-					break
-				}
-
-				ok = i <= uint64(len(objectList))
-				if !ok {
-					break
-				}
-
-				object = objectList[i-1]
-			} else {
-				objectMap, ok = object.(map[string]interface{})
-				if !ok {
-					break
-				}
-
-				object, ok = objectMap[key]
-				if !ok {
-					break
-				}
+		object, ok := getNestedObject(item.Object, key)
+		if !ok {
+			if c.Bool("verbose") {
+				log.Printf("failed to find an object for key, %v\n", key)
 			}
+
+			// Missing value is interpated as null value.
+			return nil, true
 		}
 
-		if ok {
-			switch object.(type) {
-			case float64:
-				return object.(float64), true
-			case int64:
-				return float64(object.(int64)), true
-			case string:
-				if c.Bool("si-units") {
-					multiplier := 0.0
-					s := object.(string)
+		switch object.(type) {
+		case float64:
+			return object.(float64), true
+		case int64:
+			return float64(object.(int64)), true
+		case string:
+			if c.Bool("si-units") {
+				multiplier := 0.0
+				s := object.(string)
 
-					// Remove SI `i` if exist
-					// Note: we support "K", "M", "G" and "Ki", "Mi", "Gi" postfix
-					if len(s) > 1 && s[len(s)-1:] == "i" {
-						s = s[:len(s)-1]
+				// Remove SI `i` if exist
+				// Note: we support "K", "M", "G" and "Ki", "Mi", "Gi" postfix
+				if len(s) > 1 && s[len(s)-1:] == "i" {
+					s = s[:len(s)-1]
+				}
+
+				// Check for SI postfix
+				if len(s) > 1 {
+					postfix := s[len(s)-1:]
+					switch postfix {
+					case "K":
+						multiplier = 1024.0
+					case "M":
+						multiplier = math.Pow(1024, 2)
+					case "G":
+						multiplier = math.Pow(1024, 3)
+					case "T":
+						multiplier = math.Pow(1024, 4)
+					case "P":
+						multiplier = math.Pow(1024, 5)
 					}
 
-					// Check for SI postfix
-					if len(s) > 1 {
-						postfix := s[len(s)-1:]
-						switch postfix {
-						case "K":
-							multiplier = 1024.0
-						case "M":
-							multiplier = math.Pow(1024, 2)
-						case "G":
-							multiplier = math.Pow(1024, 3)
-						case "T":
-							multiplier = math.Pow(1024, 4)
-						case "P":
-							multiplier = math.Pow(1024, 5)
-						}
+					if multiplier >= 1.0 {
+						s = s[:len(s)-1]
 
-						if multiplier >= 1.0 {
-							s = s[:len(s)-1]
-
-							if i, err := strconv.ParseInt(s, 10, 64); err == nil {
-								newValue := float64(i) * multiplier
-								if c.Bool("verbose") {
-									log.Printf("converting units, %v (%f)\n", object, newValue)
-								}
-
-								return newValue, true
+						if i, err := strconv.ParseInt(s, 10, 64); err == nil {
+							newValue := float64(i) * multiplier
+							if c.Bool("verbose") {
+								log.Printf("converting units, %v (%f)\n", object, newValue)
 							}
+
+							return newValue, true
 						}
 					}
 				}
-				return object.(string), true
 			}
+			return object.(string), true
 		}
 
 		if c.Bool("verbose") {
-			v, found, err := unstructured.NestedFieldNoCopy(item.Object, keys...)
-
-			log.Printf("failed to parse query value, %v (%v) - %v\n", v, found, err)
+			log.Printf("failed to parse value, %v\n", object)
 		}
 
 		// Missing value is interpated as null value.
