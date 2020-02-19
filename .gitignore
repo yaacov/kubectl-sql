@@ -15,4 +15,3 @@
 # vendor/
 
 go.sum
-kubesql

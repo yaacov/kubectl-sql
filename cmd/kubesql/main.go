@@ -32,8 +32,8 @@ func main() {
 	cli.VersionPrinter = versionPrinter
 
 	app := &cli.App{
-		Name:    "kubesql",
-		Version: "v0.1.2",
+		Name:    appVersion["Name"],
+		Version: appVersion["Version"],
 		Usage:   "uses sql like language to query the Kubernetes cluster manager.",
 		Flags: []cli.Flag{
 			&cli.StringFlag{

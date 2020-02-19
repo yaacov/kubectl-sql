@@ -78,7 +78,7 @@ const fullVersionTemplate = "Client Version: %s\nServer Version: %s\n"
 
 // Default aliases.
 var defaultAliases = map[string]string{
-	"phase": "status.pahse",
+	"phase": "status.phase",
 }
 
 // Default table view fields.
