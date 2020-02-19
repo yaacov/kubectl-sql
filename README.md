@@ -99,6 +99,7 @@ For other ways to select Kubernetes resources see [#Alternatives](https://github
 | --output flag | Print format |
 |----|---|
 | table | Table |
+| name | Names onlly |
 | yaml | YAML |
 | json | JSON |
 
