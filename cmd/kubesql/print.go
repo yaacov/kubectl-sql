@@ -254,6 +254,8 @@ func printItems(c *cli.Context, list *unstructured.UnstructuredList, namespace s
 		printItemsYAML(items)
 	case "json":
 		printItemsJSON(items)
+	case "name":
+		printItemsNames(items)
 	default:
 		printItemsTable(c, items)
 	}
@@ -274,6 +276,12 @@ func printItemsJSON(items []unstructured.Unstructured) {
 		errExit("Failed to marshal item", err)
 
 		fmt.Printf("\n%+v\n", string(yaml))
+	}
+}
+
+func printItemsNames(items []unstructured.Unstructured) {
+	for _, item := range items {
+		fmt.Printf("%s\n", item.GetName())
 	}
 }
 

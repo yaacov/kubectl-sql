@@ -28,7 +28,7 @@ import (
 )
 
 func main() {
-	cli.AppHelpTemplate = helpTemplate()
+	cli.AppHelpTemplate = appHelpTemplate
 	cli.VersionPrinter = versionPrinter
 
 	app := &cli.App{
@@ -51,7 +51,7 @@ func main() {
 				Name:    "output",
 				Aliases: []string{"o"},
 				Value:   "table",
-				Usage:   "Output format, options: table, yaml or json.",
+				Usage:   "Output format, options: name, table, yaml or json.",
 			},
 			&cli.BoolFlag{
 				Name:    "si-units",
@@ -129,9 +129,9 @@ func versionPrinter(c *cli.Context) {
 	serverVersion, err := discoveryClient.ServerVersion()
 
 	if err != nil {
-		fmt.Printf(versionTemplate(), c.App.Version)
+		fmt.Printf(versionTemplate, c.App.Version)
 	} else {
-		fmt.Printf(fullVersionTemplate(), c.App.Version, serverVersion)
+		fmt.Printf(fullVersionTemplate, c.App.Version, serverVersion)
 	}
 }
 

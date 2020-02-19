@@ -19,8 +19,7 @@
 package main
 
 // Template for help message ( -h --help flages)
-func helpTemplate() string {
-	return `{{.Name}} - {{.Usage}}
+const appHelpTemplate = `{{.Name}} - {{.Usage}}
 
 Usage:
   {{.HelpName}} {{if .VisibleFlags}}[global options]{{end}}{{if .Commands}} command [command options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}
@@ -59,14 +58,9 @@ Copyright:
    Version 2.0, January 2004
    http://www.apache.org/licenses/
 `
-}
 
 // Template for version message, no server version.
-func versionTemplate() string {
-	return "Client Version: %s\n"
-}
+const versionTemplate = "Client Version: %s\n"
 
 // Template for version message, with server version.
-func fullVersionTemplate() string {
-	return "Client Version: %s\nServer Version: %s\n"
-}
+const fullVersionTemplate = "Client Version: %s\nServer Version: %s\n"
