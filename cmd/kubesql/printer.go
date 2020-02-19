@@ -45,11 +45,12 @@ func printer(c *cli.Context, list *unstructured.UnstructuredList, namespace stri
 		tree, err = tsl.ParseTSL(query)
 		errExit("Failed to parse query", err)
 
-		// Check and replace user identifiers with the document field names.
+		// Check and replace user identifiers if alias exist.
 		tree, err = ident.Walk(tree, checkColumnName)
 		errExit("Failed to parse query itentifiers", err)
 	}
 
+	// Filter items using namespace and query.
 	items := []unstructured.Unstructured{}
 	for _, item := range list.Items {
 		if namespace != "" && item.GetNamespace() != namespace {
@@ -73,7 +74,7 @@ func printer(c *cli.Context, list *unstructured.UnstructuredList, namespace stri
 		items = append(items, item)
 	}
 
-	// Check for items
+	// Sanity check
 	if len(items) == 0 {
 		if c.Bool("verbose") {
 			log.Print("no matching items found")
@@ -119,7 +120,7 @@ func printerNames(items []unstructured.Unstructured) {
 }
 
 // Get the table column titles and fields by resource kind.
-func getTableFields(kind string) []tableField {
+func getTableColumns(kind string) []tableField {
 	fields, ok := defaultTableFields[kind]
 	if !ok {
 		return defaultTableFields["other"]
@@ -133,7 +134,7 @@ func printerTable(c *cli.Context, items []unstructured.Unstructured) {
 
 	// Get table fields for this item.
 	kind := items[0].GetKind()
-	fields := getTableFields(kind)
+	fields := getTableColumns(kind)
 
 	// Calculte field widths
 	for _, item := range items {
