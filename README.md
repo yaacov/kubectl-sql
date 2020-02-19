@@ -115,7 +115,7 @@ kubesql -A -s get pods where "spec.containers.1.resources.requests.memory = 200M
 #### Identifier escaping
 
 If identifier include characters that need escaping ( e.g. "-" or ":") it is posible
-to escape the identifier name by wrapping it with `[...]` or `"..."`
+to escape the identifier name by wrapping it with `[...]` , `` `...` `` or `"..."`
 
 ## Examples
 
