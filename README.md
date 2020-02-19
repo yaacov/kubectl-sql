@@ -158,7 +158,7 @@ kubesql -o json --si-units get pvc where "spec.resources.requests.storage < 20Gi
 
 ``` bash
 # Get replicas sets with 3 replicas but less ready relicas
-kubesql -A get rs where "spec.replicas = 3 and status.readyReplicas < spec.replicas"
+kubesql --all-namespaces get rs where "spec.replicas = 3 and status.readyReplicas < spec.replicas"
 
 ...
 ```
