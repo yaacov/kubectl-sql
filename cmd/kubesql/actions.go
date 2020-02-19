@@ -34,7 +34,7 @@ func actionsGet(c *cli.Context) error {
 	namespace := ""
 
 	// Get user request.
-	resourceName, query := getRequst(c)
+	resourceName, query := userQuery(c)
 
 	// Get kubeconfig.
 	kubeconfig := getKubeConfig(c)
@@ -62,13 +62,13 @@ func actionsGet(c *cli.Context) error {
 	errExit("Failed to list objects", err)
 
 	// Print selected objects.
-	printItems(c, list, namespace, query)
+	printer(c, list, namespace, query)
 
 	return nil
 }
 
 // Get user quary.
-func getRequst(c *cli.Context) (string, string) {
+func userQuery(c *cli.Context) (string, string) {
 	resourceName := c.String("resource")
 	query := c.String("query")
 
