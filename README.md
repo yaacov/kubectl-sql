@@ -36,6 +36,13 @@ Using `go get` command:
 GO111MODULE=on go get -v github.com/yaacov/kubesql/cmd/kubesql
 ```
 
+Using Fedora Copr:
+
+```
+dnf copr enable yaacov/kubesql
+dnf install kubesql
+```
+
 From source:
 
 ``` bash
