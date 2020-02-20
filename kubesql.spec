@@ -5,6 +5,8 @@
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path     %{provider_prefix}
 
+%undefine _missing_build_ids_terminate_build
+
 Name:           %{repo}
 Version:        0.1.9
 Release:        1%{?dist}
