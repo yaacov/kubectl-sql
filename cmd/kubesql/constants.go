@@ -55,12 +55,13 @@ Special fields:
 
 Website:
    https://github.com/yaacov/kubesql
-{{if len .Authors}}
+
 Commands:
-{{range .Commands}}{{if not .HideHelp}}   {{join .Names ", "}}{{ "\t"}}{{.Usage}}{{ "\n" }}{{end}}{{end}}{{end}}{{if .VisibleFlags}}
+   {{range .Commands}}{{if not .HideHelp}}{{join .Names ", "}}{{ "\t"}}{{.Usage}}
+   {{end}}{{end}}
 Options:
    {{range .VisibleFlags}}{{.}}
-   {{end}}{{end}}
+   {{end}}
 Author:
    Yaacov Zamir
 
