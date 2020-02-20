@@ -22,7 +22,7 @@ kubesql_src := $(wildcard ./cmd/kubesql/*.go)
 all: kubesql
 
 kubesql: $(kubesql_src)
-	go build -o kubesql -ldflags "-X main.version=${VERSION}" $(kubesql_src)
+	go build -o kubesql $(kubesql_src)
 
 .PHONY: lint
 lint:
