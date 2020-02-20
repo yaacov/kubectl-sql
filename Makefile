@@ -14,12 +14,15 @@
 # limitations under the License.
 #
 
+VERSION_GIT := $(shell git describe --tags)
+VERSION ?= ${VERSION_GIT}
+
 kubesql_src := $(wildcard ./cmd/kubesql/*.go)
 
 all: kubesql
 
 kubesql: $(kubesql_src)
-	go build -o kubesql $(kubesql_src)
+	go build -o kubesql -ldflags "-X main.version=${VERSION}" $(kubesql_src)
 
 .PHONY: lint
 lint:

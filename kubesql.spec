@@ -6,7 +6,7 @@
 %global import_path     %{provider_prefix}
 
 Name:           %{repo}
-Version:        0.1.8
+Version:        0.1.9
 Release:        1%{?dist}
 Summary:        kubesql uses sql like language to query the Kubernetes cluster manager
 License:        Apache
