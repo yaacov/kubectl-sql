@@ -27,7 +27,7 @@ kubesql let you select Kubernetes resources based on the value of one or more re
 mkdir -p ./_build/src/github.com/yaacov
 ln -s $(pwd) ./_build/src/github.com/yaacov/kubesql
 
-%gobuild -o kubesql ./cmd/kubesql/*.go
+make
 
 %install
 install -d %{buildroot}%{_bindir}
