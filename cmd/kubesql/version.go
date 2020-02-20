@@ -20,5 +20,5 @@ package main
 
 var appVersion = map[string]string{
 	"Name":    "kubesql",
-	"Version": "v0.1.8",
+	"Version": "0.1.9",
 }

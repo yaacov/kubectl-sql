@@ -40,5 +40,5 @@ install -p -m 0755 ./kubesql %{buildroot}%{_bindir}/kubesql
 
 %changelog
 
-* Thu Feb 20 2020 Yaacov Zamir <kobi.zamir@gmail.com> 0.1.8-1
+* Thu Feb 20 2020 Yaacov Zamir <kobi.zamir@gmail.com> 0.1.9-1
 - Initial RPM release

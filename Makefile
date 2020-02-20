@@ -19,7 +19,7 @@ kubesql_src := $(wildcard ./cmd/kubesql/*.go)
 all: kubesql
 
 kubesql: $(kubesql_src)
-	go build -o kubesql $(kubesql_src)
+	go build -ldflags=-buildid=".note.gnu.build-id" -o kubesql $(kubesql_src)
 
 .PHONY: lint
 lint:
