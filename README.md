@@ -67,13 +67,14 @@ For other ways to select Kubernetes resources see [#Alternatives](https://github
 
 #### Available Operators:
 
-| Opertors | Notes |
-|----|---|
-| `=`, `~=` | Equat, Match Regular expression |
-|`!=`, `!~` | Not Equal, Not matching Regular expression |
-|`>`, `<`, `<=` and `>=` | Compere operators for strings and numbers |
-|`is null`, `is not null` | Check field existance |
-|`or`, `and` and `not`|  |
+| Opertors | Example | Notes |
+|----|---|----|
+| `=`, `~=` | name ~= 'test-'  | Equat, Match Regular expression |
+|`!=`, `!~` |  namespace != 'default' | Not Equal, Not matching Regular expression |
+|`>`, `<`, `<=` and `>=` | created < 2020-01-15T00:00:00Z |   |
+|`is null`, `is not null`| spec.domain.cpu.dedicatedCpuPlacement is not null | Check field existance |
+|`between`, `in`   |  spec.domain.resources.limits.memory in (1Gi, 2Gi) |  |
+|`or`, `and` and `not` | name ~= 'virt-' and namespace != 'test-wegsb' |  |
 
 #### Available Math Operators:
 
