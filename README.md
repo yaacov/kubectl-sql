@@ -85,24 +85,24 @@ For other ways to select Kubernetes resources see [#Alternatives](https://github
 | `( )`|  |
 
 #### Aliases:
-| Aliase | Resource Path |
-|----|---|
-| name | metadata.name |
-| namespace | metadata.namespace |
-| labels | metadata.labels |
-| annotations | metadata.annotations |
-| created | creation timestamp |
-| deleted | deletion timestamp |
-| phase | status.phase |
+| Aliase | Resource Path | Example |
+|----|---|---|
+| name | metadata.name | |
+| namespace | metadata.namespace | namespace ~= '^test-[a-z]+$' |
+| labels | metadata.labels | |
+| annotations | metadata.annotations | |
+| created | creation timestamp | |
+| deleted | deletion timestamp | |
+| phase | status.phase | phase = 'Running' |
 
 #### SI Units:
-| Unit | Multiplier |
-|----|---|
-| Ki | 1024 |
-| Mi | 1024^2 |
-| Gi | 1024^3 |
-| Ti | 1024^4 |
-| Pi | 1024^5 |
+| Unit | Multiplier | Example |
+|----|---|---|
+| Ki | 1024 | |
+| Mi | 1024^2 | `spec.containers.1.resources.requests.memory = 200Mi` |
+| Gi | 1024^3 | |
+| Ti | 1024^4 | |
+| Pi | 1024^5 | |
 
 #### Output formats:
 | --output flag | Print format |
@@ -132,11 +132,10 @@ to escape the identifier name by wrapping it with `[...]` , `` `...` `` or `"...
 ``` bash
 # Get pods that hase name containing "ovs"
 kubesql --all-namespaces get pods where "name ~= 'ovs'"
-
-openshift-cnv                  ovs-cni-amd64-5vgcg            2020-02-10T23:26:31+02:00
-openshift-cnv                  ovs-cni-amd64-8ts4w            2020-02-10T22:01:59+02:00
-openshift-cnv                  ovs-cni-amd64-d6vdb            2020-02-10T23:13:45+02:00
-openshift-cnv                  ovs-cni-amd64-gxvm4            2020-02-10T22:01:59+02:00
+AMESPACE    	NAME               	PHASE  	hostIP        	CREATION_TIME(RFC3339)       	
+openshift-cnv	ovs-cni-amd64-5vgcg	Running	192.168.126.58	2020-02-10T23:26:31+02:00    	
+openshift-cnv	ovs-cni-amd64-8ts4w	Running	192.168.126.12	2020-02-10T22:01:59+02:00    	
+openshift-cnv	ovs-cni-amd64-d6vdb	Running	192.168.126.53	2020-02-10T23:13:45+02:00
 ...
 ```
 
@@ -145,15 +144,16 @@ openshift-cnv                  ovs-cni-amd64-gxvm4            2020-02-10T22:01:5
 ``` bash
 # Get all pods from current namespace scope, that has a name starting with "virt-" and
 # IP that ends with ".84"
-./kubesql get pods where "name ~= '^virt-' and status.podIP ~= '[.]84$'"
-default                        virt-launcher-test-bdw2p-lcrwx 2020-02-12T14:14:01+02:00
+kubesql get pods where "name ~= '^virt-' and status.podIP ~= '[.]84$'"
+AMESPACE	NAME                          	PHASE  	hostIP        	CREATION_TIME(RFC3339)       	
+default  	virt-launcher-test-bdw2p-lcrwx	Running	192.168.126.56	2020-02-12T14:14:01+02:00
 ...
 ```
 #### SI Units
 
 ``` bash
 # Get all persistant volume clames that are less then 20Gi, and output as json.
-kubesql -o json  get pvc where "spec.resources.requests.storage < 20Gi"
+kubesql -o json get pvc where "spec.resources.requests.storage < 20Gi"
 
 ... 
 {
@@ -174,49 +174,7 @@ kubesql --all-namespaces get rs where "spec.replicas = 3 and status.readyReplica
 
 ```
 kubesql --help
-
-kubesql - uses sql like language to query the Kubernetes cluster manager.
-
-Usage:
-  kubesql [global options] command [command options] [arguments...]
-
-Examples:
-  # Query pods with name that matches /^test-.+/ ( e.g. name starts with "test-" )
-  kubesql get pods where "name ~= '^test-.+'"
-
-  # Query replicasets where spec replicas is 3 or 5 and ready replicas is less then 3
-  kubesql get rs where "(spec.replicas = 3 or spec.replicas = 5) and status.readyReplicas < 3"
-
-  # Query virtual machine instanses that are missing the lable "flavor.template.kubevirt.io/medium" 
-  kubesql get vmis where "labels.flavor.template.kubevirt.io/medium is null"
-
-Special fields:
-  name -> metadata.name
-  namespace -> metadata.namespace
-  labels -> metadata.labels
-  created -> creation timestamp (RFC3339)
-  deleted -> deletion timestamp (RFC3339)
-  annotations -> metadata.annotations
-
-Website:
-   https://github.com/yaacov/kubesql
-
-Options:
-   --kubeconfig value           Path to the kubeconfig file to use for CLI requests.
-   --namespace value, -n value  If present, the namespace scope for this CLI request.
-   --output value, -o value     Output format, options: table, yaml or json. (default: "table")
-   --all-namespaces, -A         Use all namespace scopes for this CLI request. (default: false)
-   --verbose, -V                Show verbose output (default: false)
-   --help, -h                   show help (default: false)
-   --version, -v                print the version (default: false)
-   
-Author:
-   Yaacov Zamir
-
-Copyright:
-   Apache License
-   Version 2.0, January 2004
-   http://www.apache.org/licenses/
+...
 ```
 
 ## Query language
