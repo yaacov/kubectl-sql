@@ -52,6 +52,12 @@ cd kubesql
 go build -o kubesql cmd/kubesql/*.go
 ```
 
+## Clip
+
+<p align="center">
+   <a href="https://asciinema.org/a/bU45k4co934j6DYW85NtiMGAl" target="_blank"><img src="https://asciinema.org/a/bU45k4co934j6DYW85NtiMGAl.svg" width="400"/></a>
+<p>
+  
 ## What does it do ?
 
 kubesql let you select Kubernetes resources based on the value of one or more resource fields, using
