@@ -14,9 +14,6 @@
 # limitations under the License.
 #
 
-VERSION_GIT := $(shell git describe --tags)
-VERSION ?= ${VERSION_GIT}
-
 kubesql_src := $(wildcard ./cmd/kubesql/*.go)
 
 all: kubesql
