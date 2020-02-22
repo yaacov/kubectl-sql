@@ -106,19 +106,16 @@ func getGroupVersion(resourceList *v1.APIResourceList) (string, string) {
 
 // Get interactive namespace usign kubeconfig and flags.
 func getNamespace(c *cli.Context, kubeconfig clientcmd.ClientConfig) string {
-	var (
-		err       error
-		namespace string
-	)
-
-	namespace = c.String("namespace")
-	if len(namespace) == 0 {
-		namespace, _, err = kubeconfig.Namespace()
-		errExit("Failed to get namespace", err)
-	}
 	if c.Bool("all-namespaces") {
-		namespace = ""
+		return ""
 	}
+
+	if namespace := c.String("namespace"); len(namespace) > 0 {
+		return namespace
+	}
+
+	namespace, _, err := kubeconfig.Namespace()
+	errExit("Failed to get namespace", err)
 
 	return namespace
 }

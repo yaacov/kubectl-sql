@@ -16,7 +16,7 @@ Use SQL like language to query the Kubernetes cluster manager
     - [Operators](#available-operators)
     - [Math Operators](#available-math-operators)
     - [Aliases](#aliases)
-    - [SI Units](#si-units--when-using-the---si-units-falg-)
+    - [SI Units](#si-units)
     - [Formats](#output-formats)
     - [Arrays](#arrays-and-lists)
     - [Escapingg](#identifier-escaping)
@@ -95,7 +95,7 @@ For other ways to select Kubernetes resources see [#Alternatives](https://github
 | deleted | deletion timestamp |
 | phase | status.phase |
 
-#### SI Units ( when using the --si-units falg ):
+#### SI Units:
 | Unit | Multiplier |
 |----|---|
 | Ki | 1024 |
@@ -117,7 +117,7 @@ kubesql support resource paths that include lists by using the list index as a f
 
 ``` bash
 # Get the memory request for the first container.
-kubesql --all-namespaces --si-units get pods where "spec.containers.1.resources.requests.memory = 200Mi"
+kubesql --all-namespaces get pods where "spec.containers.1.resources.requests.memory = 200Mi"
 ```
 
 #### Identifier escaping
@@ -153,7 +153,7 @@ default                        virt-launcher-test-bdw2p-lcrwx 2020-02-12T14:14:0
 
 ``` bash
 # Get all persistant volume clames that are less then 20Gi, and output as json.
-kubesql -o json --si-units get pvc where "spec.resources.requests.storage < 20Gi"
+kubesql -o json  get pvc where "spec.resources.requests.storage < 20Gi"
 
 ... 
 {
@@ -205,7 +205,6 @@ Options:
    --kubeconfig value           Path to the kubeconfig file to use for CLI requests.
    --namespace value, -n value  If present, the namespace scope for this CLI request.
    --output value, -o value     Output format, options: table, yaml or json. (default: "table")
-   --si-units, -s               Parse values with SI units as numbers, (e.g. '1Ki' will be 1024). (default: false)
    --all-namespaces, -A         Use all namespace scopes for this CLI request. (default: false)
    --verbose, -V                Show verbose output (default: false)
    --help, -h                   show help (default: false)

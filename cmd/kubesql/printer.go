@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"time"
 
 	"gopkg.in/yaml.v2"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -36,8 +37,9 @@ import (
 // Use namespace and query to printout items.
 func printer(c *cli.Context, list *unstructured.UnstructuredList, namespace string, query string) {
 	var (
-		tree tsl.Node
-		err  error
+		tree    tsl.Node
+		err     error
+		verbose = c.Bool("verbose")
 	)
 
 	// If we have a query, prepare the search tree.
@@ -61,7 +63,7 @@ func printer(c *cli.Context, list *unstructured.UnstructuredList, namespace stri
 		if len(query) > 0 {
 			matchingFilter, err := semantics.Walk(tree, evalFactory(c, item))
 			if err != nil {
-				if c.Bool("verbose") {
+				if verbose {
 					log.Printf("failed to query item: %v", err)
 				}
 				continue
@@ -76,7 +78,7 @@ func printer(c *cli.Context, list *unstructured.UnstructuredList, namespace stri
 
 	// Sanity check
 	if len(items) == 0 {
-		if c.Bool("verbose") {
+		if verbose {
 			log.Print("no matching items found")
 		}
 		return
@@ -178,7 +180,18 @@ func printerTable(c *cli.Context, items []unstructured.Unstructured) {
 
 		for _, field := range fields {
 			if field.width > 0 {
-				if value, found := evalFunc(field.name); found && value != nil {
+				if v, found := evalFunc(field.name); found && v != nil {
+					value := v
+					switch v.(type) {
+					case bool:
+						value = "false"
+						if v.(bool) {
+							value = "true"
+						}
+					case time.Time:
+						value = v.(time.Time).Format(time.RFC3339)
+					}
+
 					fmt.Printf(field.template, value)
 				} else {
 					fmt.Printf(field.template, "")
