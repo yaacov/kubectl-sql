@@ -177,15 +177,15 @@ func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalF
 
 				if multiplier >= 1.0 {
 					s = s[:len(s)-1]
+				}
 
-					if i, err := strconv.ParseInt(s, 10, 64); err == nil {
-						newValue := float64(i) * multiplier
-						if verbose {
-							log.Printf("converting units, %v (%f)\n", object, newValue)
-						}
-
-						return newValue, true
+				if i, err := strconv.ParseInt(s, 10, 64); err == nil {
+					newValue := float64(i) * multiplier
+					if verbose {
+						log.Printf("converting units, %v (%f)\n", object, newValue)
 					}
+
+					return newValue, true
 				}
 			}
 
@@ -200,6 +200,10 @@ func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalF
 			// Check for RFC3339 dates
 			if t, err := time.Parse(time.RFC3339, s); err == nil {
 				return t, true
+			}
+
+			if verbose {
+				log.Printf("default to string %v\n", object)
 			}
 
 			return object.(string), true
