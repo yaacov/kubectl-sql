@@ -200,7 +200,7 @@ kubesql --help
 
 ## Config File
 
-Users can add aliases and edit the fields displayed in table view using config files,
+Users can add aliases and edit the fields displayed in table view using json config files,
 [see the example config file](https://github.com/yaacov/kubesql/blob/master/config.example.json).
 
 ## Query language
