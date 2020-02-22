@@ -143,14 +143,19 @@ func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalF
 	return func(key string) (interface{}, bool) {
 		verbose := c.Bool("verbose")
 
-		if key == "name" {
+		// Check for reserved words.
+		switch key {
+		case "name":
 			return item.GetName(), true
-		}
-
-		if key == "namespace" {
+		case "namespace":
 			return item.GetNamespace(), true
+		case "created":
+			return item.GetCreationTimestamp().Time, true
+		case "deleted":
+			return item.GetDeletionTimestamp().Time, true
 		}
 
+		// Check for labels and annotations.
 		if len(key) > 7 && key[:7] == "labels." {
 			value, ok := item.GetLabels()[key[7:]]
 
@@ -158,7 +163,7 @@ func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalF
 
 			// Empty label represent the label is present
 			if ok && len(value) == 0 {
-				value = "true"
+				return true, true
 			}
 
 			// Missing value
@@ -177,7 +182,7 @@ func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalF
 
 			// Empty annotations represent the annotations is present
 			if ok && len(value) == 0 {
-				value = "true"
+				return true, true
 			}
 
 			// Missing value
@@ -189,14 +194,7 @@ func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalF
 			return v, true
 		}
 
-		if key == "created" {
-			return item.GetCreationTimestamp().Time, true
-		}
-
-		if key == "deleted" {
-			return item.GetDeletionTimestamp().Time, true
-		}
-
+		// Check for numbers, booleans, dates and strings.
 		object, ok := getNestedObject(item.Object, key)
 		if !ok {
 			debugLog(verbose, "failed to find an object for key, %v\n", key)
@@ -216,9 +214,8 @@ func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalF
 			return v, true
 		}
 
-		debugLog(verbose, "failed to parse value, %v\n", object)
-
 		// Missing value is interpated as null value.
+		debugLog(verbose, "failed to parse value, %v\n", object)
 		return nil, true
 	}
 }
