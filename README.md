@@ -24,7 +24,7 @@ Use SQL like language to query the [Kubernetes](https://kubernetes.io/) cluster 
     - [All Namespaces](#all-namespaces)
     - [Regexp](#using-regexp)
     - [Compere Fields](#comparing-fields)
-    - [Get Help](#print-help)
+    - [Print Help](#print-help)
   - [Query language](#query-language)
   - [Alternatives](#alternatives)
     - [jq](#jq)
