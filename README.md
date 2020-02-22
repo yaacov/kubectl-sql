@@ -69,7 +69,8 @@ For other ways to select Kubernetes resources see [#Alternatives](https://github
 
 | Opertors | Example |
 |----|---|
-| `=`, `~=` | `name ~= '^test-'`  | 
+| `=`, `~=` | `name ~= '^test-'`  |
+| `like`, `ilike` | `phase ilike 'run%'`  | 
 |`!=`, `!~` |  `namespace != 'default'` |
 |`>`, `<`, `<=` and `>=` | `created < 2020-01-15T00:00:00Z` |
 |`is null`, `is not null`| `spec.domain.cpu.dedicatedCpuPlacement is not null` |
