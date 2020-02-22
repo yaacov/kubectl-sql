@@ -9,7 +9,7 @@
 
 # kubesql
 
-Use SQL like language to query the Kubernetes cluster manager
+Use SQL like language to query the [Kubernetes](https://kubernetes.io/) cluster manager
 
   - [Install](#install)
   - [What does it do ?](#what-does-it-do-)
