@@ -50,7 +50,7 @@ From source:
 git clone git@github.com:yaacov/kubesql.git
 cd kubesql
 
-go build -o kubesql cmd/kubesql/*.go
+make
 ```
 
 #### Clip
