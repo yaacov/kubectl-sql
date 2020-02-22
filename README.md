@@ -69,12 +69,14 @@ For other ways to select Kubernetes resources see [#Alternatives](https://github
 
 | Opertors | Example |
 |----|---|
-| `=`, `~=` | `name ~= 'test-'`  | 
+| `=`, `~=` | `name ~= '^test-'`  | 
 |`!=`, `!~` |  `namespace != 'default'` |
 |`>`, `<`, `<=` and `>=` | `created < 2020-01-15T00:00:00Z` |
 |`is null`, `is not null`| `spec.domain.cpu.dedicatedCpuPlacement is not null` |
-|`between`, `in`   |  `spec.domain.resources.limits.memory in (1Gi, 2Gi)` |
-|`or`, `and` and `not` | `name ~= 'virt-' and namespace != 'test-wegsb'` |
+| `in`   |  `spec.domain.resources.limits.memory in (1Gi, 2Gi)` |
+| `between`   |  `spec.domain.resources.limits.memory between 1Gi and 2Gi` |
+| `or`, `and` and `not` | `name ~= 'virt-' and namespace != 'test-wegsb'` |
+| `( )`|  `phase = 'Running' and (namespace ~= 'cnv-' or namespace ~= 'virt-')`|
 
 #### Available Math Operators:
 
@@ -103,6 +105,16 @@ For other ways to select Kubernetes resources see [#Alternatives](https://github
 | Gi | 1024^3 | |
 | Ti | 1024^4 | |
 | Pi | 1024^5 | |
+
+#### Booleans:
+| Example |
+|---|
+| `status.conditions.1.status = true` |
+
+#### RFC3339 dates:
+| Example |
+|---|
+| `status.conditions.1.lastTransitionTime > 2020-02-20T11:12:38Z`  |
 
 #### Output formats:
 | --output flag | Print format |
