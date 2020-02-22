@@ -163,6 +163,10 @@ func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalF
 		if len(key) > 7 && key[:7] == "labels." {
 			value, ok := item.GetLabels()[key[7:]]
 
+			if verbose {
+				log.Printf("parse labels for key, %v\n", key[7:])
+			}
+
 			// Empty label represent the label is present
 			if ok && len(value) == 0 {
 				value = "true"
@@ -178,7 +182,11 @@ func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalF
 		}
 
 		if len(key) > 12 && key[:12] == "annotations." {
-			value, ok := item.GetLabels()[key[12:]]
+			value, ok := item.GetAnnotations()[key[12:]]
+
+			if verbose {
+				log.Printf("parse annotations for key, %v\n", key[12:])
+			}
 
 			// Empty annotations represent the annotations is present
 			if ok && len(value) == 0 {
