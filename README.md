@@ -88,12 +88,12 @@ For other ways to select Kubernetes resources see [#Alternatives](https://github
 | Aliase | Resource Path | Example |
 |----|---|---|
 | name | metadata.name | |
-| namespace | metadata.namespace | namespace ~= '^test-[a-z]+$' |
+| namespace | metadata.namespace | `namespace ~= '^test-[a-z]+$'` |
 | labels | metadata.labels | |
 | annotations | metadata.annotations | |
 | created | creation timestamp | |
 | deleted | deletion timestamp | |
-| phase | status.phase | phase = 'Running' |
+| phase | status.phase | `phase = 'Running'` |
 
 #### SI Units:
 | Unit | Multiplier | Example |
