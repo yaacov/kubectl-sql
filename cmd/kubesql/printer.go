@@ -116,22 +116,16 @@ func printerNames(items []unstructured.Unstructured) {
 	}
 }
 
-// Get the table column titles and fields by resource kind.
-func getTableColumns(kind string) []tableField {
+// Get the table column titles and fields for the items.
+func getTableColumns(c *cli.Context, items []unstructured.Unstructured) []tableField {
+	var evalFunc func(string) (interface{}, bool)
+
+	// Get the default template for this kind.
+	kind := items[0].GetKind()
 	fields, ok := defaultTableFields[kind]
 	if !ok {
 		return defaultTableFields["other"]
 	}
-
-	return fields
-}
-
-func printerTable(c *cli.Context, items []unstructured.Unstructured) {
-	var evalFunc func(string) (interface{}, bool)
-
-	// Get table fields for this item.
-	kind := items[0].GetKind()
-	fields := getTableColumns(kind)
 
 	// Calculte field widths
 	for _, item := range items {
@@ -160,6 +154,15 @@ func printerTable(c *cli.Context, items []unstructured.Unstructured) {
 			fields[i].template = fmt.Sprintf("%%-%ds\t", width)
 		}
 	}
+
+	return fields
+}
+
+func printerTable(c *cli.Context, items []unstructured.Unstructured) {
+	var evalFunc func(string) (interface{}, bool)
+
+	// Get table fields for the items.
+	fields := getTableColumns(c, items)
 
 	// Pring table head
 	for _, field := range fields {
