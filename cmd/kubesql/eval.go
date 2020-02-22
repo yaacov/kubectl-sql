@@ -80,6 +80,73 @@ func getNestedObject(object interface{}, key string) (interface{}, bool) {
 	return object, ok
 }
 
+func stringValue(str string, verbose bool) interface{} {
+	// Check for SI numbers
+	multiplier := 0.0
+	s := str
+
+	// Remove SI `i` if exist
+	// Note: we support "K", "M", "G" and "Ki", "Mi", "Gi" postfix
+	if len(s) > 1 && s[len(s)-1:] == "i" {
+		s = s[:len(s)-1]
+	}
+
+	// Check for SI postfix
+	if len(s) > 1 {
+		postfix := s[len(s)-1:]
+		switch postfix {
+		case "K":
+			multiplier = 1024.0
+		case "M":
+			multiplier = math.Pow(1024, 2)
+		case "G":
+			multiplier = math.Pow(1024, 3)
+		case "T":
+			multiplier = math.Pow(1024, 4)
+		case "P":
+			multiplier = math.Pow(1024, 5)
+		}
+
+		if multiplier >= 1.0 {
+			s = s[:len(s)-1]
+		}
+
+		if i, err := strconv.ParseInt(s, 10, 64); err == nil {
+			newValue := float64(i) * multiplier
+			if verbose {
+				log.Printf("converting units, %v (%f)\n", s, newValue)
+			}
+
+			return newValue
+		}
+	}
+
+	// Check for false / true
+	if str == "true" || str == "True" {
+		if verbose {
+			log.Printf("converting type to boolean %v\n", str)
+		}
+		return true
+	}
+	if str == "false" || str == "False" {
+		if verbose {
+			log.Printf("converting type to boolean %v\n", str)
+		}
+		return false
+	}
+
+	// Check for RFC3339 dates
+	if t, err := time.Parse(time.RFC3339, str); err == nil {
+		return t
+	}
+
+	// Default to string
+	if verbose {
+		log.Printf("default to string %v\n", str)
+	}
+	return str
+}
+
 // evalFactory extract a value from an item using a key.
 func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalFunc {
 	return func(key string) (interface{}, bool) {
@@ -106,7 +173,8 @@ func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalF
 				return nil, true
 			}
 
-			return value, ok
+			v := stringValue(value, verbose)
+			return v, true
 		}
 
 		if len(key) > 12 && key[:12] == "annotations." {
@@ -122,7 +190,8 @@ func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalF
 				return nil, true
 			}
 
-			return value, ok
+			v := stringValue(value, verbose)
+			return v, true
 		}
 
 		if key == "created" {
@@ -149,64 +218,9 @@ func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalF
 		case int64:
 			return float64(object.(int64)), true
 		case string:
-			// Check for SI numbers
-			multiplier := 0.0
-			s := object.(string)
+			v := stringValue(object.(string), verbose)
 
-			// Remove SI `i` if exist
-			// Note: we support "K", "M", "G" and "Ki", "Mi", "Gi" postfix
-			if len(s) > 1 && s[len(s)-1:] == "i" {
-				s = s[:len(s)-1]
-			}
-
-			// Check for SI postfix
-			if len(s) > 1 {
-				postfix := s[len(s)-1:]
-				switch postfix {
-				case "K":
-					multiplier = 1024.0
-				case "M":
-					multiplier = math.Pow(1024, 2)
-				case "G":
-					multiplier = math.Pow(1024, 3)
-				case "T":
-					multiplier = math.Pow(1024, 4)
-				case "P":
-					multiplier = math.Pow(1024, 5)
-				}
-
-				if multiplier >= 1.0 {
-					s = s[:len(s)-1]
-				}
-
-				if i, err := strconv.ParseInt(s, 10, 64); err == nil {
-					newValue := float64(i) * multiplier
-					if verbose {
-						log.Printf("converting units, %v (%f)\n", object, newValue)
-					}
-
-					return newValue, true
-				}
-			}
-
-			// Check for false / true
-			if s == "true" || s == "True" {
-				return true, true
-			}
-			if s == "false" || s == "False" {
-				return false, true
-			}
-
-			// Check for RFC3339 dates
-			if t, err := time.Parse(time.RFC3339, s); err == nil {
-				return t, true
-			}
-
-			if verbose {
-				log.Printf("default to string %v\n", object)
-			}
-
-			return object.(string), true
+			return v, true
 		}
 
 		if verbose {
