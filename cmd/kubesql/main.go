@@ -39,7 +39,13 @@ func main() {
 			&cli.StringFlag{
 				Name:  "kubeconfig",
 				Value: "",
-				Usage: "Path to the kubeconfig file to use for CLI requests.",
+				Usage: "Path to the kubeconfig `FILE` to use for CLI requests.",
+			},
+			&cli.StringFlag{
+				Name:    "config",
+				Aliases: []string{"c"},
+				Value:   "",
+				Usage:   "Path to a config json `FILE`.",
 			},
 			&cli.StringFlag{
 				Name:    "namespace",
@@ -51,7 +57,7 @@ func main() {
 				Name:    "output",
 				Aliases: []string{"o"},
 				Value:   "table",
-				Usage:   "Output format, options: name, table, yaml or json.",
+				Usage:   "Output `format`, options: name, table, yaml or json.",
 			},
 			&cli.BoolFlag{
 				Name:    "all-namespaces",

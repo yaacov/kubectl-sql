@@ -31,10 +31,17 @@ import (
 )
 
 func actionsGet(c *cli.Context) error {
+	verbose := c.Bool("verbose")
 	namespace := ""
 
 	// Get user request.
 	resourceName, query := userQuery(c)
+
+	// Try to read user config file
+	if c.String("config") != "" {
+		debugLog(verbose, "Reading config file %s\n", c.String("config"))
+		readConfigFile(c.String("config"))
+	}
 
 	// Get kubeconfig.
 	kubeconfig := getKubeConfig(c)

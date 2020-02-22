@@ -18,17 +18,6 @@
 // Package main.
 package main
 
-// tableField describes how to print a table column.
-type tableField struct {
-	title    string
-	name     string
-	width    int
-	template string
-}
-
-type tableFields []tableField
-type tableFieldsMap map[string]tableFields
-
 // Template for help message ( -h --help flages)
 const appHelpTemplate = `{{.Name}} - {{.Usage}}
 
@@ -86,64 +75,64 @@ var defaultAliases = map[string]string{
 var defaultTableFields = tableFieldsMap{
 	"Pod": tableFields{
 		{
-			title: "NAMESPACE",
-			name:  "namespace",
+			Title: "NAMESPACE",
+			Name:  "namespace",
 		},
 		{
-			title: "NAME",
-			name:  "name",
+			Title: "NAME",
+			Name:  "name",
 		},
 		{
-			title: "PHASE",
-			name:  "status.phase",
+			Title: "PHASE",
+			Name:  "status.phase",
 		},
 		{
-			title: "hostIP",
-			name:  "status.hostIP",
+			Title: "hostIP",
+			Name:  "status.hostIP",
 		},
 		{
-			title: "CREATION_TIME(RFC3339)",
-			name:  "created",
+			Title: "CREATION_TIME(RFC3339)",
+			Name:  "created",
 		},
 	},
 	"Node": tableFields{
 		{
-			title: "NAMESPACE",
-			name:  "namespace",
+			Title: "NAMESPACE",
+			Name:  "namespace",
 		},
 		{
-			title: "NAME",
-			name:  "name",
+			Title: "NAME",
+			Name:  "name",
 		},
 		{
-			title: "WORKER",
-			name:  "labels.node-role.kubernetes.io/worker",
+			Title: "WORKER",
+			Name:  "labels.node-role.kubernetes.io/worker",
 		},
 		{
-			title: "MASTER",
-			name:  "labels.node-role.kubernetes.io/master",
+			Title: "MASTER",
+			Name:  "labels.node-role.kubernetes.io/master",
 		},
 		{
-			title: "IP",
-			name:  "status.addresses.1.address",
+			Title: "IP",
+			Name:  "status.addresses.1.address",
 		},
 		{
-			title: "CREATION_TIME(RFC3339)",
-			name:  "created",
+			Title: "CREATION_TIME(RFC3339)",
+			Name:  "created",
 		},
 	},
 	"other": tableFields{
 		{
-			title: "NAMESPACE",
-			name:  "namespace",
+			Title: "NAMESPACE",
+			Name:  "namespace",
 		},
 		{
-			title: "NAME",
-			name:  "name",
+			Title: "NAME",
+			Name:  "name",
 		},
 		{
-			title: "CREATION_TIME(RFC3339)",
-			name:  "created",
+			Title: "CREATION_TIME(RFC3339)",
+			Name:  "created",
 		},
 	},
 }

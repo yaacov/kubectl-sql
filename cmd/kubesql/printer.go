@@ -124,7 +124,7 @@ func getTableColumns(c *cli.Context, items []unstructured.Unstructured) []tableF
 	kind := items[0].GetKind()
 	fields, ok := defaultTableFields[kind]
 	if !ok {
-		return defaultTableFields["other"]
+		fields = defaultTableFields["other"]
 	}
 
 	// Calculte field widths
@@ -132,7 +132,7 @@ func getTableColumns(c *cli.Context, items []unstructured.Unstructured) []tableF
 		evalFunc = evalFactory(c, item)
 
 		for i, field := range fields {
-			if value, found := evalFunc(field.name); found {
+			if value, found := evalFunc(field.Name); found {
 				length := len(fmt.Sprintf("%v", value))
 
 				if length > fields[i].width {
@@ -146,7 +146,7 @@ func getTableColumns(c *cli.Context, items []unstructured.Unstructured) []tableF
 	for i, field := range fields {
 		if field.width > 0 {
 			// Ajdust for title length
-			width := len(field.title)
+			width := len(field.Title)
 			if width < field.width {
 				width = field.width
 			}
@@ -160,14 +160,17 @@ func getTableColumns(c *cli.Context, items []unstructured.Unstructured) []tableF
 
 func printerTable(c *cli.Context, items []unstructured.Unstructured) {
 	var evalFunc func(string) (interface{}, bool)
+	verbose := c.Bool("verbose")
 
 	// Get table fields for the items.
 	fields := getTableColumns(c, items)
 
+	debugLog(verbose, "printing table, %v items %v fields\n", len(items), len(fields))
+
 	// Pring table head
 	for _, field := range fields {
 		if field.width > 0 {
-			fmt.Printf(field.template, field.title)
+			fmt.Printf(field.template, field.Title)
 		}
 	}
 	fmt.Print("\n")
@@ -178,7 +181,7 @@ func printerTable(c *cli.Context, items []unstructured.Unstructured) {
 
 		for _, field := range fields {
 			if field.width > 0 {
-				if v, found := evalFunc(field.name); found && v != nil {
+				if v, found := evalFunc(field.Name); found && v != nil {
 					value := v
 					switch v.(type) {
 					case bool:
