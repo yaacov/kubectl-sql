@@ -31,6 +31,11 @@ Use SQL like language to query the [Kubernetes](https://kubernetes.io/) cluster 
     - [jq](#jq)
     - [Field Selector](#kubectl---field-selector)
 
+
+<p align="center">
+   <a href="https://asciinema.org/a/bU45k4co934j6DYW85NtiMGAl" target="_blank"><img src="https://asciinema.org/a/bU45k4co934j6DYW85NtiMGAl.svg" width="400"/></a>
+<p>
+  
 ## Install
 
 Using `go get` command:
@@ -53,10 +58,6 @@ cd kubesql
 
 make
 ```
-
-<p align="center">
-   <a href="https://asciinema.org/a/bU45k4co934j6DYW85NtiMGAl" target="_blank"><img src="https://asciinema.org/a/bU45k4co934j6DYW85NtiMGAl.svg" width="400"/></a>
-<p>
   
 ## What does it do ?
 
