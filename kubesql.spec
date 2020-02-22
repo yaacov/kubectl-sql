@@ -9,7 +9,7 @@
 %define debug_package %{nil}
 
 Name:           %{repo}
-Version:        0.1.15
+Version:        0.1.16
 Release:        1%{?dist}
 Summary:        kubesql uses sql like language to query the Kubernetes cluster manager
 License:        Apache
@@ -42,6 +42,9 @@ install -p -m 0755 ./kubesql %{buildroot}%{_bindir}/kubesql
 %{_bindir}/kubesql
 
 %changelog
+
+* Thu Feb 22 2020 Yaacov Zamir <kobi.zamir@gmail.com> 0.1.16-1
+- Fix parsing of anotations
 
 * Thu Feb 22 2020 Yaacov Zamir <kobi.zamir@gmail.com> 0.1.15-1
 - Fix parsing of labels and anotations
