@@ -25,6 +25,7 @@ Use SQL like language to query the [Kubernetes](https://kubernetes.io/) cluster 
     - [Regexp](#using-regexp)
     - [Compere Fields](#comparing-fields)
     - [Print Help](#print-help)
+  - [Config File](#config-file)
   - [Query language](#query-language)
   - [Alternatives](#alternatives)
     - [jq](#jq)
@@ -196,6 +197,11 @@ kubesql --all-namespaces get rs where "spec.replicas = 3 and status.readyReplica
 kubesql --help
 ...
 ```
+
+## Config File
+
+Users can add aliases and fields displayed in table view by additing a config file,
+[see the example config file](https://github.com/yaacov/kubesql/blob/master/config.example.json).
 
 ## Query language
 
