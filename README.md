@@ -53,7 +53,7 @@ cd kubesql
 go build -o kubesql cmd/kubesql/*.go
 ```
 
-## Clip
+#### Clip
 
 <p align="center">
    <a href="https://asciinema.org/a/bU45k4co934j6DYW85NtiMGAl" target="_blank"><img src="https://asciinema.org/a/bU45k4co934j6DYW85NtiMGAl.svg" width="400"/></a>
