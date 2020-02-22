@@ -129,6 +129,13 @@ func versionPrinter(c *cli.Context) {
 	}
 }
 
+// Log out debug information.
+func debugLog(verbose bool, format string, v ...interface{}) {
+	if verbose {
+		log.Printf(format, v...)
+	}
+}
+
 // Print error and exit.
 func errExit(msg string, err error) {
 	if err != nil {

@@ -21,7 +21,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	"gopkg.in/yaml.v2"
@@ -63,9 +62,7 @@ func printer(c *cli.Context, list *unstructured.UnstructuredList, namespace stri
 		if len(query) > 0 {
 			matchingFilter, err := semantics.Walk(tree, evalFactory(c, item))
 			if err != nil {
-				if verbose {
-					log.Printf("failed to query item: %v", err)
-				}
+				debugLog(verbose, "failed to query item: %v", err)
 				continue
 			}
 			if !matchingFilter {
@@ -78,9 +75,7 @@ func printer(c *cli.Context, list *unstructured.UnstructuredList, namespace stri
 
 	// Sanity check
 	if len(items) == 0 {
-		if verbose {
-			log.Print("no matching items found")
-		}
+		debugLog(verbose, "no matching items found")
 		return
 	}
 

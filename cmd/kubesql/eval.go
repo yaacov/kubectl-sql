@@ -19,7 +19,6 @@
 package main
 
 import (
-	"log"
 	"math"
 	"strconv"
 	"strings"
@@ -113,9 +112,7 @@ func stringValue(str string, verbose bool) interface{} {
 
 		if i, err := strconv.ParseInt(s, 10, 64); err == nil {
 			newValue := float64(i) * multiplier
-			if verbose {
-				log.Printf("converting units, %v (%f)\n", s, newValue)
-			}
+			debugLog(verbose, "converting units, %v (%f)\n", s, newValue)
 
 			return newValue
 		}
@@ -123,15 +120,11 @@ func stringValue(str string, verbose bool) interface{} {
 
 	// Check for false / true
 	if str == "true" || str == "True" {
-		if verbose {
-			log.Printf("converting type to boolean %v\n", str)
-		}
+		debugLog(verbose, "converting type to boolean %v\n", str)
 		return true
 	}
 	if str == "false" || str == "False" {
-		if verbose {
-			log.Printf("converting type to boolean %v\n", str)
-		}
+		debugLog(verbose, "converting type to boolean %v\n", str)
 		return false
 	}
 
@@ -141,9 +134,7 @@ func stringValue(str string, verbose bool) interface{} {
 	}
 
 	// Default to string
-	if verbose {
-		log.Printf("default to string %v\n", str)
-	}
+	debugLog(verbose, "default to string %v\n", str)
 	return str
 }
 
@@ -163,9 +154,7 @@ func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalF
 		if len(key) > 7 && key[:7] == "labels." {
 			value, ok := item.GetLabels()[key[7:]]
 
-			if verbose {
-				log.Printf("parse labels for key, %v\n", key[7:])
-			}
+			debugLog(verbose, "parse labels for key, %v\n", key[7:])
 
 			// Empty label represent the label is present
 			if ok && len(value) == 0 {
@@ -184,9 +173,7 @@ func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalF
 		if len(key) > 12 && key[:12] == "annotations." {
 			value, ok := item.GetAnnotations()[key[12:]]
 
-			if verbose {
-				log.Printf("parse annotations for key, %v\n", key[12:])
-			}
+			debugLog(verbose, "parse annotations for key, %v\n", key[12:])
 
 			// Empty annotations represent the annotations is present
 			if ok && len(value) == 0 {
@@ -212,9 +199,7 @@ func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalF
 
 		object, ok := getNestedObject(item.Object, key)
 		if !ok {
-			if verbose {
-				log.Printf("failed to find an object for key, %v\n", key)
-			}
+			debugLog(verbose, "failed to find an object for key, %v\n", key)
 
 			// Missing value is interpated as null value.
 			return nil, true
@@ -231,9 +216,7 @@ func evalFactory(c *cli.Context, item unstructured.Unstructured) semantics.EvalF
 			return v, true
 		}
 
-		if verbose {
-			log.Printf("failed to parse value, %v\n", object)
-		}
+		debugLog(verbose, "failed to parse value, %v\n", object)
 
 		// Missing value is interpated as null value.
 		return nil, true
