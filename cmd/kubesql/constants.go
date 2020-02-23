@@ -134,6 +134,10 @@ var defaultTableFields = tableFieldsMap{
 			Name:  "name",
 		},
 		{
+			Title: "PHASE",
+			Name:  "status.phase",
+		},
+		{
 			Title: "CREATION_TIME(RFC3339)",
 			Name:  "created",
 		},

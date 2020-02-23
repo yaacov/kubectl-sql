@@ -21,6 +21,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 
 	"gopkg.in/yaml.v2"
@@ -189,6 +190,8 @@ func printerTable(c *cli.Context, items []unstructured.Unstructured) {
 						if v.(bool) {
 							value = "true"
 						}
+					case float64:
+						value = strconv.FormatFloat(v.(float64), 'f', -1, 64)
 					case time.Time:
 						value = v.(time.Time).Format(time.RFC3339)
 					}
