@@ -19,7 +19,7 @@ Use SQL like language to query the [Kubernetes](https://kubernetes.io/) cluster 
     - [SI Units](#si-units)
     - [Formats](#output-formats)
     - [Arrays](#arrays-and-lists)
-    - [Escapingg](#identifier-escaping)
+    - [Escaping](#identifier-escaping)
   - [Examples](#examples)
     - [All Namespaces](#all-namespaces)
     - [Regexp](#using-regexp)
@@ -62,7 +62,7 @@ make
 ## What does it do ?
 
 kubesql let you select Kubernetes resources based on the value of one or more resource fields, using
-human readable easy to use SQL like query langauge.
+human readable easy to use SQL like query language.
 
 Example:
 ``` bash
@@ -74,7 +74,7 @@ For other ways to select Kubernetes resources see [#Alternatives](https://github
 
 #### Available Operators:
 
-| Opertors | Example |
+| Operators | Example |
 |----|---|
 | `=`, `~=` | `name ~= '^test-'`  |
 | `like`, `ilike` | `phase ilike 'run%'`  | 
@@ -88,14 +88,14 @@ For other ways to select Kubernetes resources see [#Alternatives](https://github
 
 #### Available Math Operators:
 
-| Opertors | Notes |
+| Operators | Notes |
 |----|---|
-| `+`, `-` | Adition and Substruction |
-| `*`, `/` | Multiplation and Division |
+| `+`, `-` | Addition and Subtraction |
+| `*`, `/` | Multiplication and Division |
 | `( )`|  |
 
 #### Aliases:
-| Aliase | Resource Path | Example |
+| Alias | Resource Path | Example |
 |----|---|---|
 | name | metadata.name | |
 | namespace | metadata.namespace | `namespace ~= '^test-[a-z]+$'` |
@@ -128,7 +128,7 @@ For other ways to select Kubernetes resources see [#Alternatives](https://github
 | --output flag | Print format |
 |----|---|
 | table | Table |
-| name | Names onlly |
+| name | Names only |
 | yaml | YAML |
 | json | JSON |
 
@@ -142,7 +142,7 @@ kubesql --all-namespaces get pods where "spec.containers.1.resources.requests.me
 
 #### Identifier escaping
 
-If identifier include characters that need escaping ( e.g. "-" or ":") it is posible
+If identifier include characters that need escaping ( e.g. "-" or ":") it is possible
 to escape the identifier name by wrapping it with `[...]` , `` `...` `` or `"..."`
 
 ## Examples
@@ -212,8 +212,8 @@ https://github.com/yaacov/tree-search-language
 
 #### jq
 
-`jq` is a lightweight and flexible command-line JSON processor. It is posible to
-pipe the kubectl command output into the `jq` command to create complicted searches.
+`jq` is a lightweight and flexible command-line JSON processor. It is possible to
+pipe the kubectl command output into the `jq` command to create complicated searches.
 
 https://stedolan.github.io/jq/manual/#select(boolean_expression)
 
