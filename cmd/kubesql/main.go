@@ -45,7 +45,7 @@ func main() {
 				Name:    "config",
 				Aliases: []string{"c"},
 				Value:   "",
-				Usage:   "Path to a config json `FILE`.",
+				Usage:   "Path to a config json `FILE`. (default: \"$HOME/.kube/kubesql.json\")",
 			},
 			&cli.StringFlag{
 				Name:    "namespace",

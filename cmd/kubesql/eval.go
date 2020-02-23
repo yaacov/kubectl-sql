@@ -52,25 +52,21 @@ func getNestedObject(object interface{}, key string) (interface{}, bool) {
 
 	for _, key := range keys {
 		if i, err := strconv.ParseUint(key, 10, 64); err == nil && i > 0 {
-			objectList, ok = object.([]interface{})
-			if !ok {
+			if objectList, ok = object.([]interface{}); !ok {
 				break
 			}
 
-			ok = i <= uint64(len(objectList))
-			if !ok {
+			if ok = i <= uint64(len(objectList)); !ok {
 				break
 			}
 
 			object = objectList[i-1]
 		} else {
-			objectMap, ok = object.(map[string]interface{})
-			if !ok {
+			if objectMap, ok = object.(map[string]interface{}); !ok {
 				break
 			}
 
-			object, ok = objectMap[key]
-			if !ok {
+			if object, ok = objectMap[key]; !ok {
 				break
 			}
 		}

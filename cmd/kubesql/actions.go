@@ -20,6 +20,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -31,17 +32,13 @@ import (
 )
 
 func actionsGet(c *cli.Context) error {
-	verbose := c.Bool("verbose")
 	namespace := ""
 
 	// Get user request.
 	resourceName, query := userQuery(c)
 
-	// Try to read user config file
-	if c.String("config") != "" {
-		debugLog(verbose, "Reading config file %s\n", c.String("config"))
-		readConfigFile(c.String("config"))
-	}
+	// Try to read config file.
+	readKubeSQLConfigFile(c)
 
 	// Get kubeconfig.
 	kubeconfig := getKubeConfig(c)
@@ -92,4 +89,34 @@ func userQuery(c *cli.Context) (string, string) {
 	}
 
 	return resourceName, query
+}
+
+// Try to read user config file
+func readKubeSQLConfigFile(c *cli.Context) {
+	verbose := c.Bool("verbose")
+
+	if c.String("config") != "" {
+		// Try to read user defined config filename:
+		debugLog(verbose, "Reading config file %s\n", c.String("config"))
+		readConfigFile(c.String("config"))
+	} else {
+		// Try the default config filename:
+		if home, err := os.UserHomeDir(); err == nil {
+			config := fmt.Sprintf(defaultKubeSQLConfigPath, home)
+
+			if fileExists(config) {
+				debugLog(verbose, "Reading default config file %s\n", config)
+				readConfigFile(config)
+			}
+		}
+	}
+}
+
+// fileExists checks if a file exists and is not a directory.
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
 }

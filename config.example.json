@@ -1,6 +1,7 @@
 {
     "aliases": {
-        "owner.name": "metadata.ownerReferences.1.name"
+        "owner.name": "metadata.ownerReferences.1.name",
+        "hostIP": "status.hostIP"
     },
     "table-fields": {
         "VirtualMachineInstance": [

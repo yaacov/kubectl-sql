@@ -71,6 +71,9 @@ var defaultAliases = map[string]string{
 	"phase": "status.phase",
 }
 
+// Default config path.
+var defaultKubeSQLConfigPath = "%s/.kube/kubesql.json"
+
 // Default table view fields.
 var defaultTableFields = tableFieldsMap{
 	"Pod": tableFields{
