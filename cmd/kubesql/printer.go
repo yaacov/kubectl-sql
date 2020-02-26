@@ -27,52 +27,15 @@ import (
 	"gopkg.in/yaml.v2"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
-	"github.com/yaacov/tree-search-language/v5/pkg/tsl"
-	"github.com/yaacov/tree-search-language/v5/pkg/walkers/ident"
-	"github.com/yaacov/tree-search-language/v5/pkg/walkers/semantics"
-
 	"github.com/urfave/cli/v2"
 )
 
 // Use namespace and query to printout items.
 func printer(c *cli.Context, list *unstructured.UnstructuredList, namespace string, query string) {
-	var (
-		tree    tsl.Node
-		err     error
-		verbose = c.Bool("verbose")
-	)
-
-	// If we have a query, prepare the search tree.
-	if len(query) > 0 {
-		tree, err = tsl.ParseTSL(query)
-		errExit("Failed to parse query", err)
-
-		// Check and replace user identifiers if alias exist.
-		tree, err = ident.Walk(tree, checkColumnName)
-		errExit("Failed to parse query itentifiers", err)
-	}
+	verbose := c.Bool("verbose")
 
 	// Filter items using namespace and query.
-	items := []unstructured.Unstructured{}
-	for _, item := range list.Items {
-		if namespace != "" && item.GetNamespace() != namespace {
-			continue
-		}
-
-		// If we have a query, check item.
-		if len(query) > 0 {
-			matchingFilter, err := semantics.Walk(tree, evalFactory(c, item))
-			if err != nil {
-				debugLog(verbose, "failed to query item: %v", err)
-				continue
-			}
-			if !matchingFilter {
-				continue
-			}
-		}
-
-		items = append(items, item)
-	}
+	items := filter(c, list, namespace, query)
 
 	// Sanity check
 	if len(items) == 0 {

@@ -20,7 +20,11 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
+	"os"
+
+	"github.com/urfave/cli/v2"
 )
 
 // User defined overides.
@@ -39,6 +43,26 @@ type tableField struct {
 
 type tableFields []tableField
 type tableFieldsMap map[string]tableFields
+
+// Get user quary.
+func userQuery(c *cli.Context) (string, string) {
+	resourceName := c.String("resource")
+	query := c.String("query")
+
+	// Parse command args
+	if len(resourceName) == 0 && c.Args().Len() == 1 {
+		resourceName = c.Args().Get(0)
+	} else if len(query) == 0 && c.Args().Len() == 3 && c.Args().Get(1) == "where" {
+		resourceName = c.Args().Get(0)
+		query = c.Args().Get(2)
+	}
+
+	if len(resourceName) == 0 {
+		errExit("Failed to parse resource query", fmt.Errorf("missing resource name or query"))
+	}
+
+	return resourceName, query
+}
 
 // Read config file
 func readConfigFile(s string) {
@@ -63,4 +87,34 @@ func readConfigFile(s string) {
 			defaultTableFields[k] = v
 		}
 	}
+}
+
+// Try to read user config file
+func readKubeSQLConfigFile(c *cli.Context) {
+	verbose := c.Bool("verbose")
+
+	if c.String("config") != "" {
+		// Try to read user defined config filename:
+		debugLog(verbose, "Reading config file %s\n", c.String("config"))
+		readConfigFile(c.String("config"))
+	} else {
+		// Try the default config filename:
+		if home, err := os.UserHomeDir(); err == nil {
+			config := fmt.Sprintf(defaultKubeSQLConfigPath, home)
+
+			if fileExists(config) {
+				debugLog(verbose, "Reading default config file %s\n", config)
+				readConfigFile(config)
+			}
+		}
+	}
+}
+
+// fileExists checks if a file exists and is not a directory.
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
 }
