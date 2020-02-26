@@ -132,6 +132,7 @@ func printerTable(c *cli.Context, items []unstructured.Unstructured) {
 	debugLog(verbose, "printing table, %v items %v fields\n", len(items), len(fields))
 
 	// Pring table head
+	fmt.Printf("\nKIND: %s\n", items[0].GetKind())
 	for _, field := range fields {
 		if field.width > 0 {
 			fmt.Printf(field.template, field.Title)

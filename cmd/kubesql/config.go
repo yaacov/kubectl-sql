@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/urfave/cli/v2"
 )
@@ -45,23 +46,23 @@ type tableFields []tableField
 type tableFieldsMap map[string]tableFields
 
 // Get user quary.
-func userQuery(c *cli.Context) (string, string) {
-	resourceName := c.String("resource")
+func userQuery(c *cli.Context) ([]string, string) {
+	resourceNames := c.String("resource")
 	query := c.String("query")
 
 	// Parse command args
-	if len(resourceName) == 0 && c.Args().Len() == 1 {
-		resourceName = c.Args().Get(0)
+	if len(resourceNames) == 0 && c.Args().Len() == 1 {
+		resourceNames = c.Args().Get(0)
 	} else if len(query) == 0 && c.Args().Len() == 3 && c.Args().Get(1) == "where" {
-		resourceName = c.Args().Get(0)
+		resourceNames = c.Args().Get(0)
 		query = c.Args().Get(2)
 	}
 
-	if len(resourceName) == 0 {
+	if len(resourceNames) == 0 {
 		errExit("Failed to parse resource query", fmt.Errorf("missing resource name or query"))
 	}
 
-	return resourceName, query
+	return strings.Split(resourceNames, ","), query
 }
 
 // Read config file

@@ -32,7 +32,7 @@ func actionsGet(c *cli.Context) error {
 	namespace := ""
 
 	// Get user request.
-	resourceName, query := userQuery(c)
+	resourceNames, query := userQuery(c)
 
 	// Try to read config file.
 	readKubeSQLConfigFile(c)
@@ -42,28 +42,30 @@ func actionsGet(c *cli.Context) error {
 	config, err := kubeconfig.ClientConfig()
 	errExit("Failed to load client conifg", err)
 
-	// Get resource information.
-	resource, resourceList := getResourceList(config, resourceName)
-	group, version := getGroupVersion(resourceList)
-	if resource.Namespaced {
-		namespace = getNamespace(c, kubeconfig)
+	for _, resourceName := range resourceNames {
+		// Get resource information.
+		resource, resourceList := getResourceList(config, resourceName)
+		group, version := getGroupVersion(resourceList)
+		if resource.Namespaced {
+			namespace = getNamespace(c, kubeconfig)
+		}
+
+		// Get dynamic client.
+		client, err := dynamic.NewForConfig(config)
+		errExit("Failed to create rest client", err)
+
+		// Get all resource objects.
+		res := client.Resource(schema.GroupVersionResource{
+			Group:    group,
+			Version:  version,
+			Resource: resource.Name,
+		})
+		list, err := res.List(metav1.ListOptions{})
+		errExit("Failed to list objects", err)
+
+		// Print selected objects.
+		printer(c, list, namespace, query)
 	}
-
-	// Get dynamic client.
-	client, err := dynamic.NewForConfig(config)
-	errExit("Failed to create rest client", err)
-
-	// Get all resource objects.
-	res := client.Resource(schema.GroupVersionResource{
-		Group:    group,
-		Version:  version,
-		Resource: resource.Name,
-	})
-	list, err := res.List(metav1.ListOptions{})
-	errExit("Failed to list objects", err)
-
-	// Print selected objects.
-	printer(c, list, namespace, query)
 
 	return nil
 }
