@@ -15,7 +15,7 @@
 #
 
 kubesql_cmd := $(wildcard ./cmd/*.go)
-kubesql_pkg := $(wildcard ./cmd/*.go)
+kubesql_pkg := $(wildcard ./pkg/cmd/*.go)
 
 all: kubectl-sql
 
