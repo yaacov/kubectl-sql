@@ -34,7 +34,7 @@ import (
 )
 
 var (
-	clientVersion = "master"
+	clientVersion = "GIT-master"
 
 	sqlGetLong = `Uses SQL-like language to filter and display one or many resources.
 
