@@ -30,7 +30,7 @@ kubectl-sql let you select Kubernetes resources based on the value of one or mor
 mkdir -p ./_build/src/github.com/yaacov
 ln -s $(pwd) ./_build/src/github.com/yaacov/kubesql
 
-make
+VERSION=%{version} make
 
 %install
 install -d %{buildroot}%{_bindir}

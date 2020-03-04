@@ -14,13 +14,16 @@
 # limitations under the License.
 #
 
+VERSION_GIT := $(shell git describe --tags)
+VERSION ?= ${VERSION_GIT}
+
 kubesql_cmd := $(wildcard ./cmd/*.go)
 kubesql_pkg := $(wildcard ./pkg/cmd/*.go)
 
 all: kubectl-sql
 
 kubectl-sql: $(kubesql_cmd) $(kubesql_pkg)
-	go build -o kubectl-sql $(kubesql_cmd)
+	go build -ldflags='-X github.com/yaacov/kubesql/pkg/cmd.clientVersion=${VERSION}' -o kubectl-sql $(kubesql_cmd)
 
 .PHONY: lint
 lint:
