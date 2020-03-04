@@ -65,7 +65,7 @@ With `kubectl` v1.12 or higher, `kubectl-sql` can be used as a kubectl plugin.
 
 ``` bash
 # Using kubectl-sql as a kubectl plugin.
-kubectl sql --all-namespaces get pods
+kubectl sql --all-namespaces get pods where "name ilike 'test-%'"
 ```
 
 ## What does it do ?
