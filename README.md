@@ -9,7 +9,7 @@
 
 # kubectl-sql
 
-[kubectl](https://kubernetes.io/docs/reference/kubectl/) plugin that use SQL like language to query the [Kubernetes](https://kubernetes.io/) cluster manager
+[kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/) that use SQL like language to query the [Kubernetes](https://kubernetes.io/) cluster manager
 
   - [Install](#install)
   - [What does it do ?](#what-does-it-do-)
