@@ -213,7 +213,8 @@ Users can add aliases and edit the fields displayed in table view using json con
 
 Flag: `--kubesql <config file path>` (default: `$HOME/.kube/kubesql.json`)
 
-```
+Example:
+``` bash
 kubectl-sql --kubesql ./kubesql.json get pods
 ...
 ```
