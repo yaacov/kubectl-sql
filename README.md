@@ -40,7 +40,7 @@
 
 Using `go get` command:
 ``` bash
-GO111MODULE=on go get -v github.com/yaacov/kubesql/cmd/kubesql
+GO111MODULE=on go get -v github.com/yaacov/kubesql/cmd
 ```
 
 Using Fedora Copr:
