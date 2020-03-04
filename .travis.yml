@@ -7,6 +7,6 @@ env:
 nstall:
   - go get -u golang.org/x/lint/golint
 script:
-  - go build -o kubesql cmd/kubesql/*.go
-  - golint cmd/kubesql/*.go
-  - test -s $(gofmt -s -l cmd/kubesql/*.go) 
+  - go build -o kubesql cmd/*.go
+  - golint cmd/*.go pkg/cmd/*.go
+  - test -s $(gofmt -s -l cmd/*.go pkg/cmd/*.go) 
