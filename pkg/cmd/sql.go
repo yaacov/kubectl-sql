@@ -34,7 +34,7 @@ import (
 )
 
 var (
-	clientVersion = "v0.0.1"
+	clientVersion = "v0.2.0"
 
 	sqlGetLong = `Uses SQL-like language to filter and display one or many resources.
 

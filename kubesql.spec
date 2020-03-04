@@ -9,7 +9,7 @@
 %define debug_package %{nil}
 
 Name:           %{repo}
-Version:        0.1.18
+Version:        0.2.0
 Release:        1%{?dist}
 Summary:        kubectl-sql uses sql like language to query the Kubernetes cluster manager
 License:        Apache
@@ -42,6 +42,9 @@ install -p -m 0755 ./kubectl-sql %{buildroot}%{_bindir}/kubectl-sql
 %{_bindir}/kubectl-sql
 
 %changelog
+
+* Thu Mar 4 2020 Yaacov Zamir <kobi.zamir@gmail.com> 0.2.0-1
+- Use kubectl plugin kit
 
 * Thu Feb 22 2020 Yaacov Zamir <kobi.zamir@gmail.com> 0.1.18-1
 - Fix float printing
