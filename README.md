@@ -58,7 +58,16 @@ cd kubesql
 
 make
 ```
-  
+
+#### Plugin
+
+With kubectl v1.12 or higher, `kubectl-sql` can be used as a kubectl plugin.
+
+``` bash
+# Using kubectl-sql as a kubectl plugin.
+kubectl sql --all-namespaces get pods
+```
+
 ## What does it do ?
 
 kubectl-sql let you select Kubernetes resources based on the value of one or more resource fields, using
