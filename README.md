@@ -197,10 +197,12 @@ kubectl-sql --help
 ...
 ```
 
-## Config File ( `--kubesql <config file path>` flag, default is `$HOME/.kube/kubesql.json`)
+## Config File
 
 Users can add aliases and edit the fields displayed in table view using json config files,
 [see the example config file](https://github.com/yaacov/kubesql/blob/master/kubesql.json).
+
+( `--kubesql <config file path>` flag, default is `$HOME/.kube/kubesql.json`)
 
 ```
 kubectl-sql --kubesql ./kubesql.json get pods
