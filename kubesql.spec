@@ -11,7 +11,7 @@
 Name:           %{repo}
 Version:        0.1.18
 Release:        1%{?dist}
-Summary:        kubesql uses sql like language to query the Kubernetes cluster manager
+Summary:        kubectl-sql uses sql like language to query the Kubernetes cluster manager
 License:        Apache
 URL:            https://%{import_path}
 Source0:        https://github.com/yaacov/kubesql/archive/%{version}.tar.gz
@@ -20,7 +20,7 @@ BuildRequires:  git
 BuildRequires:  golang >= 1.2.8
 
 %description
-kubesql let you select Kubernetes resources based on the value of one or more resource fields, using human readable easy to use SQL like query langauge.
+kubectl-sql let you select Kubernetes resources based on the value of one or more resource fields, using human readable easy to use SQL like query langauge.
 
 %prep
 %setup -q -n kubesql-%{version}
@@ -34,12 +34,12 @@ make
 
 %install
 install -d %{buildroot}%{_bindir}
-install -p -m 0755 ./kubesql %{buildroot}%{_bindir}/kubesql
+install -p -m 0755 ./kubectl-sql %{buildroot}%{_bindir}/kubectl-sql
 
 %files
 %defattr(-,root,root,-)
 %doc LICENSE README.md
-%{_bindir}/kubesql
+%{_bindir}/kubectl-sql
 
 %changelog
 

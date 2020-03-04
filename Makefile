@@ -14,21 +14,22 @@
 # limitations under the License.
 #
 
-kubesql_src := $(wildcard ./cmd/kubesql/*.go)
+kubesql_cmd := $(wildcard ./cmd/*.go)
+kubesql_pkg := $(wildcard ./cmd/*.go)
 
-all: kubesql
+all: kubectl-sql
 
-kubesql: $(kubesql_src)
-	go build -o kubesql $(kubesql_src)
+kubectl-sql: $(kubesql_cmd)
+	go build -o kubectl-sql $(kubesql_cmd)
 
 .PHONY: lint
 lint:
-	golint $(kubesql_src)
+	golint $(kubesql_cmd) $(kubesql_pkg)
 
 .PHONY: fmt
 fmt:
-	gofmt -s -w $(kubesql_src)
+	gofmt -s -w $(kubesql_cmd) $(kubesql_pkg)
 
 .PHONY: clean
 clean:
-	rm -f kubesql
+	rm -f kubectl-sql

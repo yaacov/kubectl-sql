@@ -4,10 +4,10 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/yaacov/kubesql/master/img/kubesql-162.png" alt="kubesql Logo">
+  <img src="https://raw.githubusercontent.com/yaacov/kubesql/master/img/kubesql-162.png" alt="kubectl-sql Logo">
 </p>
 
-# kubesql
+# kubectl-sql
 
 Use SQL like language to query the [Kubernetes](https://kubernetes.io/) cluster manager
 
@@ -61,13 +61,13 @@ make
   
 ## What does it do ?
 
-kubesql let you select Kubernetes resources based on the value of one or more resource fields, using
+kubectl-sql let you select Kubernetes resources based on the value of one or more resource fields, using
 human readable easy to use SQL like query language.
 
 Example:
 ``` bash
 # Filter replica sets with less ready-replicas then replicas"
-kubesql --all-namespaces get rs where "status.readyReplicas < status.replicas"
+kubectl-sql --all-namespaces get rs where "status.readyReplicas < status.replicas"
 ```
 
 For other ways to select Kubernetes resources see [#Alternatives](https://github.com/yaacov/kubesql#alternatives).
@@ -133,11 +133,11 @@ For other ways to select Kubernetes resources see [#Alternatives](https://github
 | json | JSON |
 
 #### Arrays and lists:
-kubesql support resource paths that include lists by using the list index as a field key.
+kubectl-sql support resource paths that include lists by using the list index as a field key.
 
 ``` bash
 # Get the memory request for the first container.
-kubesql --all-namespaces get pods where "spec.containers.1.resources.requests.memory = 200Mi"
+kubectl-sql --all-namespaces get pods where "spec.containers.1.resources.requests.memory = 200Mi"
 ```
 
 #### Identifier escaping
@@ -151,7 +151,7 @@ to escape the identifier name by wrapping it with `[...]` , `` `...` `` or `"...
 
 ``` bash
 # Get pods that hase name containing "ovs"
-kubesql --all-namespaces get pods where "name ~= 'ovs'"
+kubectl-sql --all-namespaces get pods where "name ~= 'ovs'"
 AMESPACE    	NAME               	PHASE  	hostIP        	CREATION_TIME(RFC3339)       	
 openshift-cnv	ovs-cni-amd64-5vgcg	Running	192.168.126.58	2020-02-10T23:26:31+02:00    	
 openshift-cnv	ovs-cni-amd64-8ts4w	Running	192.168.126.12	2020-02-10T22:01:59+02:00    	
@@ -164,7 +164,7 @@ openshift-cnv	ovs-cni-amd64-d6vdb	Running	192.168.126.53	2020-02-10T23:13:45+02:
 ``` bash
 # Get all pods from current namespace scope, that has a name starting with "virt-" and
 # IP that ends with ".84"
-kubesql get pods where "name ~= '^virt-' and status.podIP ~= '[.]84$'"
+kubectl-sql get pods where "name ~= '^virt-' and status.podIP ~= '[.]84$'"
 AMESPACE	NAME                          	PHASE  	hostIP        	CREATION_TIME(RFC3339)       	
 default  	virt-launcher-test-bdw2p-lcrwx	Running	192.168.126.56	2020-02-12T14:14:01+02:00
 ...
@@ -173,7 +173,7 @@ default  	virt-launcher-test-bdw2p-lcrwx	Running	192.168.126.56	2020-02-12T14:14
 
 ``` bash
 # Get all persistant volume clames that are less then 20Gi, and output as json.
-kubesql -o json get pvc where "spec.resources.requests.storage < 20Gi"
+kubectl-sql -o json get pvc where "spec.resources.requests.storage < 20Gi"
 
 ... 
 {
@@ -186,14 +186,14 @@ kubesql -o json get pvc where "spec.resources.requests.storage < 20Gi"
 
 ``` bash
 # Get replicas sets with 3 replicas but less ready relicas
-kubesql --all-namespaces get rs where "spec.replicas = 3 and status.readyReplicas < spec.replicas"
+kubectl-sql --all-namespaces get rs where "spec.replicas = 3 and status.readyReplicas < spec.replicas"
 
 ...
 ```
 #### Print help
 
 ```
-kubesql --help
+kubectl-sql --help
 ...
 ```
 
@@ -204,7 +204,7 @@ Users can add aliases and edit the fields displayed in table view using json con
 
 ## Query language
 
-kubesql uses Tree Search Language (TSL). TSL is a wonderful human readable filtering language.
+kubectl-sql uses Tree Search Language (TSL). TSL is a wonderful human readable filtering language.
 
 https://github.com/yaacov/tree-search-language
 
