@@ -61,7 +61,7 @@ make
 
 #### Plugin
 
-With kubectl v1.12 or higher, `kubectl-sql` can be used as a kubectl plugin.
+With `kubectl` v1.12 or higher, `kubectl-sql` can be used as a kubectl plugin.
 
 ``` bash
 # Using kubectl-sql as a kubectl plugin.
