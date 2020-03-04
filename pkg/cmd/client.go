@@ -38,13 +38,13 @@ func (o *SQLOptions) List(config *rest.Config, resourceName string, query string
 		return nil, err
 	}
 
-	discoveryClient, err := dynamic.NewForConfig(config)
+	dynamicClient, err := dynamic.NewForConfig(config)
 	if err != nil {
 		return nil, err
 	}
 
 	// Get all resource objects.
-	res := discoveryClient.Resource(schema.GroupVersionResource{
+	res := dynamicClient.Resource(schema.GroupVersionResource{
 		Group:    group,
 		Version:  version,
 		Resource: resource.Name,
