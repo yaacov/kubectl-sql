@@ -65,7 +65,7 @@ With `kubectl` v1.12 or higher, `kubectl-sql` can be used as a kubectl plugin.
 
 ``` bash
 # Using kubectl-sql as a kubectl plugin.
-kubectl sql --all-namespaces get pods where "name ilike 'test-%'"
+kubectl sql get pods where "name ilike 'test-%'"
 ```
 
 ## What does it do ?
@@ -211,7 +211,7 @@ kubectl-sql --help
 Users can add aliases and edit the fields displayed in table view using json config files,
 [see the example config file](https://github.com/yaacov/kubesql/blob/master/kubesql.json).
 
-( `--kubesql <config file path>` flag, default is `$HOME/.kube/kubesql.json`)
+Flag: `--kubesql <config file path>` (default: `$HOME/.kube/kubesql.json`)
 
 ```
 kubectl-sql --kubesql ./kubesql.json get pods
