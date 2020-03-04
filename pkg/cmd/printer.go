@@ -33,7 +33,7 @@ import (
 func (o *SQLOptions) Printer(items []unstructured.Unstructured) error {
 	// Sanity check
 	if len(items) == 0 {
-		return fmt.Errorf("no matching items found")
+		return nil
 	}
 
 	// Print out

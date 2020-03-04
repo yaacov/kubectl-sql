@@ -19,12 +19,12 @@ kubesql_pkg := $(wildcard ./pkg/cmd/*.go)
 
 all: kubectl-sql
 
-kubectl-sql: $(kubesql_cmd)
+kubectl-sql: $(kubesql_cmd) $(kubesql_pkg)
 	go build -o kubectl-sql $(kubesql_cmd)
 
 .PHONY: lint
 lint:
-	golint $(kubesql_cmd) $(kubesql_pkg)
+	golint $(kubesql_cmd) && golint $(kubesql_pkg)
 
 .PHONY: fmt
 fmt:

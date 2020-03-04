@@ -212,15 +212,17 @@ func (o *SQLOptions) Run() error {
 		return o.Version(config)
 	}
 
-	// Print resource list.
-	list, err := o.List(config, o.requestedResources[0], o.requestedQuery)
-	if err != nil {
-		return err
-	}
+	// Print resources lists.
+	for _, r := range o.requestedResources {
+		list, err := o.List(config, r, o.requestedQuery)
+		if err != nil {
+			return err
+		}
 
-	err = o.Printer(list)
-	if err != nil {
-		return err
+		err = o.Printer(list)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

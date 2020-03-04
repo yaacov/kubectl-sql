@@ -8,5 +8,5 @@ nstall:
   - go get -u golang.org/x/lint/golint
 script:
   - go build -o kubesql cmd/*.go
-  - golint cmd/*.go pkg/cmd/*.go
+  - golint cmd/*.go && golint pkg/cmd/*.go
   - test -s $(gofmt -s -l cmd/*.go pkg/cmd/*.go) 
