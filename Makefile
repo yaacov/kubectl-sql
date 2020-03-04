@@ -17,7 +17,7 @@
 VERSION_GIT := $(shell git describe --tags)
 VERSION ?= ${VERSION_GIT}
 
-kubesql_cmd := $(wildcard ./cmd/*.go)
+kubesql_cmd := $(wildcard ./cmd/kubectl-sql/*.go)
 kubesql_pkg := $(wildcard ./pkg/cmd/*.go)
 
 all: kubectl-sql
