@@ -1,4 +1,4 @@
-module github.com/yaacov/kubesql
+module github.com/yaacov/kubectl-sql
 
 go 1.13
 

@@ -23,7 +23,7 @@ kubesql_pkg := $(wildcard ./pkg/cmd/*.go)
 all: kubectl-sql
 
 kubectl-sql: $(kubesql_cmd) $(kubesql_pkg)
-	go build -ldflags='-X github.com/yaacov/kubesql/pkg/cmd.clientVersion=${VERSION}' -o kubectl-sql $(kubesql_cmd)
+	go build -ldflags='-X github.com/yaacov/kubectl-sql/pkg/cmd.clientVersion=${VERSION}' -o kubectl-sql $(kubesql_cmd)
 
 .PHONY: lint
 lint:

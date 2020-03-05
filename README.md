@@ -1,10 +1,10 @@
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/yaacov/kubesql)](https://goreportcard.com/report/github.com/yaacov/kubesql)
-[![Build Status](https://travis-ci.org/yaacov/kubesql.svg?branch=master)](https://travis-ci.org/yaacov/kubesql)
+[![Go Report Card](https://goreportcard.com/badge/github.com/yaacov/kubectl-sql)](https://goreportcard.com/report/github.com/yaacov/kubectl-sql)
+[![Build Status](https://travis-ci.org/yaacov/kubectl-sql.svg?branch=master)](https://travis-ci.org/yaacov/kubectl-sql)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/yaacov/kubesql/master/img/kubesql-162.png" alt="kubectl-sql Logo">
+  <img src="https://raw.githubusercontent.com/yaacov/kubectl-sql/master/img/kubectl-sql-162.png" alt="kubectl-sql Logo">
 </p>
 
 # kubectl-sql
@@ -40,21 +40,21 @@
 
 Using `go get` command:
 ``` bash
-GO111MODULE=on go get -v github.com/yaacov/kubesql/cmd/kubectl-sql
+GO111MODULE=on go get -v github.com/yaacov/kubectl-sql/cmd/kubectl-sql
 ```
 
 Using Fedora Copr:
 
 ```
-dnf copr enable yaacov/kubesql
-dnf install kubesql
+dnf copr enable yaacov/kubectl-sql
+dnf install kubectl-sql
 ```
 
 From source:
 
 ``` bash
-git clone git@github.com:yaacov/kubesql.git
-cd kubesql
+git clone git@github.com:yaacov/kubectl-sql.git
+cd kubectl-sql
 
 make
 ```
@@ -79,7 +79,7 @@ Example:
 kubectl-sql --all-namespaces get rs where "status.readyReplicas < status.replicas"
 ```
 
-For other ways to select Kubernetes resources see [#Alternatives](https://github.com/yaacov/kubesql#alternatives).
+For other ways to select Kubernetes resources see [#Alternatives](https://github.com/yaacov/kubectl-sql#alternatives).
 
 #### Available Operators:
 
@@ -209,13 +209,13 @@ kubectl-sql --help
 ## Config File
 
 Users can add aliases and edit the fields displayed in table view using json config files,
-[see the example config file](https://github.com/yaacov/kubesql/blob/master/kubesql.json).
+[see the example config file](https://github.com/yaacov/kubectl-sql/blob/master/kubectl-sql.json).
 
-Flag: `--kubesql <config file path>` (default: `$HOME/.kube/kubesql.json`)
+Flag: `--kubectl-sql <config file path>` (default: `$HOME/.kube/kubectl-sql.json`)
 
 Example:
 ``` bash
-kubectl-sql --kubesql ./kubesql.json get pods
+kubectl-sql --kubectl-sql ./kubectl-sql.json get pods
 ...
 ```
 

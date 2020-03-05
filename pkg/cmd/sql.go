@@ -90,9 +90,9 @@ func NewSQLOptions(streams genericclioptions.IOStreams) *SQLOptions {
 		outputFormat: "table",
 	}
 
-	// Look for a default kubesql.json config file.
+	// Look for a default kubectl-sql.json config file.
 	if home, err := os.UserHomeDir(); err == nil {
-		options.defaultSQLConfigPath = fmt.Sprintf("%s/.kube/kubesql.json", home)
+		options.defaultSQLConfigPath = fmt.Sprintf("%s/.kube/kubectl-sql.json", home)
 	}
 
 	return options
@@ -125,8 +125,8 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 
 	cmd.Flags().BoolVarP(&o.allNamespaces, "all-namespaces", "A", o.allNamespaces,
 		"If present, list the requested object(s) across all namespaces. Namespace in current context is ignored even if specified with --namespace.")
-	cmd.Flags().StringVarP(&o.requestedSQLConfigPath, "kubesql", "q", o.defaultSQLConfigPath,
-		"Path to the kubesql.json file to use for kubesql requests.")
+	cmd.Flags().StringVarP(&o.requestedSQLConfigPath, "kubectl-sql", "q", o.defaultSQLConfigPath,
+		"Path to the kubectl-sql.json file to use for kubectl-sql requests.")
 	cmd.Flags().StringVarP(&o.outputFormat, "output", "o", o.outputFormat,
 		"Output format. One of: json|yaml|table|name")
 

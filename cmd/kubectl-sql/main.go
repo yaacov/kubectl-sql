@@ -25,7 +25,7 @@ import (
 	"github.com/spf13/pflag"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 
-	"github.com/yaacov/kubesql/pkg/cmd"
+	"github.com/yaacov/kubectl-sql/pkg/cmd"
 )
 
 func main() {
