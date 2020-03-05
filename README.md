@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/yaacov/kubectl-sql/master/img/kubectl-162.png" alt="kubectl-sql Logo">
+  <img src="https://raw.githubusercontent.com/yaacov/kubectl-sql/master/img/kubesql-162.png" alt="kubectl-sql Logo">
 </p>
 
 # kubectl-sql
