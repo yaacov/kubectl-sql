@@ -46,7 +46,7 @@ GO111MODULE=on go get -v github.com/yaacov/kubectl-sql/cmd/kubectl-sql
 Using Fedora Copr:
 
 ```
-dnf copr enable yaacov/kubectl-sql
+dnf copr enable yaacov/kubesql
 dnf install kubectl-sql
 ```
 
