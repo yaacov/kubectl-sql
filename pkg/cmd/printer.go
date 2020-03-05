@@ -39,11 +39,11 @@ func (o *SQLOptions) Printer(items []unstructured.Unstructured) error {
 	// Print out
 	switch o.outputFormat {
 	case "yaml":
-		return printerYAML(items)
+		return o.printerYAML(items)
 	case "json":
-		return printerJSON(items)
+		return o.printerJSON(items)
 	case "name":
-		return printerNames(items)
+		return o.printerNames(items)
 	default:
 		o.printerTable(items)
 	}
@@ -51,35 +51,35 @@ func (o *SQLOptions) Printer(items []unstructured.Unstructured) error {
 	return nil
 }
 
-func printerYAML(items []unstructured.Unstructured) error {
+func (o *SQLOptions) printerYAML(items []unstructured.Unstructured) error {
 	for _, item := range items {
 		yaml, err := yaml.Marshal(item)
 		if err != nil {
 			return err
 		}
 
-		fmt.Printf("\n%+v\n", string(yaml))
+		fmt.Fprintf(o.Out, "\n%+v\n", string(yaml))
 	}
 
 	return nil
 }
 
-func printerJSON(items []unstructured.Unstructured) error {
+func (o *SQLOptions) printerJSON(items []unstructured.Unstructured) error {
 	for _, item := range items {
 		yaml, err := json.Marshal(item)
 		if err != nil {
 			return err
 		}
 
-		fmt.Printf("\n%+v\n", string(yaml))
+		fmt.Fprintf(o.Out, "\n%+v\n", string(yaml))
 	}
 
 	return nil
 }
 
-func printerNames(items []unstructured.Unstructured) error {
+func (o *SQLOptions) printerNames(items []unstructured.Unstructured) error {
 	for _, item := range items {
-		fmt.Printf("%s\n", item.GetName())
+		fmt.Fprintf(o.Out, "%s\n", item.GetName())
 	}
 
 	return nil
@@ -134,10 +134,10 @@ func (o *SQLOptions) printerTable(items []unstructured.Unstructured) error {
 	fields := o.getTableColumns(items)
 
 	// Pring table head
-	fmt.Printf("\nKIND: %s\n", items[0].GetKind())
+	fmt.Fprintf(o.Out, "\nKIND: %s\n", items[0].GetKind())
 	for _, field := range fields {
 		if field.width > 0 {
-			fmt.Printf(field.template, field.Title)
+			fmt.Fprintf(o.Out, field.template, field.Title)
 		}
 	}
 	fmt.Print("\n")
@@ -162,9 +162,9 @@ func (o *SQLOptions) printerTable(items []unstructured.Unstructured) error {
 						value = v.(time.Time).Format(time.RFC3339)
 					}
 
-					fmt.Printf(field.template, value)
+					fmt.Fprintf(o.Out, field.template, value)
 				} else {
-					fmt.Printf(field.template, "")
+					fmt.Fprintf(o.Out, field.template, "")
 				}
 			}
 		}
