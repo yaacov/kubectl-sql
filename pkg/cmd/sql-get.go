@@ -27,12 +27,18 @@ import (
 func (o *SQLOptions) Get(config *rest.Config) error {
 	// Print resources lists.
 	for _, r := range o.requestedResources {
-		list, err := o.List(config, r, o.requestedQuery)
+		list, err := List(config, r)
 		if err != nil {
 			return err
 		}
 
-		err = o.Printer(list)
+		// Filter items by namespace and query.
+		filteredList, err := o.Filter(list, o.requestedQuery, o.namespace, o.allNamespaces)
+		if err != nil {
+			return err
+		}
+
+		err = o.Printer(filteredList)
 		if err != nil {
 			return err
 		}

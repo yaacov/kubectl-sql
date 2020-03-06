@@ -31,8 +31,8 @@ import (
 	"k8s.io/client-go/rest"
 )
 
-// List resources by resource name and query.
-func (o *SQLOptions) List(config *rest.Config, resourceName string, query string) ([]unstructured.Unstructured, error) {
+// List resources by resource name.
+func List(config *rest.Config, resourceName string) ([]unstructured.Unstructured, error) {
 	resource, group, version, err := getResourceGroupVersion(config, resourceName)
 	if err != nil {
 		return nil, err
@@ -54,10 +54,7 @@ func (o *SQLOptions) List(config *rest.Config, resourceName string, query string
 		return nil, err
 	}
 
-	// Filter items by namespace and query.
-	items, err := o.Filter(list.Items, query, o.namespace, o.allNamespaces)
-
-	return items, err
+	return list.Items, err
 }
 
 // Look for a resource matching request resource name.
