@@ -27,12 +27,22 @@ import (
 	"github.com/yaacov/tree-search-language/v5/pkg/walkers/semantics"
 )
 
+// checkColumnName checks if a coulumn name has an alias.
+func (o *SQLOptions) checkColumnName(s string) (string, error) {
+	// Chekc for aliases.
+	if v, ok := o.defaultAliases[s]; ok {
+		return v, nil
+	}
+
+	// If not found in alias table, return the column name unchanged.
+	return s, nil
+}
+
 // Filter items using namespace and query.
-func (o *SQLOptions) Filter(list []unstructured.Unstructured, query string) ([]unstructured.Unstructured, error) {
+func (o *SQLOptions) Filter(list []unstructured.Unstructured, query string, namespace string, allNamespaces bool) ([]unstructured.Unstructured, error) {
 	var (
-		tree      tsl.Node
-		err       error
-		namespace = o.namespace
+		tree tsl.Node
+		err  error
 	)
 
 	// If we have a query, prepare the search tree.
@@ -52,7 +62,7 @@ func (o *SQLOptions) Filter(list []unstructured.Unstructured, query string) ([]u
 	// Filter items using namespace and query.
 	items := []unstructured.Unstructured{}
 	for _, item := range list {
-		if !o.allNamespaces && item.GetNamespace() != namespace {
+		if !allNamespaces && item.GetNamespace() != namespace {
 			continue
 		}
 

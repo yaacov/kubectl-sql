@@ -33,7 +33,7 @@ import (
 
 // List resources by resource name and query.
 func (o *SQLOptions) List(config *rest.Config, resourceName string, query string) ([]unstructured.Unstructured, error) {
-	resource, group, version, err := o.getResourceGroupVersion(config, resourceName)
+	resource, group, version, err := getResourceGroupVersion(config, resourceName)
 	if err != nil {
 		return nil, err
 	}
@@ -54,13 +54,14 @@ func (o *SQLOptions) List(config *rest.Config, resourceName string, query string
 		return nil, err
 	}
 
-	items, err := o.Filter(list.Items, query)
+	// Filter items by namespace and query.
+	items, err := o.Filter(list.Items, query, o.namespace, o.allNamespaces)
 
 	return items, err
 }
 
 // Look for a resource matching request resource name.
-func (o *SQLOptions) getResourceGroupVersion(config *rest.Config, resourceName string) (v1.APIResource, string, string, error) {
+func getResourceGroupVersion(config *rest.Config, resourceName string) (v1.APIResource, string, string, error) {
 	discoveryClient, err := discovery.NewDiscoveryClientForConfig(config)
 	if err != nil {
 		return v1.APIResource{}, "", "", err

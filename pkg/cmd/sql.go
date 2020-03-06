@@ -25,12 +25,8 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-
-	"k8s.io/client-go/discovery"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
-
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 var (
@@ -56,6 +52,7 @@ Use "%[1]s api-resources" for a complete list of supported resources.`
   %[1]s sql get rc,services`
 
 	errNoContext = fmt.Errorf("no context is currently set, use %q to select a new one", "kubectl config use-context <context>")
+	errUsage     = fmt.Errorf("Use: get <resources> [where <SQL-like query>]")
 )
 
 // SQLOptions provides information required to update
@@ -76,8 +73,7 @@ type SQLOptions struct {
 
 	requestedResources []string
 	requestedQuery     string
-
-	version bool
+	subCommand         string
 
 	genericclioptions.IOStreams
 }
@@ -138,9 +134,14 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 // Complete sets all information required for updating the current context
 func (o *SQLOptions) Complete(cmd *cobra.Command, args []string) error {
 	var err error
-	queryType := map[int]string{1: "version", 2: "get", 4: "get-where"}
+	subCommandsArgs := map[int]string{1: "version", 2: "get", 4: "get"}
 
 	o.args = args
+
+	if len(o.args) == 0 {
+		return errUsage
+	}
+
 	o.rawConfig = o.configFlags.ToRawKubeConfigLoader()
 	if o.namespace, _, err = o.rawConfig.Namespace(); err != nil {
 		return err
@@ -151,15 +152,23 @@ func (o *SQLOptions) Complete(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// Parse user request.
-	switch queryType[len(o.args)] {
-	case "version":
-		o.version = true
-	case "get":
+	// Parse sql sub command.
+	o.subCommand = strings.ToLower(o.args[0])
+	if o.subCommand != subCommandsArgs[len(o.args)] {
+		return errUsage
+	}
+
+	if o.subCommand == "get" {
 		o.requestedResources = strings.Split(o.args[1], ",")
-	case "get-where":
-		o.requestedResources = strings.Split(o.args[1], ",")
-		o.requestedQuery = o.args[3]
+
+		// Look for where
+		if len(o.args) == 4 {
+			if strings.ToLower(o.args[2]) != "where" {
+				return errUsage
+			}
+
+			o.requestedQuery = o.args[3]
+		}
 	}
 
 	return nil
@@ -171,20 +180,20 @@ func (o *SQLOptions) Validate() error {
 	queryType := map[int]string{1: "version", 2: "get", 4: "get-where"}
 
 	if _, ok := queryType[len(o.args)]; !ok {
-		return fmt.Errorf("Use: get <resources> [where <SQL-like query>]")
+		return errUsage
 	}
 	switch queryType[len(o.args)] {
 	case "version":
 		if strings.ToLower(o.args[0]) != "version" {
-			return fmt.Errorf("Use: get <resources> [where <SQL-like query>]")
+			return errUsage
 		}
 	case "get":
 		if strings.ToLower(o.args[0]) != "get" {
-			return fmt.Errorf("Use: get <resources> [where <SQL-like query>]")
+			return errUsage
 		}
 	case "get-where":
 		if strings.ToLower(o.args[0]) != "get" || strings.ToLower(o.args[2]) != "where" {
-			return fmt.Errorf("Use: get <resources> [where <SQL-like query>]")
+			return errUsage
 		}
 	}
 
@@ -199,8 +208,7 @@ func (o *SQLOptions) Validate() error {
 	return nil
 }
 
-// Run lists all available namespaces on a user's KUBECONFIG or updates the
-// current context based on a provided namespace.
+// Run the sql sub command.
 func (o *SQLOptions) Run() error {
 	config, err := o.rawConfig.ClientConfig()
 	if err != nil {
@@ -208,41 +216,14 @@ func (o *SQLOptions) Run() error {
 	}
 
 	// Print plugin version (sub-command = "version").
-	if o.version {
+	if o.subCommand == "version" {
 		return o.Version(config)
 	}
 
 	// Print resources lists.
-	for _, r := range o.requestedResources {
-		list, err := o.List(config, r, o.requestedQuery)
-		if err != nil {
-			return err
-		}
-
-		err = o.Printer(list)
-		if err != nil {
-			return err
-		}
+	if o.subCommand == "get" {
+		return o.Get(config)
 	}
-
-	return nil
-}
-
-// Version prints the plugin version.
-func (o *SQLOptions) Version(config *rest.Config) error {
-	discoveryClient, err := discovery.NewDiscoveryClientForConfig(config)
-	if err != nil {
-		return err
-	}
-
-	serverVersion, err := discoveryClient.ServerVersion()
-	if err != nil {
-		return err
-	}
-
-	fmt.Fprintf(o.Out, "Client version: %v\n", clientVersion)
-	fmt.Fprintf(o.Out, "Server version: %v\n", serverVersion)
-	fmt.Fprintf(o.Out, "Current namespace: %s\n", o.namespace)
 
 	return nil
 }

@@ -30,17 +30,6 @@ import (
 	"github.com/yaacov/tree-search-language/v5/pkg/walkers/semantics"
 )
 
-// checkColumnName checks if a coulumn name has an alias.
-func (o *SQLOptions) checkColumnName(s string) (string, error) {
-	// Chekc for aliases.
-	if v, ok := o.defaultAliases[s]; ok {
-		return v, nil
-	}
-
-	// If not found in alias table, return the column name unchanged.
-	return s, nil
-}
-
 // evalFactory extract a value from an item using a key.
 func evalFactory(item unstructured.Unstructured) semantics.EvalFunc {
 	return func(key string) (interface{}, bool) {
