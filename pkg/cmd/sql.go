@@ -180,25 +180,6 @@ func (o *SQLOptions) Complete(cmd *cobra.Command, args []string) error {
 // Validate ensures that all required arguments and flag values are provided
 func (o *SQLOptions) Validate() error {
 	formatOptions := map[string]bool{"table": true, "json": true, "yaml": true, "name": true}
-	queryType := map[int]string{1: "version", 2: "get", 4: "get-where"}
-
-	if _, ok := queryType[len(o.args)]; !ok {
-		return errUsage
-	}
-	switch queryType[len(o.args)] {
-	case "version":
-		if strings.ToLower(o.args[0]) != "version" {
-			return errUsage
-		}
-	case "get":
-		if strings.ToLower(o.args[0]) != "get" {
-			return errUsage
-		}
-	case "get-where":
-		if strings.ToLower(o.args[0]) != "get" || strings.ToLower(o.args[2]) != "where" {
-			return errUsage
-		}
-	}
 
 	if _, ok := formatOptions[o.outputFormat]; !ok {
 		return fmt.Errorf("output format must be one of: json|yaml|table|name")
