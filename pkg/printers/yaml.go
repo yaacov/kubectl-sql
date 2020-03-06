@@ -26,7 +26,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-// YAML printes items in YAML format
+// YAML prints items in YAML format
 func (c *Config) YAML(items []unstructured.Unstructured) error {
 	for _, item := range items {
 		yaml, err := yaml.Marshal(item)

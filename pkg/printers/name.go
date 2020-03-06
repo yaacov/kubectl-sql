@@ -25,7 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-// Name printes items in Name format
+// Name prints items in Name format
 func (c *Config) Name(items []unstructured.Unstructured) error {
 	for _, item := range items {
 		fmt.Fprintf(c.Out, "%s\n", item.GetName())

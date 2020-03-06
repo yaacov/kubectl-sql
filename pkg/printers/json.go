@@ -26,7 +26,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-// JSON printes items in JSON format
+// JSON prints items in JSON format
 func (c *Config) JSON(items []unstructured.Unstructured) error {
 	for _, item := range items {
 		yaml, err := json.Marshal(item)

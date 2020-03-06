@@ -94,7 +94,7 @@ func (c *Config) getTableColumns(items []unstructured.Unstructured) tableFields 
 	return fields
 }
 
-// Table printes items in Table format
+// Table prints items in Table format
 func (c *Config) Table(items []unstructured.Unstructured) error {
 	var evalFunc func(string) (interface{}, bool)
 
