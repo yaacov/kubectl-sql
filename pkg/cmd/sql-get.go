@@ -30,7 +30,7 @@ import (
 
 // Get the resource list.
 func (o *SQLOptions) Get(config *rest.Config) error {
-	client := client.Client{
+	c := client.Config{
 		Config: config,
 	}
 
@@ -43,7 +43,7 @@ func (o *SQLOptions) Get(config *rest.Config) error {
 
 	// Print resources lists.
 	for _, r := range o.requestedResources {
-		list, err := client.List(r)
+		list, err := c.List(r)
 		if err != nil {
 			return err
 		}

@@ -31,13 +31,13 @@ import (
 	"k8s.io/client-go/rest"
 )
 
-// Client provides information required to query the kubernetes server.
-type Client struct {
+// Config provides information required to query the kubernetes server.
+type Config struct {
 	Config *rest.Config
 }
 
 // List resources by resource name.
-func (c Client) List(resourceName string) ([]unstructured.Unstructured, error) {
+func (c Config) List(resourceName string) ([]unstructured.Unstructured, error) {
 	resource, group, version, err := c.getResourceGroupVersion(resourceName)
 	if err != nil {
 		return nil, err
@@ -63,7 +63,7 @@ func (c Client) List(resourceName string) ([]unstructured.Unstructured, error) {
 }
 
 // Look for a resource matching request resource name.
-func (c Client) getResourceGroupVersion(resourceName string) (v1.APIResource, string, string, error) {
+func (c Config) getResourceGroupVersion(resourceName string) (v1.APIResource, string, string, error) {
 	discoveryClient, err := discovery.NewDiscoveryClientForConfig(c.Config)
 	if err != nil {
 		return v1.APIResource{}, "", "", err
