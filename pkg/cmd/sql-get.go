@@ -35,10 +35,10 @@ func (o *SQLOptions) Get(config *rest.Config) error {
 	}
 
 	f := filter.Config{
-		Aliases:       o.defaultAliases,
-		Query:         o.requestedQuery,
-		Namespace:     o.namespace,
-		AllNamespaces: o.allNamespaces,
+		CheckColumnName: o.checkColumnName,
+		Query:           o.requestedQuery,
+		Namespace:       o.namespace,
+		AllNamespaces:   o.allNamespaces,
 	}
 
 	// Print resources lists.
@@ -61,6 +61,17 @@ func (o *SQLOptions) Get(config *rest.Config) error {
 	}
 
 	return nil
+}
+
+// checkColumnName checks if a coulumn name has an alias.
+func (o *SQLOptions) checkColumnName(s string) (string, error) {
+	// Chekc for aliases.
+	if v, ok := o.defaultAliases[s]; ok {
+		return v, nil
+	}
+
+	// If not found in alias table, return the column name unchanged.
+	return s, nil
 }
 
 // Printer printout a list of items.

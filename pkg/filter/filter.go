@@ -31,21 +31,10 @@ import (
 
 // Config provides information required filter item list by query.
 type Config struct {
-	Aliases       map[string]string
-	Query         string
-	Namespace     string
-	AllNamespaces bool
-}
-
-// checkColumnName checks if a coulumn name has an alias.
-func (c *Config) checkColumnName(s string) (string, error) {
-	// Chekc for aliases.
-	if v, ok := c.Aliases[s]; ok {
-		return v, nil
-	}
-
-	// If not found in alias table, return the column name unchanged.
-	return s, nil
+	CheckColumnName func(s string) (string, error)
+	Query           string
+	Namespace       string
+	AllNamespaces   bool
 }
 
 // Run filters items using namespace and query.
@@ -64,7 +53,7 @@ func (c *Config) Run(list []unstructured.Unstructured) ([]unstructured.Unstructu
 		}
 
 		// Check and replace user identifiers if alias exist.
-		tree, err = ident.Walk(tree, c.checkColumnName)
+		tree, err = ident.Walk(tree, c.CheckColumnName)
 		if err != nil {
 			return nil, err
 		}
