@@ -49,7 +49,7 @@ func (o *SQLOptions) Get(config *rest.Config) error {
 		}
 
 		// Filter items by namespace and query.
-		filteredList, err := f.Run(list)
+		filteredList, err := f.Filter(list)
 		if err != nil {
 			return err
 		}

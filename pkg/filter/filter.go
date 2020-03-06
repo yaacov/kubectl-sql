@@ -37,8 +37,8 @@ type Config struct {
 	AllNamespaces   bool
 }
 
-// Run filters items using namespace and query.
-func (c *Config) Run(list []unstructured.Unstructured) ([]unstructured.Unstructured, error) {
+// Filter filters items using namespace and query.
+func (c *Config) Filter(list []unstructured.Unstructured) ([]unstructured.Unstructured, error) {
 	var (
 		tree     tsl.Node
 		err      error
