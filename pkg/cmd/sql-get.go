@@ -83,7 +83,7 @@ func (o *SQLOptions) Printer(items []unstructured.Unstructured) error {
 	case "json":
 		return p.JSON(items)
 	case "name":
-		return p.Names(items)
+		return p.Name(items)
 	default:
 		p.Table(items)
 	}

@@ -20,13 +20,11 @@ Author: 2020 Yaacov Zamir <kobi.zamir@gmail.com>
 package printers
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
 	"time"
 
-	"gopkg.in/yaml.v2"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	"github.com/yaacov/kubectl-sql/pkg/eval"
@@ -54,43 +52,6 @@ type Config struct {
 	Out io.Writer
 	// ErrOut think, os.Stderr
 	ErrOut io.Writer
-}
-
-// YAML printes items in YAML format
-func (c *Config) YAML(items []unstructured.Unstructured) error {
-	for _, item := range items {
-		yaml, err := yaml.Marshal(item)
-		if err != nil {
-			return err
-		}
-
-		fmt.Fprintf(c.Out, "\n%+v\n", string(yaml))
-	}
-
-	return nil
-}
-
-// JSON printes items in JSON format
-func (c *Config) JSON(items []unstructured.Unstructured) error {
-	for _, item := range items {
-		yaml, err := json.Marshal(item)
-		if err != nil {
-			return err
-		}
-
-		fmt.Fprintf(c.Out, "\n%+v\n", string(yaml))
-	}
-
-	return nil
-}
-
-// Names printes items in Names format
-func (c *Config) Names(items []unstructured.Unstructured) error {
-	for _, item := range items {
-		fmt.Fprintf(c.Out, "%s\n", item.GetName())
-	}
-
-	return nil
 }
 
 // Get the table column titles and fields for the items.
