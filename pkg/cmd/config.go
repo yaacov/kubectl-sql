@@ -36,19 +36,20 @@ type SQLOptions struct {
 	configFlags *genericclioptions.ConfigFlags
 
 	rawConfig              clientcmd.ClientConfig
-	namespace              string
-	allNamespaces          bool
 	defaultSQLConfigPath   string
 	requestedSQLConfigPath string
-	outputFormat           string
 	args                   []string
 
 	defaultAliases     map[string]string
 	defaultTableFields printers.TableFieldsMap
 
+	subCommand         string
+	namespace          string
+	allNamespaces      bool
 	requestedResources []string
 	requestedQuery     string
-	subCommand         string
+	requestedOnQuery   string
+	outputFormat       string
 
 	genericclioptions.IOStreams
 }
@@ -62,29 +63,8 @@ type SQLConfig struct {
 // NewSQLConfig provides an instance of SQLConfig with default values
 func NewSQLConfig() *SQLConfig {
 	return &SQLConfig{
-		Aliases: map[string]string{
-			"phase": "status.phase",
-		},
-		TableFields: printers.TableFieldsMap{
-			"other": {
-				{
-					Title: "NAMESPACE",
-					Name:  "namespace",
-				},
-				{
-					Title: "NAME",
-					Name:  "name",
-				},
-				{
-					Title: "PHASE",
-					Name:  "status.phase",
-				},
-				{
-					Title: "CREATION_TIME(RFC3339)",
-					Name:  "created",
-				},
-			},
-		},
+		Aliases:     defaultAliases,
+		TableFields: defaultTableFields,
 	}
 }
 

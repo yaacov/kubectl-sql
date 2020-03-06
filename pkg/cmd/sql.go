@@ -28,32 +28,6 @@ import (
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
-var (
-	clientVersion = "GIT-master"
-
-	sqlGetLong = `Uses SQL-like language to filter and display one or many resources.
-
-  Prints information about kubernetes resources filtered using SQL-like query.
-If the desired resource type is namespaced you will only see results in your current
-namespace unless you pass --all-namespaces. 
-
-Use "%[1]s api-resources" for a complete list of supported resources.`
-
-	sqlGetUsage = `%[1]s sql get <resources> [where "<SQL-like query>"] [flags] [options]`
-
-	sqlGetExample = `  # List all pods in ps output format.
-  %[1]s sql get pods
-
-  # List deployments in JSON output format, in the "v1" version of the "apps" API group:
-  %[1]s sql get deployments.v1.apps -o json
-	
-  # List all replication controllers and services together in ps output format.
-  %[1]s sql get rc,services`
-
-	errNoContext = fmt.Errorf("no context is currently set, use %q to select a new one", "kubectl config use-context <context>")
-	errUsage     = fmt.Errorf("Use: get <resources> [where <SQL-like query>]")
-)
-
 // NewSQLOptions provides an instance of SQLOptions with default values
 func NewSQLOptions(streams genericclioptions.IOStreams) *SQLOptions {
 	options := &SQLOptions{
@@ -111,7 +85,7 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 // Complete sets all information required for updating the current context
 func (o *SQLOptions) Complete(cmd *cobra.Command, args []string) error {
 	var err error
-	subCommandsArgs := map[int]string{1: "version", 2: "get", 4: "get"}
+	subCommandsArgs := map[int]string{1: "version", 2: "get", 4: "get", 6: "join"}
 
 	o.args = args
 
@@ -135,10 +109,11 @@ func (o *SQLOptions) Complete(cmd *cobra.Command, args []string) error {
 		return errUsage
 	}
 
+	// get <resource list> [where <query>]
 	if o.subCommand == "get" {
 		o.requestedResources = strings.Split(o.args[1], ",")
 
-		// Look for where
+		// Look for "where"
 		if len(o.args) == 4 {
 			if strings.ToLower(o.args[2]) != "where" {
 				return errUsage
@@ -146,6 +121,21 @@ func (o *SQLOptions) Complete(cmd *cobra.Command, args []string) error {
 
 			o.requestedQuery = o.args[3]
 		}
+	}
+
+	// join <resource list> on <query> where <query>
+	if o.subCommand == "join" {
+		o.requestedResources = strings.Split(o.args[1], ",")
+
+		// Look for "on" and "where"
+		if strings.ToLower(o.args[2]) != "on" || strings.ToLower(o.args[4]) != "where" {
+			return errUsage
+		}
+
+		o.requestedResources = strings.Split(o.args[1], ",")
+
+		o.requestedOnQuery = o.args[3]
+		o.requestedQuery = o.args[5]
 	}
 
 	return nil
