@@ -26,7 +26,32 @@ import (
 	"os"
 
 	"github.com/yaacov/kubectl-sql/pkg/printers"
+	"k8s.io/cli-runtime/pkg/genericclioptions"
+	"k8s.io/client-go/tools/clientcmd"
 )
+
+// SQLOptions provides information required to update
+// the current context on a user's KUBECONFIG
+type SQLOptions struct {
+	configFlags *genericclioptions.ConfigFlags
+
+	rawConfig              clientcmd.ClientConfig
+	namespace              string
+	allNamespaces          bool
+	defaultSQLConfigPath   string
+	requestedSQLConfigPath string
+	outputFormat           string
+	args                   []string
+
+	defaultAliases     map[string]string
+	defaultTableFields printers.TableFieldsMap
+
+	requestedResources []string
+	requestedQuery     string
+	subCommand         string
+
+	genericclioptions.IOStreams
+}
 
 // SQLConfig describes configuration overides for SQL queries.
 type SQLConfig struct {

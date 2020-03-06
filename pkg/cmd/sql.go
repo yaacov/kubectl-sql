@@ -26,9 +26,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
-	"k8s.io/client-go/tools/clientcmd"
-
-	"github.com/yaacov/kubectl-sql/pkg/printers"
 )
 
 var (
@@ -56,29 +53,6 @@ Use "%[1]s api-resources" for a complete list of supported resources.`
 	errNoContext = fmt.Errorf("no context is currently set, use %q to select a new one", "kubectl config use-context <context>")
 	errUsage     = fmt.Errorf("Use: get <resources> [where <SQL-like query>]")
 )
-
-// SQLOptions provides information required to update
-// the current context on a user's KUBECONFIG
-type SQLOptions struct {
-	configFlags *genericclioptions.ConfigFlags
-
-	rawConfig              clientcmd.ClientConfig
-	namespace              string
-	allNamespaces          bool
-	defaultSQLConfigPath   string
-	requestedSQLConfigPath string
-	outputFormat           string
-	args                   []string
-
-	defaultAliases     map[string]string
-	defaultTableFields printers.TableFieldsMap
-
-	requestedResources []string
-	requestedQuery     string
-	subCommand         string
-
-	genericclioptions.IOStreams
-}
 
 // NewSQLOptions provides an instance of SQLOptions with default values
 func NewSQLOptions(streams genericclioptions.IOStreams) *SQLOptions {
