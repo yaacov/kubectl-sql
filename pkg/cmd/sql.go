@@ -113,6 +113,7 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 			if err := o.Validate(); err != nil {
 				return err
 			}
+
 			if err := o.Run(); err != nil {
 				return err
 			}
@@ -154,7 +155,7 @@ func (o *SQLOptions) Complete(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// Parse sql sub command.
+	// Parse SQL sub command.
 	o.subCommand = strings.ToLower(o.args[0])
 	if o.subCommand != subCommandsArgs[len(o.args)] {
 		return errUsage
@@ -210,7 +211,7 @@ func (o *SQLOptions) Validate() error {
 	return nil
 }
 
-// Run the sql sub command.
+// Run the SQL sub command.
 func (o *SQLOptions) Run() error {
 	config, err := o.rawConfig.ClientConfig()
 	if err != nil {
