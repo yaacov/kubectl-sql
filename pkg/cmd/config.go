@@ -41,7 +41,7 @@ func NewSQLConfig() *SQLConfig {
 			"phase": "status.phase",
 		},
 		TableFields: printers.TableFieldsMap{
-			"other": printers.TableFields{
+			"other": {
 				{
 					Title: "NAMESPACE",
 					Name:  "namespace",

@@ -37,12 +37,10 @@ type tableField struct {
 	Width    int
 	Template string
 }
-
-// TableFields a list of table field descriptions.
-type TableFields []tableField
+type tableFields []tableField
 
 // TableFieldsMap a map of lists of table field descriptions.
-type TableFieldsMap map[string]TableFields
+type TableFieldsMap map[string]tableFields
 
 // Config provides information required filter item list by query.
 type Config struct {
@@ -55,7 +53,7 @@ type Config struct {
 }
 
 // Get the table column titles and fields for the items.
-func (c *Config) getTableColumns(items []unstructured.Unstructured) TableFields {
+func (c *Config) getTableColumns(items []unstructured.Unstructured) tableFields {
 	var evalFunc func(string) (interface{}, bool)
 
 	// Get the default template for this kind.
