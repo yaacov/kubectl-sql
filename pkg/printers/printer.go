@@ -17,95 +17,103 @@ limitations under the License.
 Author: 2020 Yaacov Zamir <kobi.zamir@gmail.com>
 */
 
-package cmd
+package printers
 
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"strconv"
 	"time"
 
 	"gopkg.in/yaml.v2"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+
+	"github.com/yaacov/kubectl-sql/pkg/eval"
 )
 
-// Printer printout a list of items.
-func (o *SQLOptions) Printer(items []unstructured.Unstructured) error {
-	// Sanity check
-	if len(items) == 0 {
-		return nil
-	}
-
-	// Print out
-	switch o.outputFormat {
-	case "yaml":
-		return o.printerYAML(items)
-	case "json":
-		return o.printerJSON(items)
-	case "name":
-		return o.printerNames(items)
-	default:
-		o.printerTable(items)
-	}
-
-	return nil
+// tableField describes how to print the SQL results table.
+type tableField struct {
+	Title    string `json:"title"`
+	Name     string `json:"name"`
+	Width    int
+	Template string
 }
 
-func (o *SQLOptions) printerYAML(items []unstructured.Unstructured) error {
+// TableFields a list of table field descriptions.
+type TableFields []tableField
+
+// TableFieldsMap a map of lists of table field descriptions.
+type TableFieldsMap map[string]TableFields
+
+// Config provides information required filter item list by query.
+type Config struct {
+	// TableFields describe table field columns
+	TableFields TableFieldsMap
+	// Out think, os.Stdout
+	Out io.Writer
+	// ErrOut think, os.Stderr
+	ErrOut io.Writer
+}
+
+// YAML printes items in YAML format
+func (c *Config) YAML(items []unstructured.Unstructured) error {
 	for _, item := range items {
 		yaml, err := yaml.Marshal(item)
 		if err != nil {
 			return err
 		}
 
-		fmt.Fprintf(o.Out, "\n%+v\n", string(yaml))
+		fmt.Fprintf(c.Out, "\n%+v\n", string(yaml))
 	}
 
 	return nil
 }
 
-func (o *SQLOptions) printerJSON(items []unstructured.Unstructured) error {
+// JSON printes items in JSON format
+func (c *Config) JSON(items []unstructured.Unstructured) error {
 	for _, item := range items {
 		yaml, err := json.Marshal(item)
 		if err != nil {
 			return err
 		}
 
-		fmt.Fprintf(o.Out, "\n%+v\n", string(yaml))
+		fmt.Fprintf(c.Out, "\n%+v\n", string(yaml))
 	}
 
 	return nil
 }
 
-func (o *SQLOptions) printerNames(items []unstructured.Unstructured) error {
+// Names printes items in Names format
+func (c *Config) Names(items []unstructured.Unstructured) error {
 	for _, item := range items {
-		fmt.Fprintf(o.Out, "%s\n", item.GetName())
+		fmt.Fprintf(c.Out, "%s\n", item.GetName())
 	}
 
 	return nil
 }
 
 // Get the table column titles and fields for the items.
-func (o *SQLOptions) getTableColumns(items []unstructured.Unstructured) []tableField {
+func (c *Config) getTableColumns(items []unstructured.Unstructured) TableFields {
 	var evalFunc func(string) (interface{}, bool)
 
 	// Get the default template for this kind.
 	kind := items[0].GetKind()
-	fields, ok := o.defaultTableFields[kind]
+	fields, ok := c.TableFields[kind]
 	if !ok {
-		fields = o.defaultTableFields["other"]
+		fields = c.TableFields["other"]
 	}
 
 	// Calculte field widths
 	for _, item := range items {
-		evalFunc = evalFactory(item)
+		evalFunc = eval.Factory(item)
 
 		for i, field := range fields {
 			if value, found := evalFunc(field.Name); found && value != nil {
 				length := len(fmt.Sprintf("%v", value))
 
-				if length > fields[i].width {
-					fields[i].width = length
+				if length > fields[i].Width {
+					fields[i].Width = length
 				}
 			}
 		}
@@ -113,41 +121,42 @@ func (o *SQLOptions) getTableColumns(items []unstructured.Unstructured) []tableF
 
 	// Calculte field template
 	for i, field := range fields {
-		if field.width > 0 {
+		if field.Width > 0 {
 			// Ajdust for title length
 			width := len(field.Title)
-			if width < field.width {
-				width = field.width
+			if width < field.Width {
+				width = field.Width
 			}
 
-			fields[i].template = fmt.Sprintf("%%-%ds\t", width)
+			fields[i].Template = fmt.Sprintf("%%-%ds\t", width)
 		}
 	}
 
 	return fields
 }
 
-func (o *SQLOptions) printerTable(items []unstructured.Unstructured) error {
+// Table printes items in Table format
+func (c *Config) Table(items []unstructured.Unstructured) error {
 	var evalFunc func(string) (interface{}, bool)
 
 	// Get table fields for the items.
-	fields := o.getTableColumns(items)
+	fields := c.getTableColumns(items)
 
 	// Pring table head
-	fmt.Fprintf(o.Out, "\nKIND: %s\n", items[0].GetKind())
+	fmt.Fprintf(c.Out, "\nKIND: %s\n", items[0].GetKind())
 	for _, field := range fields {
-		if field.width > 0 {
-			fmt.Fprintf(o.Out, field.template, field.Title)
+		if field.Width > 0 {
+			fmt.Fprintf(c.Out, field.Template, field.Title)
 		}
 	}
 	fmt.Print("\n")
 
 	// Print table rows
 	for _, item := range items {
-		evalFunc = evalFactory(item)
+		evalFunc = eval.Factory(item)
 
 		for _, field := range fields {
-			if field.width > 0 {
+			if field.Width > 0 {
 				if v, found := evalFunc(field.Name); found && v != nil {
 					value := v
 					switch v.(type) {
@@ -162,9 +171,9 @@ func (o *SQLOptions) printerTable(items []unstructured.Unstructured) error {
 						value = v.(time.Time).Format(time.RFC3339)
 					}
 
-					fmt.Fprintf(o.Out, field.template, value)
+					fmt.Fprintf(c.Out, field.Template, value)
 				} else {
-					fmt.Fprintf(o.Out, field.template, "")
+					fmt.Fprintf(c.Out, field.Template, "")
 				}
 			}
 		}

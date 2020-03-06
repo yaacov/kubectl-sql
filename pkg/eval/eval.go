@@ -17,7 +17,7 @@ limitations under the License.
 Author: 2020 Yaacov Zamir <kobi.zamir@gmail.com>
 */
 
-package cmd
+package eval
 
 import (
 	"math"
@@ -30,8 +30,8 @@ import (
 	"github.com/yaacov/tree-search-language/v5/pkg/walkers/semantics"
 )
 
-// evalFactory extract a value from an item using a key.
-func evalFactory(item unstructured.Unstructured) semantics.EvalFunc {
+// Factory extract a value from an item using a key.
+func Factory(item unstructured.Unstructured) semantics.EvalFunc {
 	return func(key string) (interface{}, bool) {
 		// Check for reserved words.
 		switch key {

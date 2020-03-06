@@ -20,20 +20,36 @@ Author: 2020 Yaacov Zamir <kobi.zamir@gmail.com>
 package cmd
 
 import (
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/rest"
+
+	"github.com/yaacov/kubectl-sql/pkg/client"
+	"github.com/yaacov/kubectl-sql/pkg/filter"
+	"github.com/yaacov/kubectl-sql/pkg/printers"
 )
 
 // Get the resource list.
 func (o *SQLOptions) Get(config *rest.Config) error {
+	client := client.Client{
+		Config: config,
+	}
+
+	f := filter.Config{
+		Aliases:       o.defaultAliases,
+		Query:         o.requestedQuery,
+		Namespace:     o.namespace,
+		AllNamespaces: o.allNamespaces,
+	}
+
 	// Print resources lists.
 	for _, r := range o.requestedResources {
-		list, err := List(config, r)
+		list, err := client.List(r)
 		if err != nil {
 			return err
 		}
 
 		// Filter items by namespace and query.
-		filteredList, err := o.Filter(list, o.requestedQuery, o.namespace, o.allNamespaces)
+		filteredList, err := f.Run(list)
 		if err != nil {
 			return err
 		}
@@ -42,6 +58,34 @@ func (o *SQLOptions) Get(config *rest.Config) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+// Printer printout a list of items.
+func (o *SQLOptions) Printer(items []unstructured.Unstructured) error {
+	// Sanity check
+	if len(items) == 0 {
+		return nil
+	}
+
+	p := printers.Config{
+		TableFields: o.defaultTableFields,
+		Out:         o.Out,
+		ErrOut:      o.ErrOut,
+	}
+
+	// Print out
+	switch o.outputFormat {
+	case "yaml":
+		return p.YAML(items)
+	case "json":
+		return p.JSON(items)
+	case "name":
+		return p.Names(items)
+	default:
+		p.Table(items)
 	}
 
 	return nil

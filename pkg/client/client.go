@@ -17,7 +17,7 @@ limitations under the License.
 Author: 2020 Yaacov Zamir <kobi.zamir@gmail.com>
 */
 
-package cmd
+package client
 
 import (
 	"fmt"
@@ -31,14 +31,19 @@ import (
 	"k8s.io/client-go/rest"
 )
 
+// Client provides information required to query the kubernetes server.
+type Client struct {
+	Config *rest.Config
+}
+
 // List resources by resource name.
-func List(config *rest.Config, resourceName string) ([]unstructured.Unstructured, error) {
-	resource, group, version, err := getResourceGroupVersion(config, resourceName)
+func (c Client) List(resourceName string) ([]unstructured.Unstructured, error) {
+	resource, group, version, err := c.getResourceGroupVersion(resourceName)
 	if err != nil {
 		return nil, err
 	}
 
-	dynamicClient, err := dynamic.NewForConfig(config)
+	dynamicClient, err := dynamic.NewForConfig(c.Config)
 	if err != nil {
 		return nil, err
 	}
@@ -58,8 +63,8 @@ func List(config *rest.Config, resourceName string) ([]unstructured.Unstructured
 }
 
 // Look for a resource matching request resource name.
-func getResourceGroupVersion(config *rest.Config, resourceName string) (v1.APIResource, string, string, error) {
-	discoveryClient, err := discovery.NewDiscoveryClientForConfig(config)
+func (c Client) getResourceGroupVersion(resourceName string) (v1.APIResource, string, string, error) {
+	discoveryClient, err := discovery.NewDiscoveryClientForConfig(c.Config)
 	if err != nil {
 		return v1.APIResource{}, "", "", err
 	}

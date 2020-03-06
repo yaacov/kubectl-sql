@@ -18,7 +18,7 @@ VERSION_GIT := $(shell git describe --tags)
 VERSION ?= ${VERSION_GIT}
 
 kubesql_cmd := $(wildcard ./cmd/kubectl-sql/*.go)
-kubesql_pkg := $(wildcard ./pkg/cmd/*.go)
+kubesql_pkg := $(wildcard ./pkg/**/*.go)
 
 all: kubectl-sql
 
@@ -27,7 +27,8 @@ kubectl-sql: $(kubesql_cmd) $(kubesql_pkg)
 
 .PHONY: lint
 lint:
-	golint $(kubesql_cmd) && golint $(kubesql_pkg)
+	golint ./pkg/...
+	golint ./cmd/...
 
 .PHONY: fmt
 fmt:

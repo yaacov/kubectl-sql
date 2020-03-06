@@ -24,23 +24,15 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+
+	"github.com/yaacov/kubectl-sql/pkg/printers"
 )
 
 // SQLConfig describes configuration overides for SQL queries.
 type SQLConfig struct {
-	Aliases     map[string]string `json:"aliases"`
-	TableFields tableFieldsMap    `json:"table-fields"`
+	Aliases     map[string]string       `json:"aliases"`
+	TableFields printers.TableFieldsMap `json:"table-fields"`
 }
-
-// tableField describes how to print the SQL results table.
-type tableField struct {
-	Title    string `json:"title"`
-	Name     string `json:"name"`
-	width    int
-	template string
-}
-type tableFields []tableField
-type tableFieldsMap map[string]tableFields
 
 // NewSQLConfig provides an instance of SQLConfig with default values
 func NewSQLConfig() *SQLConfig {
@@ -48,8 +40,8 @@ func NewSQLConfig() *SQLConfig {
 		Aliases: map[string]string{
 			"phase": "status.phase",
 		},
-		TableFields: tableFieldsMap{
-			"other": tableFields{
+		TableFields: printers.TableFieldsMap{
+			"other": printers.TableFields{
 				{
 					Title: "NAMESPACE",
 					Name:  "namespace",

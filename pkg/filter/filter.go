@@ -17,7 +17,7 @@ limitations under the License.
 Author: 2020 Yaacov Zamir <kobi.zamir@gmail.com>
 */
 
-package cmd
+package filter
 
 import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -25,12 +25,22 @@ import (
 	"github.com/yaacov/tree-search-language/v5/pkg/tsl"
 	"github.com/yaacov/tree-search-language/v5/pkg/walkers/ident"
 	"github.com/yaacov/tree-search-language/v5/pkg/walkers/semantics"
+
+	"github.com/yaacov/kubectl-sql/pkg/eval"
 )
 
+// Config provides information required filter item list by query.
+type Config struct {
+	Aliases       map[string]string
+	Query         string
+	Namespace     string
+	AllNamespaces bool
+}
+
 // checkColumnName checks if a coulumn name has an alias.
-func (o *SQLOptions) checkColumnName(s string) (string, error) {
+func (c *Config) checkColumnName(s string) (string, error) {
 	// Chekc for aliases.
-	if v, ok := o.defaultAliases[s]; ok {
+	if v, ok := c.Aliases[s]; ok {
 		return v, nil
 	}
 
@@ -38,22 +48,23 @@ func (o *SQLOptions) checkColumnName(s string) (string, error) {
 	return s, nil
 }
 
-// Filter items using namespace and query.
-func (o *SQLOptions) Filter(list []unstructured.Unstructured, query string, namespace string, allNamespaces bool) ([]unstructured.Unstructured, error) {
+// Run filters items using namespace and query.
+func (c *Config) Run(list []unstructured.Unstructured) ([]unstructured.Unstructured, error) {
 	var (
-		tree tsl.Node
-		err  error
+		tree     tsl.Node
+		err      error
+		hasQuery = len(c.Query) > 0
 	)
 
 	// If we have a query, prepare the search tree.
-	if len(query) > 0 {
-		tree, err = tsl.ParseTSL(query)
+	if hasQuery {
+		tree, err = tsl.ParseTSL(c.Query)
 		if err != nil {
 			return nil, err
 		}
 
 		// Check and replace user identifiers if alias exist.
-		tree, err = ident.Walk(tree, o.checkColumnName)
+		tree, err = ident.Walk(tree, c.checkColumnName)
 		if err != nil {
 			return nil, err
 		}
@@ -62,13 +73,13 @@ func (o *SQLOptions) Filter(list []unstructured.Unstructured, query string, name
 	// Filter items using namespace and query.
 	items := []unstructured.Unstructured{}
 	for _, item := range list {
-		if !allNamespaces && item.GetNamespace() != namespace {
+		if !c.AllNamespaces && item.GetNamespace() != c.Namespace {
 			continue
 		}
 
 		// If we have a query, check item.
-		if len(query) > 0 {
-			matchingFilter, err := semantics.Walk(tree, evalFactory(item))
+		if hasQuery {
+			matchingFilter, err := semantics.Walk(tree, eval.Factory(item))
 			if err != nil {
 				continue
 			}

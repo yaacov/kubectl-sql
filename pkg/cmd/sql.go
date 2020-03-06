@@ -27,6 +27,8 @@ import (
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/tools/clientcmd"
+
+	"github.com/yaacov/kubectl-sql/pkg/printers"
 )
 
 var (
@@ -69,7 +71,7 @@ type SQLOptions struct {
 	args                   []string
 
 	defaultAliases     map[string]string
-	defaultTableFields tableFieldsMap
+	defaultTableFields printers.TableFieldsMap
 
 	requestedResources []string
 	requestedQuery     string
