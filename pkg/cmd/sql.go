@@ -59,7 +59,7 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 	}
 
 	cmdGet := &cobra.Command{
-		Use:              "get <resources> [where \"<SQL-like query>\"] [flags] [options]",
+		Use:              "get <resource[,...]> [where \"<SQL-like query>\"] [flags] [options]",
 		Short:            sqlGetShort,
 		Long:             sqlGetLong,
 		Example:          sqlGetExample,
@@ -83,6 +83,38 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 			}
 
 			if err := o.Get(config); err != nil {
+				return err
+			}
+
+			return nil
+		},
+	}
+
+	cmdJoin := &cobra.Command{
+		Use:              "join <resource,resource> on \"<SQL-like query>\" where \"<SQL-like query>\" [flags] [options]",
+		Short:            sqlGetShort,
+		Long:             sqlGetLong,
+		Example:          sqlGetExample,
+		TraverseChildren: true,
+		RunE: func(c *cobra.Command, args []string) error {
+			if err := o.Complete(c, args); err != nil {
+				return err
+			}
+
+			if err := o.CompleteJoin(c, args); err != nil {
+				return err
+			}
+
+			if err := o.Validate(); err != nil {
+				return err
+			}
+
+			config, err := o.rawConfig.ClientConfig()
+			if err != nil {
+				return err
+			}
+
+			if err := o.Join(config); err != nil {
 				return err
 			}
 
@@ -117,7 +149,7 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 		},
 	}
 
-	cmd.AddCommand(cmdGet, cmdVersion)
+	cmd.AddCommand(cmdGet, cmdJoin, cmdVersion)
 
 	cmd.Flags().BoolVarP(&o.allNamespaces, "all-namespaces", "A", o.allNamespaces,
 		"If present, list the requested object(s) across all namespaces. Namespace in current context is ignored even if specified with --namespace.")
@@ -127,7 +159,9 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 		"Output format. One of: json|yaml|table|name")
 
 	o.configFlags.AddFlags(cmd.Flags())
+
 	cmdGet.Flags().AddFlagSet(cmd.Flags())
+	cmdJoin.Flags().AddFlagSet(cmd.Flags())
 
 	return cmd
 }

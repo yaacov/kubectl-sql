@@ -29,10 +29,28 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-// Factory build an evaluation method that returns a value using a key.
+// Factory build an evaluation method for one item that returns a value using a key.
 func Factory(item unstructured.Unstructured) semantics.EvalFunc {
 	return func(key string) (interface{}, bool) {
 		return extractValue(item, key)
+	}
+}
+
+// Factory2 build an evaluation method for two items that returns a value using a key.
+func Factory2(item1, item2 unstructured.Unstructured, prefix1, prefix2 string) semantics.EvalFunc {
+	return func(key string) (interface{}, bool) {
+		// Use item1 if has prefix1
+		if strings.HasPrefix(key, prefix1+".") {
+			return extractValue(item1, strings.TrimPrefix(key, prefix1+"."))
+		}
+
+		// Use item2 if has prefix2
+		if strings.HasPrefix(key, prefix2+".") {
+			return extractValue(item2, strings.TrimPrefix(key, prefix2+"."))
+		}
+
+		// Defatult to use item2
+		return extractValue(item2, key)
 	}
 }
 
@@ -189,6 +207,11 @@ func stringValue(str string) interface{} {
 
 	// Check for RFC3339 dates
 	if t, err := time.Parse(time.RFC3339, str); err == nil {
+		return t
+	}
+
+	// Check for short hand dates
+	if t, err := time.Parse("2014-06-23", str); err == nil {
 		return t
 	}
 

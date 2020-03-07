@@ -47,7 +47,7 @@ var (
 	sqlGetShort = "Uses SQL-like language to filter and display one or many resources"
 	sqlGetLong  = `Uses SQL-like language to filter and display one or many resources.
 
-  kubectl sql prints information about kubernetes resources filtered using SQL-like query.
+  kubectl sql get prints information about kubernetes resources filtered using SQL-like query.
 If the desired resource type is namespaced you will only see results in your current
 namespace unless you pass --all-namespaces`
 

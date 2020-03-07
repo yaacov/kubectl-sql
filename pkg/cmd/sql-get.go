@@ -32,7 +32,7 @@ import (
 	"github.com/yaacov/kubectl-sql/pkg/printers"
 )
 
-// CompleteGet sets all information required for updating the current context gor get sub command.
+// CompleteGet sets all information required for updating the current context for get sub command.
 func (o *SQLOptions) CompleteGet(cmd *cobra.Command, args []string) error {
 	var err error
 	o.args = args
