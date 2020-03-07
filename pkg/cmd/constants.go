@@ -28,31 +28,53 @@ import (
 var (
 	clientVersion = "GIT-master"
 
-	sqlGetLong = `Uses SQL-like language to filter and display one or many resources.
+	// sql command.
+	sqlCmdShort = "Uses SQL-like language to filter and display one or many resources"
+	sqlCmdLong  = `Uses SQL-like language to filter and display one or many resources.
 
-  Prints information about kubernetes resources filtered using SQL-like query.
+  kubectl sql prints information about kubernetes resources filtered using SQL-like query`
+
+	sqlCmdExample = `  # Print client version.
+  kubectl sql version
+
+  # Print this help message.
+  kubectl sql help
+
+  # List all pods where name starts with "test-" case insensitive.
+  kubectl sql get pods where "name ilike 'test-%%'"`
+
+	// sql get command.
+	sqlGetShort = "Uses SQL-like language to filter and display one or many resources"
+	sqlGetLong  = `Uses SQL-like language to filter and display one or many resources.
+
+  kubectl sql prints information about kubernetes resources filtered using SQL-like query.
 If the desired resource type is namespaced you will only see results in your current
-namespace unless you pass --all-namespaces. 
-
-Use "%[1]s api-resources" for a complete list of supported resources.`
-
-	sqlGetUsage = `%[1]s sql get <resources> [where "<SQL-like query>"] [flags] [options]`
+namespace unless you pass --all-namespaces`
 
 	sqlGetExample = `  # List all pods in table output format.
-  %[1]s sql get pods
+  kubectl sql get pods
 	
   # List all replication controllers and services in json output format.
-  %[1]s sql get rc,services --output json
+  kubectl sql get rc,services --output json
   
   # List all pods where name starts with "test-" case insensitive.
-  %[1]s sql get pods where "name ilike 'test-%%'"
+  kubectl sql get pods where "name ilike 'test-%%'"
 
   # List all pods where the memory request for the first container is lower or equal to 200Mi.
-  %[1]s sql --all-namespaces get pods where "spec.containers.1.resources.requests.memory <= 200Mi"`
+  kubectl sql --all-namespaces get pods where "spec.containers.1.resources.requests.memory <= 200Mi"`
 
-	errNoContext = fmt.Errorf("no context is currently set, use %q to select a new one", "kubectl config use-context <context>")
-	errUsage     = fmt.Errorf("bad command or command usage, use --help flag for help about command usage (kubectl sql [sub-command] --help)")
+	// sql version command
+	sqlVersionShort = "Print the SQL client and server version information"
+	sqlVersionLong  = "Print the SQL client and server version information."
 
+	sqlVersionExample = `# Print the SQL client and server versions for the current context
+  kubectl sql version"`
+
+	// Errors.
+	errNoContext     = fmt.Errorf("no context is currently set, use %q to select a new one", "kubectl config use-context <context>")
+	errUsageTemplate = "bad command or command usage, %s"
+
+	// Defaults.
 	defaultAliases = map[string]string{
 		"phase": "status.phase",
 	}

@@ -33,48 +33,37 @@ import (
 type Config struct {
 	CheckColumnName func(s string) (string, error)
 	Query           string
-	Namespace       string
-	AllNamespaces   bool
 }
 
 // Filter filters items using namespace and query.
 func (c *Config) Filter(list []unstructured.Unstructured) ([]unstructured.Unstructured, error) {
 	var (
-		tree     tsl.Node
-		err      error
-		hasQuery = len(c.Query) > 0
+		tree tsl.Node
+		err  error
 	)
 
 	// If we have a query, prepare the search tree.
-	if hasQuery {
-		tree, err = tsl.ParseTSL(c.Query)
-		if err != nil {
-			return nil, err
-		}
+	tree, err = tsl.ParseTSL(c.Query)
+	if err != nil {
+		return nil, err
+	}
 
-		// Check and replace user identifiers if alias exist.
-		tree, err = ident.Walk(tree, c.CheckColumnName)
-		if err != nil {
-			return nil, err
-		}
+	// Check and replace user identifiers if alias exist.
+	tree, err = ident.Walk(tree, c.CheckColumnName)
+	if err != nil {
+		return nil, err
 	}
 
 	// Filter items using namespace and query.
 	items := []unstructured.Unstructured{}
 	for _, item := range list {
-		if !c.AllNamespaces && item.GetNamespace() != c.Namespace {
+		// If we have a query, check item.
+		matchingFilter, err := semantics.Walk(tree, eval.Factory(item))
+		if err != nil {
 			continue
 		}
-
-		// If we have a query, check item.
-		if hasQuery {
-			matchingFilter, err := semantics.Walk(tree, eval.Factory(item))
-			if err != nil {
-				continue
-			}
-			if !matchingFilter {
-				continue
-			}
+		if !matchingFilter {
+			continue
 		}
 
 		items = append(items, item)

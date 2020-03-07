@@ -22,7 +22,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
@@ -49,10 +48,53 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 	o := NewSQLOptions(streams)
 
 	cmd := &cobra.Command{
-		Long:         fmt.Sprintf(sqlGetLong, "kubectl"),
-		Use:          fmt.Sprintf(sqlGetUsage, "kubectl"),
-		Example:      fmt.Sprintf(sqlGetExample, "kubectl"),
-		SilenceUsage: true,
+		Use:              "sql [command] [flags] [options]",
+		Short:            sqlCmdShort,
+		Long:             sqlCmdLong,
+		Example:          sqlCmdExample,
+		TraverseChildren: true,
+		RunE: func(c *cobra.Command, args []string) error {
+			return fmt.Errorf(errUsageTemplate, "missing sub command")
+		},
+	}
+
+	cmdGet := &cobra.Command{
+		Use:              "get <resources> [where \"<SQL-like query>\"] [flags] [options]",
+		Short:            sqlGetShort,
+		Long:             sqlGetLong,
+		Example:          sqlGetExample,
+		TraverseChildren: true,
+		RunE: func(c *cobra.Command, args []string) error {
+			if err := o.Complete(c, args); err != nil {
+				return err
+			}
+
+			if err := o.CompleteGet(c, args); err != nil {
+				return err
+			}
+
+			if err := o.Validate(); err != nil {
+				return err
+			}
+
+			config, err := o.rawConfig.ClientConfig()
+			if err != nil {
+				return err
+			}
+
+			if err := o.Get(config); err != nil {
+				return err
+			}
+
+			return nil
+		},
+	}
+
+	cmdVersion := &cobra.Command{
+		Use:     "version [flags]",
+		Short:   sqlVersionShort,
+		Long:    sqlVersionLong,
+		Example: sqlVersionExample,
 		RunE: func(c *cobra.Command, args []string) error {
 			if err := o.Complete(c, args); err != nil {
 				return err
@@ -62,13 +104,20 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 				return err
 			}
 
-			if err := o.Run(); err != nil {
+			config, err := o.rawConfig.ClientConfig()
+			if err != nil {
+				return err
+			}
+
+			if err := o.Version(config); err != nil {
 				return err
 			}
 
 			return nil
 		},
 	}
+
+	cmd.AddCommand(cmdGet, cmdVersion)
 
 	cmd.Flags().BoolVarP(&o.allNamespaces, "all-namespaces", "A", o.allNamespaces,
 		"If present, list the requested object(s) across all namespaces. Namespace in current context is ignored even if specified with --namespace.")
@@ -78,6 +127,7 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 		"Output format. One of: json|yaml|table|name")
 
 	o.configFlags.AddFlags(cmd.Flags())
+	cmdGet.Flags().AddFlagSet(cmd.Flags())
 
 	return cmd
 }
@@ -85,57 +135,11 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 // Complete sets all information required for updating the current context
 func (o *SQLOptions) Complete(cmd *cobra.Command, args []string) error {
 	var err error
-	subCommandsArgs := map[int]string{1: "version", 2: "get", 4: "get", 6: "join"}
-
 	o.args = args
-
-	if len(o.args) == 0 {
-		return errUsage
-	}
 
 	o.rawConfig = o.configFlags.ToRawKubeConfigLoader()
 	if o.namespace, _, err = o.rawConfig.Namespace(); err != nil {
 		return err
-	}
-
-	// Read SQL plugin specific configurations.
-	if err = o.readConfigFile(o.requestedSQLConfigPath); err != nil {
-		return err
-	}
-
-	// Parse SQL sub command.
-	o.subCommand = strings.ToLower(o.args[0])
-	if o.subCommand != subCommandsArgs[len(o.args)] {
-		return errUsage
-	}
-
-	// get <resource list> [where <query>]
-	if o.subCommand == "get" {
-		o.requestedResources = strings.Split(o.args[1], ",")
-
-		// Look for "where"
-		if len(o.args) == 4 {
-			if strings.ToLower(o.args[2]) != "where" {
-				return errUsage
-			}
-
-			o.requestedQuery = o.args[3]
-		}
-	}
-
-	// join <resource list> on <query> where <query>
-	if o.subCommand == "join" {
-		o.requestedResources = strings.Split(o.args[1], ",")
-
-		// Look for "on" and "where"
-		if strings.ToLower(o.args[2]) != "on" || strings.ToLower(o.args[4]) != "where" {
-			return errUsage
-		}
-
-		o.requestedResources = strings.Split(o.args[1], ",")
-
-		o.requestedOnQuery = o.args[3]
-		o.requestedQuery = o.args[5]
 	}
 
 	return nil
@@ -151,26 +155,6 @@ func (o *SQLOptions) Validate() error {
 
 	if o.requestedSQLConfigPath != o.defaultSQLConfigPath && !fileExists(o.requestedSQLConfigPath) {
 		return fmt.Errorf("can't open '%s', file may be missing", o.requestedSQLConfigPath)
-	}
-
-	return nil
-}
-
-// Run the SQL sub command.
-func (o *SQLOptions) Run() error {
-	config, err := o.rawConfig.ClientConfig()
-	if err != nil {
-		return err
-	}
-
-	// Print plugin version (sub-command = "version").
-	if o.subCommand == "version" {
-		return o.Version(config)
-	}
-
-	// Print resources lists.
-	if o.subCommand == "get" {
-		return o.Get(config)
 	}
 
 	return nil

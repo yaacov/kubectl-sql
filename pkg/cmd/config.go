@@ -43,13 +43,13 @@ type SQLOptions struct {
 	defaultAliases     map[string]string
 	defaultTableFields printers.TableFieldsMap
 
-	subCommand         string
 	namespace          string
 	allNamespaces      bool
 	requestedResources []string
 	requestedQuery     string
 	requestedOnQuery   string
-	outputFormat       string
+
+	outputFormat string
 
 	genericclioptions.IOStreams
 }

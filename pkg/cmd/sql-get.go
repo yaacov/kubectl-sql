@@ -20,25 +20,84 @@ Author: 2020 Yaacov Zamir <kobi.zamir@gmail.com>
 package cmd
 
 import (
+	"fmt"
+	"strings"
+
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/rest"
 
+	"github.com/spf13/cobra"
 	"github.com/yaacov/kubectl-sql/pkg/client"
 	"github.com/yaacov/kubectl-sql/pkg/filter"
 	"github.com/yaacov/kubectl-sql/pkg/printers"
 )
 
+// CompleteGet sets all information required for updating the current context gor get sub command.
+func (o *SQLOptions) CompleteGet(cmd *cobra.Command, args []string) error {
+	var err error
+	o.args = args
+
+	if len(o.args) != 1 && len(o.args) != 3 {
+		return fmt.Errorf(errUsageTemplate, "bad number of arguments")
+	}
+
+	// Read SQL plugin specific configurations.
+	if err = o.readConfigFile(o.requestedSQLConfigPath); err != nil {
+		return err
+	}
+
+	// get <resource list> [where <query>]
+	o.requestedResources = strings.Split(o.args[0], ",")
+
+	// Look for "where"
+	if len(o.args) == 3 {
+		if strings.ToLower(o.args[1]) != "where" {
+			return fmt.Errorf(errUsageTemplate, "missing \"where\" argument")
+		}
+
+		o.requestedQuery = o.args[2]
+	}
+
+	return nil
+}
+
 // Get the resource list.
 func (o *SQLOptions) Get(config *rest.Config) error {
 	c := client.Config{
-		Config: config,
+		Config:        config,
+		Namespace:     o.namespace,
+		AllNamespaces: o.allNamespaces,
 	}
 
+	if len(o.requestedQuery) > 0 {
+		return o.printFilteredResources(c)
+	}
+
+	return o.printResources(c)
+}
+
+// printResources prints resources lists.
+func (o *SQLOptions) printResources(c client.Config) error {
+	for _, r := range o.requestedResources {
+		list, err := c.List(r)
+		if err != nil {
+			return err
+		}
+
+		err = o.Printer(list)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// printFilteredResources prints filtered resource list.
+func (o *SQLOptions) printFilteredResources(c client.Config) error {
 	f := filter.Config{
 		CheckColumnName: o.checkColumnName,
 		Query:           o.requestedQuery,
-		Namespace:       o.namespace,
-		AllNamespaces:   o.allNamespaces,
 	}
 
 	// Print resources lists.
@@ -48,7 +107,7 @@ func (o *SQLOptions) Get(config *rest.Config) error {
 			return err
 		}
 
-		// Filter items by namespace and query.
+		// Filter items by query.
 		filteredList, err := f.Filter(list)
 		if err != nil {
 			return err
