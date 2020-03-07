@@ -61,7 +61,7 @@ func (c Config) List(resourceName string) ([]unstructured.Unstructured, error) {
 	})
 
 	// Check for namespace
-	if !c.AllNamespaces && len(c.Namespace) > 0 {
+	if !c.AllNamespaces && len(c.Namespace) > 0 && resource.Namespaced {
 		list, err = res.Namespace(c.Namespace).List(v1.ListOptions{})
 	} else {
 		list, err = res.List(v1.ListOptions{})

@@ -78,10 +78,13 @@ namespace unless you pass --all-namespaces`
   kubectl sql join vmis,pods on "vmis.metadata.uid = pods.metadata.ownerReferences.1.uid"
 
   # List all virtual machine instanaces and pods joined on vim is owner of pod for vmis with name matching 'test' regexp.
-  kubectl-sql join vmis,pods on "vmis.metadata.uid = pods.metadata.ownerReferences.1.uid" where "name ~= 'test'" -A
+  kubectl sql join vmis,pods on "vmis.metadata.uid = pods.metadata.ownerReferences.1.uid" where "name ~= 'test'" -A
 
-  # Same using aliases.
-  kubectl-sql join vmis,pods on "vmis.uid = pods.owner.uid" where "name ~= 'test'" -A`
+  # Join deployment sets with pods using the uid aliases.
+  kubectl sql join ds,pods on "ds.uid = pods.owner.uid"
+
+  # Display non running pods by nodes for all namespaces.
+  kubectl sql join nodes,pods on "nodes.status.addresses.1.address = pods.status.hostIP and not pods.phase ~= 'Running'" -A `
 
 	// sql version command
 	sqlVersionShort = "Print the SQL client and server version information"
