@@ -230,7 +230,6 @@ func (o *SQLOptions) Validate() error {
 
 // Get sorted map keys
 func sortedKeys(m map[string]string) []string {
-
 	keys := make([]string, 0, len(m))
 	for k := range m {
 		keys = append(keys, k)
