@@ -28,18 +28,20 @@ import (
 
 // Version prints the plugin version.
 func (o *SQLOptions) Version(config *rest.Config) error {
+	serverVersionStr := ""
+
 	discoveryClient, err := discovery.NewDiscoveryClientForConfig(config)
 	if err != nil {
 		return err
 	}
 
 	serverVersion, err := discoveryClient.ServerVersion()
-	if err != nil {
-		return err
+	if err == nil {
+		serverVersionStr = fmt.Sprintf("%v", serverVersion)
 	}
 
-	fmt.Fprintf(o.Out, "Client version: %v\n", clientVersion)
-	fmt.Fprintf(o.Out, "Server version: %v\n", serverVersion)
+	fmt.Fprintf(o.Out, "Client version: %s\n", clientVersion)
+	fmt.Fprintf(o.Out, "Server version: %s\n", serverVersionStr)
 	fmt.Fprintf(o.Out, "Current namespace: %s\n", o.namespace)
 
 	return nil

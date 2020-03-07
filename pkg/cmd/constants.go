@@ -37,14 +37,20 @@ var (
 	sqlCmdExample = `  # Print client version.
   kubectl sql version
 
-  # Print this help message.
-  kubectl sql help
-
   # List all pods where name starts with "test-" case insensitive.
   kubectl sql get pods where "name ilike 'test-%%'"
 
-  # List all virtual machine instanaces and pods joined on vim is owner of pod.
-  kubectl sql join vmis,pods on "vmis.metadata.uid = pods.metadata.ownerReferences.1.uid"`
+  # Display pods by nodes using matching IP address.
+  kubectl sql join nodes,pods on "nodes.status.addresses.1.address = pods.status.hostIP"
+  
+  # Print current available aliases.
+  kubectl sql aliases
+
+  # Print current available aliases while using a config file.
+  kubectl sql aliases -q ./kubectl-sql.json
+
+  # Print this help message.
+  kubectl sql help`
 
 	// sql get command.
 	sqlGetShort = "Uses SQL-like language to filter and display one or many resources"
@@ -59,7 +65,7 @@ namespace unless you pass --all-namespaces`
 	
   # List all replication controllers and services in json output format.
   kubectl sql get rc,services --output json
-  
+
   # List all pods where name starts with "test-" case insensitive.
   kubectl sql get pods where "name ilike 'test-%%'"
 
@@ -85,13 +91,6 @@ namespace unless you pass --all-namespaces`
 
   # Display non running pods by nodes for all namespaces.
   kubectl sql join nodes,pods on "nodes.status.addresses.1.address = pods.status.hostIP and not pods.phase ~= 'Running'" -A `
-
-	// sql version command
-	sqlVersionShort = "Print the SQL client and server version information"
-	sqlVersionLong  = "Print the SQL client and server version information."
-
-	sqlVersionExample = `# Print the SQL client and server versions for the current context
-  kubectl sql version"`
 
 	// Errors.
 	errNoContext     = fmt.Errorf("no context is currently set, use %q to select a new one", "kubectl config use-context <context>")

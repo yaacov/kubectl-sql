@@ -22,6 +22,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"sort"
 
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
@@ -123,9 +124,8 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 	}
 
 	cmdAliases := &cobra.Command{
-		Use:              "aliases [flags] [options]",
-		Short:            "Display a list of currently used aliases",
-		TraverseChildren: true,
+		Use:   "aliases [flags] [options]",
+		Short: "Display a list of currently used aliases",
 		RunE: func(c *cobra.Command, args []string) error {
 			if err := o.Complete(c, args); err != nil {
 				return err
@@ -136,11 +136,24 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 				return err
 			}
 
-			// Print the alias table.
-			fmt.Fprintf(o.Out, "Aliases:\n\n")
+			hardCodedAliases := map[string]string{
+				"name":      "resource name",
+				"namespace": "resource namespace",
+				"created":   "resource creation time",
+				"deleted":   "resource delition time",
+			}
+
 			fmt.Fprintf(o.Out, "%-12s\t%s\n", "ALIAS", "PATH")
-			for k, v := range o.defaultAliases {
+
+			// Print hard coded alias table.
+			for k, v := range hardCodedAliases {
 				fmt.Fprintf(o.Out, "%-12s\t%s\n", k, v)
+			}
+
+			// Print alias table, sorted by keys.
+			keys := sortedKeys(o.defaultAliases)
+			for _, k := range keys {
+				fmt.Fprintf(o.Out, "%-12s\t%s\n", k, o.defaultAliases[k])
 			}
 
 			return nil
@@ -148,10 +161,8 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 	}
 
 	cmdVersion := &cobra.Command{
-		Use:     "version [flags]",
-		Short:   sqlVersionShort,
-		Long:    sqlVersionLong,
-		Example: sqlVersionExample,
+		Use:   "version [flags]",
+		Short: "Print the SQL client and server version information",
 		RunE: func(c *cobra.Command, args []string) error {
 			if err := o.Complete(c, args); err != nil {
 				return err
@@ -188,6 +199,7 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 	cmdGet.Flags().AddFlagSet(cmd.Flags())
 	cmdJoin.Flags().AddFlagSet(cmd.Flags())
 	cmdAliases.Flags().AddFlagSet(cmd.Flags())
+	cmdVersion.Flags().AddFlagSet(cmd.Flags())
 
 	return cmd
 }
@@ -214,4 +226,16 @@ func (o *SQLOptions) Validate() error {
 	}
 
 	return nil
+}
+
+// Get sorted map keys
+func sortedKeys(m map[string]string) []string {
+
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	return keys
 }
