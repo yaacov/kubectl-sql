@@ -9,7 +9,7 @@
 %define debug_package %{nil}
 
 Name:           %{repo}
-Version:        0.2.5
+Version:        0.2.6
 Release:        1%{?dist}
 Summary:        kubectl-sql uses sql like language to query the Kubernetes cluster manager
 License:        Apache
@@ -42,6 +42,9 @@ install -p -m 0755 ./kubectl-sql %{buildroot}%{_bindir}/kubectl-sql
 %{_bindir}/kubectl-sql
 
 %changelog
+
+* Fri Mar 6 2020 Yaacov Zamir <kobi.zamir@gmail.com> 0.2.6-1
+- fix none namespaced resource display
 
 * Fri Mar 6 2020 Yaacov Zamir <kobi.zamir@gmail.com> 0.2.5-1
 - add join command
