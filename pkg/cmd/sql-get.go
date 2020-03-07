@@ -23,10 +23,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/spf13/cobra"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/rest"
 
-	"github.com/spf13/cobra"
 	"github.com/yaacov/kubectl-sql/pkg/client"
 	"github.com/yaacov/kubectl-sql/pkg/filter"
 	"github.com/yaacov/kubectl-sql/pkg/printers"

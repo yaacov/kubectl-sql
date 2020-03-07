@@ -25,82 +25,86 @@ import (
 	"strings"
 	"time"
 
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-
 	"github.com/yaacov/tree-search-language/v5/pkg/walkers/semantics"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-// Factory extract a value from an item using a key.
+// Factory build an evaluation method that returns a value using a key.
 func Factory(item unstructured.Unstructured) semantics.EvalFunc {
 	return func(key string) (interface{}, bool) {
-		// Check for reserved words.
-		switch key {
-		case "name":
-			return item.GetName(), true
-		case "namespace":
-			return item.GetNamespace(), true
-		case "created":
-			return item.GetCreationTimestamp().Time, true
-		case "deleted":
-			return item.GetDeletionTimestamp().Time, true
+		return extractValue(item, key)
+	}
+}
+
+// extractValue extract a value from an item using a key.
+func extractValue(item unstructured.Unstructured, key string) (interface{}, bool) {
+	// Check for reserved words.
+	switch key {
+	case "name":
+		return item.GetName(), true
+	case "namespace":
+		return item.GetNamespace(), true
+	case "created":
+		return item.GetCreationTimestamp().Time, true
+	case "deleted":
+		return item.GetDeletionTimestamp().Time, true
+	}
+
+	// Check for labels and annotations.
+	if len(key) > 7 && key[:7] == "labels." {
+		value, ok := item.GetLabels()[key[7:]]
+
+		// Empty label represent the label is present
+		if ok && len(value) == 0 {
+			return true, true
 		}
 
-		// Check for labels and annotations.
-		if len(key) > 7 && key[:7] == "labels." {
-			value, ok := item.GetLabels()[key[7:]]
-
-			// Empty label represent the label is present
-			if ok && len(value) == 0 {
-				return true, true
-			}
-
-			// Missing value
-			if !ok {
-				return nil, true
-			}
-
-			v := stringValue(value)
-			return v, true
-		}
-
-		if len(key) > 12 && key[:12] == "annotations." {
-			value, ok := item.GetAnnotations()[key[12:]]
-
-			// Empty annotations represent the annotations is present
-			if ok && len(value) == 0 {
-				return true, true
-			}
-
-			// Missing value
-			if !ok {
-				return nil, true
-			}
-
-			v := stringValue(value)
-			return v, true
-		}
-
-		// Check for numbers, booleans, dates and strings.
-		object, ok := getNestedObject(item.Object, key)
+		// Missing value
 		if !ok {
-			// Missing value is interpated as null value.
 			return nil, true
 		}
 
-		switch object.(type) {
-		case float64:
-			return object.(float64), true
-		case int64:
-			return float64(object.(int64)), true
-		case string:
-			v := stringValue(object.(string))
+		v := stringValue(value)
+		return v, true
+	}
 
-			return v, true
+	if len(key) > 12 && key[:12] == "annotations." {
+		value, ok := item.GetAnnotations()[key[12:]]
+
+		// Empty annotations represent the annotations is present
+		if ok && len(value) == 0 {
+			return true, true
 		}
 
+		// Missing value
+		if !ok {
+			return nil, true
+		}
+
+		v := stringValue(value)
+		return v, true
+	}
+
+	// Check for numbers, booleans, dates and strings.
+	object, ok := getNestedObject(item.Object, key)
+	if !ok {
 		// Missing value is interpated as null value.
 		return nil, true
 	}
+
+	switch object.(type) {
+	case float64:
+		return object.(float64), true
+	case int64:
+		return float64(object.(int64)), true
+	case string:
+		v := stringValue(object.(string))
+
+		return v, true
+	}
+
+	// Missing value is interpated as null value.
+	return nil, true
 }
 
 // Retrun a nested object using a key
