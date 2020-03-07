@@ -91,10 +91,10 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 	}
 
 	cmdJoin := &cobra.Command{
-		Use:              "join <resource,resource> on \"<SQL-like query>\" where \"<SQL-like query>\" [flags] [options]",
-		Short:            sqlGetShort,
-		Long:             sqlGetLong,
-		Example:          sqlGetExample,
+		Use:              "join <resource,resource> on \"<SQL-like query>\" [where \"<SQL-like query>\"] [flags] [options]",
+		Short:            sqlJoinShort,
+		Long:             sqlJoinLong,
+		Example:          sqlJoinExample,
 		TraverseChildren: true,
 		RunE: func(c *cobra.Command, args []string) error {
 			if err := o.Complete(c, args); err != nil {
@@ -116,6 +116,31 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 
 			if err := o.Join(config); err != nil {
 				return err
+			}
+
+			return nil
+		},
+	}
+
+	cmdAliases := &cobra.Command{
+		Use:              "aliases [flags] [options]",
+		Short:            "Display a list of currently used aliases",
+		TraverseChildren: true,
+		RunE: func(c *cobra.Command, args []string) error {
+			if err := o.Complete(c, args); err != nil {
+				return err
+			}
+
+			// Read SQL plugin specific configurations.
+			if err := o.readConfigFile(o.requestedSQLConfigPath); err != nil {
+				return err
+			}
+
+			// Print the alias table.
+			fmt.Fprintf(o.Out, "Aliases:\n\n")
+			fmt.Fprintf(o.Out, "%-12s\t%s\n", "ALIAS", "PATH")
+			for k, v := range o.defaultAliases {
+				fmt.Fprintf(o.Out, "%-12s\t%s\n", k, v)
 			}
 
 			return nil
@@ -149,7 +174,7 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 		},
 	}
 
-	cmd.AddCommand(cmdGet, cmdJoin, cmdVersion)
+	cmd.AddCommand(cmdGet, cmdJoin, cmdVersion, cmdAliases)
 
 	cmd.Flags().BoolVarP(&o.allNamespaces, "all-namespaces", "A", o.allNamespaces,
 		"If present, list the requested object(s) across all namespaces. Namespace in current context is ignored even if specified with --namespace.")
@@ -162,6 +187,7 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 
 	cmdGet.Flags().AddFlagSet(cmd.Flags())
 	cmdJoin.Flags().AddFlagSet(cmd.Flags())
+	cmdAliases.Flags().AddFlagSet(cmd.Flags())
 
 	return cmd
 }
@@ -185,10 +211,6 @@ func (o *SQLOptions) Validate() error {
 
 	if _, ok := formatOptions[o.outputFormat]; !ok {
 		return fmt.Errorf("output format must be one of: json|yaml|table|name")
-	}
-
-	if o.requestedSQLConfigPath != o.defaultSQLConfigPath && !fileExists(o.requestedSQLConfigPath) {
-		return fmt.Errorf("can't open '%s', file may be missing", o.requestedSQLConfigPath)
 	}
 
 	return nil

@@ -41,7 +41,10 @@ var (
   kubectl sql help
 
   # List all pods where name starts with "test-" case insensitive.
-  kubectl sql get pods where "name ilike 'test-%%'"`
+  kubectl sql get pods where "name ilike 'test-%%'"
+
+  # List all virtual machine instanaces and pods joined on vim is owner of pod.
+  kubectl sql join vmis,pods on "vmis.metadata.uid = pods.metadata.ownerReferences.1.uid"`
 
 	// sql get command.
 	sqlGetShort = "Uses SQL-like language to filter and display one or many resources"
@@ -63,6 +66,23 @@ namespace unless you pass --all-namespaces`
   # List all pods where the memory request for the first container is lower or equal to 200Mi.
   kubectl sql --all-namespaces get pods where "spec.containers.1.resources.requests.memory <= 200Mi"`
 
+	// sql get command.
+	sqlJoinShort = "Uses SQL-like language to join two resources"
+	sqlJoinLong  = `Uses SQL-like language to join two resources.
+
+  kubectl sql join prints information about kubernetes resources joined using SQL-like query.
+If the desired resource type is namespaced you will only see results in your current
+namespace unless you pass --all-namespaces`
+
+	sqlJoinExample = `  # List all virtual machine instanaces and pods joined on vim is owner of pod.
+  kubectl sql join vmis,pods on "vmis.metadata.uid = pods.metadata.ownerReferences.1.uid"
+
+  # List all virtual machine instanaces and pods joined on vim is owner of pod for vmis with name matching 'test' regexp.
+  kubectl-sql join vmis,pods on "vmis.metadata.uid = pods.metadata.ownerReferences.1.uid" where "name ~= 'test'" -A
+
+  # Same using aliases.
+  kubectl-sql join vmis,pods on "vmis.uid = pods.owner.uid" where "name ~= 'test'" -A`
+
 	// sql version command
 	sqlVersionShort = "Print the SQL client and server version information"
 	sqlVersionLong  = "Print the SQL client and server version information."
@@ -76,7 +96,9 @@ namespace unless you pass --all-namespaces`
 
 	// Defaults.
 	defaultAliases = map[string]string{
-		"phase": "status.phase",
+		"phase":     "status.phase",
+		"uid":       "metadata.uid",
+		"owner.uid": "metadata.ownerReferences.1.uid",
 	}
 	defaultTableFields = printers.TableFieldsMap{
 		"other": {

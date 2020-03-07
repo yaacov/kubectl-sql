@@ -36,7 +36,7 @@ func (o *SQLOptions) CompleteJoin(cmd *cobra.Command, args []string) error {
 	var err error
 	o.args = args
 
-	if len(o.args) != 5 {
+	if len(o.args) != 5 && len(o.args) != 3 {
 		return fmt.Errorf(errUsageTemplate, "bad number of arguments")
 	}
 
@@ -57,18 +57,23 @@ func (o *SQLOptions) CompleteJoin(cmd *cobra.Command, args []string) error {
 	}
 
 	// Look for "where"
-	if strings.ToLower(o.args[3]) != "where" {
-		return fmt.Errorf(errUsageTemplate, "missing \"where\" argument")
+	if len(o.args) == 5 {
+		if strings.ToLower(o.args[3]) != "where" {
+			return fmt.Errorf(errUsageTemplate, "missing \"where\" argument")
+		}
+		o.requestedQuery = o.args[4]
 	}
 
 	o.requestedOnQuery = o.args[2]
-	o.requestedQuery = o.args[4]
 
 	return nil
 }
 
 // Join two resource list.
 func (o *SQLOptions) Join(config *rest.Config) error {
+	var err error
+	var filteredList []unstructured.Unstructured
+
 	c := client.Config{
 		Config:        config,
 		Namespace:     o.namespace,
@@ -92,10 +97,15 @@ func (o *SQLOptions) Join(config *rest.Config) error {
 		return err
 	}
 
-	// Filter primary items by query.
-	filteredList, err := f.Filter(list1)
-	if err != nil {
-		return err
+	// Filter primary list if needed.
+	if len(o.requestedQuery) > 0 {
+		// Filter primary items by query.
+		filteredList, err = f.Filter(list1)
+		if err != nil {
+			return err
+		}
+	} else {
+		filteredList = list1
 	}
 
 	for _, r := range filteredList {
