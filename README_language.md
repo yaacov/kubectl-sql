@@ -65,14 +65,6 @@ https://github.com/yaacov/tree-search-language
 | RFC3339 | `status.conditions.1.lastTransitionTime > 2020-02-20T11:12:38Z`  |
 | Short date | `created <= 2020-02-20` |
 
-#### Output formats:
-| --output flag | Print format |
-|----|---|
-| table | Table |
-| name | Names only |
-| yaml | YAML |
-| json | JSON |
-
 #### Arrays and lists:
 kubectl-sql support resource paths that include lists by using the list index as a field key.
 
