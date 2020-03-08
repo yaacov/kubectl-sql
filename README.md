@@ -61,6 +61,14 @@ With `kubectl` v1.12 or higher, `kubectl-sql` can be used as a kubectl plugin.
 kubectl sql get pods where "name ilike 'test-%'"
 ```
 
+#### Output formats:
+| --output flag | Print format |
+|----|---|
+| table | Table |
+| name | Names only |
+| yaml | YAML |
+| json | JSON |
+
 ## What does it do ?
 
 <p align="center">
