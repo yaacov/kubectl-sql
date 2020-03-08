@@ -93,6 +93,10 @@ For other ways to select Kubernetes resources see [#Alternatives](https://github
    <a href="https://asciinema.org/a/vOSwHzeOLbVhQb79ajFmql2uk" target="_blank"><img src="https://asciinema.org/a/vOSwHzeOLbVhQb79ajFmql2uk.svg" /></a>
 <p>
 
+<p align="center">
+   <a href="https://asciinema.org/a/308434" target="_blank"><img src="https://asciinema.org/a/308434.svg" /></a>
+<p>
+  
 [More kubectl-sql examples](https://github.com/yaacov/kubectl-sql/blob/master/README_config.md)
 
 ``` bash
