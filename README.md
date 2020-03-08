@@ -132,10 +132,11 @@ For other ways to select Kubernetes resources see [#Alternatives](https://github
 |---|
 | `status.conditions.1.status = true` |
 
-#### RFC3339 dates:
-| Example |
-|---|
-| `status.conditions.1.lastTransitionTime > 2020-02-20T11:12:38Z`  |
+#### Dates:
+| Format | Example |
+|---|---|
+| RFC3339 | `status.conditions.1.lastTransitionTime > 2020-02-20T11:12:38Z`  |
+| Short date | `created <= 2020-02-20` |
 
 #### Output formats:
 | --output flag | Print format |
