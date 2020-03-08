@@ -54,7 +54,15 @@ make
 
 #### Plugin
 
-With `kubectl` v1.12 or higher, `kubectl-sql` can be used as a kubectl plugin.
+kubectl-sql can be used as a stand alone cli tool `kubectl-sql`, or as a `kubectl` plugin `sql` ( requires `kubectl` v1.12 or higher ).
+
+Installing `kubectl-sql` as a plugin requires both `kubectl` and `kubectl-sql` to be installed in the current `PATH`.
+
+``` bash
+# For example, if user PATH include $HOME/.local/bin
+# this line will install kubectl-sql in the users PATH
+cp kubectl-sql ~/.local/bin/
+```
 
 ``` bash
 # Using kubectl-sql as a kubectl plugin.
