@@ -256,7 +256,7 @@ https://github.com/yaacov/tree-search-language
 #### jq
 
 `jq` is a lightweight and flexible command-line JSON processor. It is possible to
-pipe the kubectl command output into the `jq` command to create complicated searches.
+pipe the kubectl command output into the `jq` command to create complicated searches ( [Illustrated jq toturial](https://github.com/MoserMichael/jq-illustrated) )
 
 https://stedolan.github.io/jq/manual/#select(boolean_expression)
 
