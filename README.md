@@ -33,7 +33,7 @@ kubectl-sql is a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubect
 
 
 <p align="center">
-   <a href="https://asciinema.org/a/bU45k4co934j6DYW85NtiMGAl" target="_blank"><img src="https://asciinema.org/a/bU45k4co934j6DYW85NtiMGAl.svg" width="400"/></a>
+   <a href="https://asciinema.org/a/jPQQCjFG2qGqlZ6HKXWoQjFWa" target="_blank"><img src="https://asciinema.org/a/jPQQCjFG2qGqlZ6HKXWoQjFWa.svg" /></a>
 <p>
   
 ## Install
@@ -156,6 +156,10 @@ to escape the identifier name by wrapping it with `[...]` , `` `...` `` or `"...
 
 ## Examples
 
+<p align="center">
+   <a href="https://asciinema.org/a/vOSwHzeOLbVhQb79ajFmql2uk" target="_blank"><img src="https://asciinema.org/a/vOSwHzeOLbVhQb79ajFmql2uk.svg" /></a>
+<p>
+  
 #### All namespaces
 
 ``` bash
@@ -199,6 +203,20 @@ kubectl-sql --all-namespaces get rs where "spec.replicas = 3 and status.readyRep
 
 ...
 ```
+
+#### Join
+
+
+<p align="center">
+   <a href="https://asciinema.org/a/AiBPT3SL7R9MgHCJV1tI0k6fU" target="_blank"><img src="https://asciinema.org/a/AiBPT3SL7R9MgHCJV1tI0k6fU.svg" /></a>
+<p>
+  
+``` bash
+# Display non running pods by nodes for all namespaces.
+kubectl-sql join nodes,pods on "nodes.status.addresses.1.address = pods.status.hostIP and not pods.phase ~= 'Running'" -A
+...
+```
+
 #### Print help
 
 ```
