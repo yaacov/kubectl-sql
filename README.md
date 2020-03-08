@@ -70,6 +70,10 @@ kubectl sql get pods where "name ilike 'test-%'"
 
 ## What does it do ?
 
+<p align="center">
+  <a href="https://asciinema.org/a/308443" target="_blank"><img src="https://asciinema.org/a/308443.svg" /></a>
+<p>
+
 kubectl-sql let you select Kubernetes resources based on the value of one or more resource fields, using
 human readable easy to use SQL like query language.
 
