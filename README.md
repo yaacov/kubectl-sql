@@ -15,6 +15,10 @@ kubectl-sql is a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubect
   - [What can I do with it ?](#what-does-it-do-)
   - [Alternatives](#alternatives)
 
+<p align="center">
+  <a href="https://asciinema.org/a/308443" target="_blank"><img src="https://asciinema.org/a/308443.svg" /></a>
+<p>
+
 ## More docs
 
  - [kubectl-sql's SQL like language](https://github.com/yaacov/kubectl-sql/blob/master/README_language.md)
@@ -76,7 +80,7 @@ kubectl sql get pods where "name ilike 'test-%'"
 ## What does it do ?
 
 <p align="center">
-  <a href="https://asciinema.org/a/308443" target="_blank"><img src="https://asciinema.org/a/308443.svg" /></a>
+   <a href="https://asciinema.org/a/vOSwHzeOLbVhQb79ajFmql2uk" target="_blank"><img src="https://asciinema.org/a/vOSwHzeOLbVhQb79ajFmql2uk.svg" /></a>
 <p>
 
 kubectl-sql let you select Kubernetes resources based on the value of one or more resource fields, using
@@ -86,10 +90,6 @@ human readable easy to use SQL like query language. It is also posible to find c
 For other ways to select Kubernetes resources see [#Alternatives](https://github.com/yaacov/kubectl-sql#alternatives).
 
 #### Examples
-
-<p align="center">
-   <a href="https://asciinema.org/a/vOSwHzeOLbVhQb79ajFmql2uk" target="_blank"><img src="https://asciinema.org/a/vOSwHzeOLbVhQb79ajFmql2uk.svg" /></a>
-<p>
 
 <p align="center">
    <a href="https://asciinema.org/a/308434" target="_blank"><img src="https://asciinema.org/a/308434.svg" /></a>
