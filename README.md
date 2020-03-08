@@ -217,7 +217,8 @@ kubectl-sql --all-namespaces get rs where "spec.replicas = 3 and status.readyRep
   
 ``` bash
 # Display non running pods by nodes for all namespaces.
-kubectl-sql join nodes,pods on "nodes.status.addresses.1.address = pods.status.hostIP and not pods.phase ~= 'Running'" -A
+kubectl-sql join nodes,pods on \
+    "nodes.status.addresses.1.address = pods.status.hostIP and not pods.phase ~= 'Running'" -A
 ...
 ```
 
