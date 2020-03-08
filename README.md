@@ -78,12 +78,6 @@ kubectl sql get pods where "name ilike 'test-%'"
 kubectl-sql let you select Kubernetes resources based on the value of one or more resource fields, using
 human readable easy to use SQL like query language.
 
-Example:
-``` bash
-# Filter replica sets with less ready-replicas then replicas"
-kubectl-sql --all-namespaces get rs where "status.readyReplicas < status.replicas"
-```
-
 For other ways to select Kubernetes resources see [#Alternatives](https://github.com/yaacov/kubectl-sql#alternatives).
 
 ## Examples
@@ -112,6 +106,11 @@ kubectl-sql -o json get pvc where "spec.resources.requests.storage < 20Gi"
 kubectl-sql join nodes,pods on \
     "nodes.status.addresses.1.address = pods.status.hostIP and not pods.phase ~= 'Running'" -A
 ...
+```
+
+``` bash
+# Filter replica sets with less ready-replicas then replicas"
+kubectl-sql --all-namespaces get rs where "status.readyReplicas < status.replicas"
 ```
 
 ## Alternatives
