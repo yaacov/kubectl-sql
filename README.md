@@ -21,8 +21,8 @@ kubectl-sql is a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubect
 
 ## More docs
 
- - [The SQL like language](https://github.com/yaacov/kubectl-sql/blob/master/README_language.md)
- - [More examples](https://github.com/yaacov/kubectl-sql/blob/master/README_config.md)
+ - [kubectl-sql's SQL like language](https://github.com/yaacov/kubectl-sql/blob/master/README_language.md)
+ - [More kubectl-sql examples](https://github.com/yaacov/kubectl-sql/blob/master/README_config.md)
  - [Using the config file](https://github.com/yaacov/kubectl-sql/blob/master/README_config.md)
 
 ## Install
@@ -93,6 +93,8 @@ For other ways to select Kubernetes resources see [#Alternatives](https://github
 <p align="center">
    <a href="https://asciinema.org/a/vOSwHzeOLbVhQb79ajFmql2uk" target="_blank"><img src="https://asciinema.org/a/vOSwHzeOLbVhQb79ajFmql2uk.svg" /></a>
 <p>
+
+[More kubectl-sql examples](https://github.com/yaacov/kubectl-sql/blob/master/README_config.md)
 
 ``` bash
 # Get all pods from current namespace scope, that has a name starting with "virt-" and
