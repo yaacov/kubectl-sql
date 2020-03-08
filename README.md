@@ -24,6 +24,7 @@ kubectl-sql is a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubect
     - [All Namespaces](#all-namespaces)
     - [Regexp](#using-regexp)
     - [Compere Fields](#comparing-fields)
+    - [Join](#join)
     - [Print Help](#print-help)
   - [Config File](#config-file)
   - [Query language](#query-language)
