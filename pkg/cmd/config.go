@@ -25,9 +25,10 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/yaacov/kubectl-sql/pkg/printers"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/tools/clientcmd"
+
+	"github.com/yaacov/kubectl-sql/pkg/printers"
 )
 
 // SQLOptions provides information required to update
