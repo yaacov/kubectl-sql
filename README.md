@@ -15,8 +15,6 @@ kubectl-sql is a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubect
   - [What does it do ?](#what-does-it-do-)
   - [Examples](#examples)
   - [Alternatives](#alternatives)
-    - [jq](#jq)
-    - [Field Selector](#kubectl---field-selector)
 
 ## More docs
 
