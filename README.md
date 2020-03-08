@@ -13,7 +13,6 @@ kubectl-sql is a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubect
 
   - [Install](#install)
   - [What does it do ?](#what-does-it-do-)
-  - [Examples](#examples)
   - [Alternatives](#alternatives)
 
 ## More docs
@@ -85,7 +84,7 @@ human readable easy to use SQL like query language.
 
 For other ways to select Kubernetes resources see [#Alternatives](https://github.com/yaacov/kubectl-sql#alternatives).
 
-## Examples
+#### Examples
 
 <p align="center">
    <a href="https://asciinema.org/a/vOSwHzeOLbVhQb79ajFmql2uk" target="_blank"><img src="https://asciinema.org/a/vOSwHzeOLbVhQb79ajFmql2uk.svg" /></a>
