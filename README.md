@@ -11,6 +11,7 @@
 
 kubectl-sql is a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/) that use SQL like language to query the [Kubernetes](https://kubernetes.io/) cluster manager
 
+  - [More docs](#more-docs)
   - [Install](#install)
   - [What does it do ?](#what-does-it-do-)
   - [Examples](#examples)
@@ -18,9 +19,11 @@ kubectl-sql is a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubect
     - [jq](#jq)
     - [Field Selector](#kubectl---field-selector)
 
- - [The SQL like language](https://github.com/yaacov/kubectl-sql/blob/master/README_langugae.md)
+## More docs
+
+ - [The SQL like language](https://github.com/yaacov/kubectl-sql/blob/master/README_language.md)
  - [More examples](https://github.com/yaacov/kubectl-sql/blob/master/README_config.md)
-- [Using the config file](https://github.com/yaacov/kubectl-sql/blob/master/README_config.md)
+ - [Using the config file](https://github.com/yaacov/kubectl-sql/blob/master/README_config.md)
 
 ## Install
 
