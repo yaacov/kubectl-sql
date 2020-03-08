@@ -31,13 +31,12 @@ kubectl-sql is a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubect
   - [Alternatives](#alternatives)
     - [jq](#jq)
     - [Field Selector](#kubectl---field-selector)
-
+  
+## Install
 
 <p align="center">
    <a href="https://asciinema.org/a/jPQQCjFG2qGqlZ6HKXWoQjFWa" target="_blank"><img src="https://asciinema.org/a/jPQQCjFG2qGqlZ6HKXWoQjFWa.svg" /></a>
 <p>
-  
-## Install
 
 Using `go get` command:
 ``` bash
@@ -227,6 +226,10 @@ kubectl-sql --help
 
 ## Config File
 
+<p align="center">
+   <a href="https://asciinema.org/a/308440" target="_blank"><img src="https://asciinema.org/a/308440.svg" /></a>
+<p>
+  
 Users can add aliases and edit the fields displayed in table view using json config files,
 [see the example config file](https://github.com/yaacov/kubectl-sql/blob/master/kubectl-sql.json).
 
