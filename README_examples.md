@@ -7,6 +7,10 @@
 
 ## Examples
 
+<p align="center">
+   <a href="https://asciinema.org/a/vOSwHzeOLbVhQb79ajFmql2uk" target="_blank"><img src="https://asciinema.org/a/vOSwHzeOLbVhQb79ajFmql2uk.svg" /></a>
+<p>
+
 #### All namespaces
 
 ``` bash
