@@ -80,7 +80,8 @@ kubectl sql get pods where "name ilike 'test-%'"
 <p>
 
 kubectl-sql let you select Kubernetes resources based on the value of one or more resource fields, using
-human readable easy to use SQL like query language.
+human readable easy to use SQL like query language. It is also posible to find connected resources useing the
+`join` command.
 
 For other ways to select Kubernetes resources see [#Alternatives](https://github.com/yaacov/kubectl-sql#alternatives).
 
