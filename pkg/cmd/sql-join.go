@@ -112,10 +112,16 @@ func (o *SQLOptions) Join(config *rest.Config) error {
 		// Print one item.
 		o.Printer([]unstructured.Unstructured{r})
 
+		// Print separator.
+		fmt.Fprintf(o.Out, "\n")
+
 		// Print joined items.
 		if err := o.printJoinedResources(c, r, list2); err != nil {
 			return err
 		}
+
+		// Print separator.
+		fmt.Fprintf(o.Out, "\n\n\n")
 	}
 
 	return nil

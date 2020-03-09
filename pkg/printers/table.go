@@ -63,6 +63,12 @@ func (c *Config) getTableColumns(items []unstructured.Unstructured) tableFields 
 		fields = c.TableFields["other"]
 	}
 
+	// Zero out field width
+	for i := range fields {
+		fields[i].Width = 0
+		fields[i].Template = ""
+	}
+
 	// Calculte field widths
 	for _, item := range items {
 		evalFunc = eval.Factory(item)
@@ -102,7 +108,7 @@ func (c *Config) Table(items []unstructured.Unstructured) error {
 	fields := c.getTableColumns(items)
 
 	// Pring table head
-	fmt.Fprintf(c.Out, "\nKIND: %s\n", items[0].GetKind())
+	fmt.Fprintf(c.Out, "KIND: %s\tCOUNT: %d\n", items[0].GetKind(), len(items))
 	for _, field := range fields {
 		if field.Width > 0 {
 			fmt.Fprintf(c.Out, field.Template, field.Title)
