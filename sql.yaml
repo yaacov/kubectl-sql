@@ -11,7 +11,7 @@ spec:
         os: linux
         arch: amd64
     uri: https://github.com/yaacov/kubectl-sql/releases/download/v0.2.11/kubectl-sql.tar.xz
-    sha256: 8cb0a8a51f9a3233f54418f2cb8999061a2febf49a3cae57653e6dec1c623aa3
+    sha256: 10d403754ab1fc3f22291b6f09a8309ddcfa6de156fe63e9d317cd2e158075b6
     files:
     - from: "*"
       to: "."
