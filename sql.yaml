@@ -10,8 +10,8 @@ spec:
       matchLabels:
         os: linux
         arch: amd64
-    uri: https://github.com/yaacov/kubectl-sql/releases/download/v0.2.11/kubectl-sql.tar.xz
-    sha256: 10d403754ab1fc3f22291b6f09a8309ddcfa6de156fe63e9d317cd2e158075b6
+    uri: https://github.com/yaacov/kubectl-sql/releases/download/v0.2.11/kubectl-sql.tar.gz
+    sha256: 831f5fab3e6b8ece5ca5659bb803c88065c0487427bba793becf8e2b6bd00f8a
     files:
     - from: "*"
       to: "."
