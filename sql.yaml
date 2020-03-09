@@ -1,0 +1,21 @@
+apiVersion: krew.googlecontainertools.github.com/v1alpha2
+kind: Plugin
+metadata:
+  name: sql
+spec:
+  version: 0.2.10
+  homepage: https://github.com/yaacov/kubectl-sql
+  platforms:
+  - selector:
+      matchLabels:
+        os: linux
+        arch: amd64
+    uri: https://github.com/yaacov/kubectl-sql/releases/download/0.2.10/kubectl-sql_v0.2.10_linux_amd64.tar.xz
+    sha256: 8cb0a8a51f9a3233f54418f2cb8999061a2febf49a3cae57653e6dec1c623aa3
+    files:
+    - from: "*"
+      to: "."
+    bin: kubectl-sql
+  shortDescription: Use SQL like language to query the Kubernetes cluster manager.
+  description: |
+    This plugin use SQL like language to query the Kubernetes cluster manager.
