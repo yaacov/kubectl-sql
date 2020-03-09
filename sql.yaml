@@ -19,3 +19,9 @@ spec:
   shortDescription: Use SQL like language to query the Kubernetes cluster manager.
   description: |
     This plugin use SQL like language to query the Kubernetes cluster manager.
+  caveats: |
+    Usage:
+      $ kubectl sql
+    For additional options:
+      $ kubectl sql --help
+      or https://github.com/yaacov/kubectl-sql
