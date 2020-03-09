@@ -65,6 +65,7 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 		Long:             sqlGetLong,
 		Example:          sqlGetExample,
 		TraverseChildren: true,
+		SilenceUsage:     true,
 		RunE: func(c *cobra.Command, args []string) error {
 			if err := o.Complete(c, args); err != nil {
 				return err
@@ -97,6 +98,7 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 		Long:             sqlJoinLong,
 		Example:          sqlJoinExample,
 		TraverseChildren: true,
+		SilenceUsage:     true,
 		RunE: func(c *cobra.Command, args []string) error {
 			if err := o.Complete(c, args); err != nil {
 				return err
@@ -124,8 +126,9 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 	}
 
 	cmdAliases := &cobra.Command{
-		Use:   "aliases [flags] [options]",
-		Short: "Display a list of currently used aliases",
+		Use:          "aliases [flags] [options]",
+		Short:        "Display a list of currently used aliases",
+		SilenceUsage: true,
 		RunE: func(c *cobra.Command, args []string) error {
 			if err := o.Complete(c, args); err != nil {
 				return err
@@ -161,8 +164,9 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 	}
 
 	cmdVersion := &cobra.Command{
-		Use:   "version [flags]",
-		Short: "Print the SQL client and server version information",
+		Use:          "version [flags]",
+		Short:        "Print the SQL client and server version information",
+		SilenceUsage: true,
 		RunE: func(c *cobra.Command, args []string) error {
 			if err := o.Complete(c, args); err != nil {
 				return err
