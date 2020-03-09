@@ -34,6 +34,14 @@ lint:
 fmt:
 	gofmt -s -w $(kubesql_cmd) $(kubesql_pkg)
 
+.PHONY: dist
+dist: kubectl-sql
+	tar -zcvf kubectl-sql.tar.gz LICENSE kubectl-sql
+	sha256sum kubectl-sql.tar.gz > kubectl-sql.tar.gz.sha256sum
+
 .PHONY: clean
 clean:
 	rm -f kubectl-sql
+	rm -f kubectl-sql.tar.gz
+	rm -f kubectl-sql.tar.gz.sha256sum
+
