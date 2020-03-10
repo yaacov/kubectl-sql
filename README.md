@@ -22,7 +22,7 @@ kubectl-sql is a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubect
 ## More docs
 
  - [kubectl-sql's SQL like language](https://github.com/yaacov/kubectl-sql/blob/master/README_language.md)
- - [More kubectl-sql examples](https://github.com/yaacov/kubectl-sql/blob/master/README_config.md)
+ - [More kubectl-sql examples](https://github.com/yaacov/kubectl-sql/blob/master/README_examples.md)
  - [Using the config file](https://github.com/yaacov/kubectl-sql/blob/master/README_config.md)
 
 ## Install
