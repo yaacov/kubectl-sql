@@ -27,7 +27,7 @@ kubectl-sql is a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubect
 
 ## Install
 
-Use [krew](https://sigs.k8s.io/krew) plugin manager to install
+Using [krew](https://sigs.k8s.io/krew) plugin manager to install
 
 ```
 kubectl krew install sql
