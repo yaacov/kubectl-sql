@@ -27,13 +27,11 @@ kubectl-sql is a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubect
 
 ## Install
 
-<p align="center">
-   <a href="https://asciinema.org/a/jPQQCjFG2qGqlZ6HKXWoQjFWa" target="_blank"><img src="https://asciinema.org/a/jPQQCjFG2qGqlZ6HKXWoQjFWa.svg" /></a>
-<p>
+Use [krew](https://sigs.k8s.io/krew) plugin manager to install
 
-Using `go get` command:
-``` bash
-GO111MODULE=on go get -v github.com/yaacov/kubectl-sql/cmd/kubectl-sql
+```
+kubectl krew install sql
+kubectl sql --help
 ```
 
 Using Fedora Copr:
@@ -43,6 +41,10 @@ dnf copr enable yaacov/kubesql
 dnf install kubectl-sql
 ```
 
+<p align="center">
+   <a href="https://asciinema.org/a/jPQQCjFG2qGqlZ6HKXWoQjFWa" target="_blank"><img src="https://asciinema.org/a/jPQQCjFG2qGqlZ6HKXWoQjFWa.svg" /></a>
+<p>
+  
 From source:
 
 ``` bash
@@ -51,31 +53,6 @@ cd kubectl-sql
 
 make
 ```
-
-#### Plugin
-
-kubectl-sql can be used as a stand alone cli tool `kubectl-sql`, or as a `kubectl` plugin `sql` ( requires `kubectl` v1.12 or higher ).
-
-Installing `kubectl-sql` as a plugin requires both `kubectl` and `kubectl-sql` to be installed in the current `PATH`.
-
-``` bash
-# For example, if user PATH include $HOME/.local/bin
-# this line will install kubectl-sql in the users PATH
-cp kubectl-sql ~/.local/bin/
-```
-
-``` bash
-# Using kubectl-sql as a kubectl plugin.
-kubectl sql get pods where "name ilike 'test-%'"
-```
-
-#### Output formats:
-| --output flag | Print format |
-|----|---|
-| table | Table |
-| name | Names only |
-| yaml | YAML |
-| json | JSON |
 
 ## What does it do ?
 
@@ -127,6 +104,14 @@ kubectl-sql join nodes,pods on \
 # Filter replica sets with less ready-replicas then replicas"
 kubectl-sql --all-namespaces get rs where "status.readyReplicas < status.replicas"
 ```
+
+#### Output formats:
+| --output flag | Print format |
+|----|---|
+| table | Table |
+| name | Names only |
+| yaml | YAML |
+| json | JSON |
 
 ## Alternatives
 
