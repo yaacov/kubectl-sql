@@ -12,7 +12,7 @@
 kubectl-sql is a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/) that use SQL like language to query the [Kubernetes](https://kubernetes.io/) cluster manager
 
   - [Install](#install)
-  - [What can I do with it ?](#what-does-it-do-)
+  - [What can I do with it ?](#what-can-i-do-with-it-)
   - [Alternatives](#alternatives)
 
 <p align="center">
@@ -54,27 +54,11 @@ cd kubectl-sql
 make
 ```
 
-## What does it do ?
+## What can I do with it ?
 
 kubectl-sql let you select Kubernetes resources based on the value of one or more resource fields, using
 human readable easy to use SQL like query language. It is also posible to find connected resources useing the
 `join` command.
-
-For other ways to select Kubernetes resources see [#Alternatives](https://github.com/yaacov/kubectl-sql#alternatives).
-
-<p align="center">
-   <a href="https://asciinema.org/a/vOSwHzeOLbVhQb79ajFmql2uk" target="_blank"><img src="https://asciinema.org/a/vOSwHzeOLbVhQb79ajFmql2uk.svg" /></a>
-<p>
-
-<p align="center">
-  <a href="https://asciinema.org/a/308443" target="_blank"><img src="https://asciinema.org/a/308443.svg" /></a>
-<p>
-
-<p align="center">
-   <a href="https://asciinema.org/a/308434" target="_blank"><img src="https://asciinema.org/a/308434.svg" /></a>
-<p>
-
-#### Examples
 
 [More kubectl-sql examples](https://github.com/yaacov/kubectl-sql/blob/master/README_config.md)
 
@@ -104,6 +88,18 @@ kubectl-sql join nodes,pods on \
 # Filter replica sets with less ready-replicas then replicas"
 kubectl-sql --all-namespaces get rs where "status.readyReplicas < status.replicas"
 ```
+
+<p align="center">
+   <a href="https://asciinema.org/a/vOSwHzeOLbVhQb79ajFmql2uk" target="_blank"><img src="https://asciinema.org/a/vOSwHzeOLbVhQb79ajFmql2uk.svg" /></a>
+<p>
+
+<p align="center">
+  <a href="https://asciinema.org/a/308443" target="_blank"><img src="https://asciinema.org/a/308443.svg" /></a>
+<p>
+
+<p align="center">
+   <a href="https://asciinema.org/a/308434" target="_blank"><img src="https://asciinema.org/a/308434.svg" /></a>
+<p>
 
 #### Output formats:
 | --output flag | Print format |
