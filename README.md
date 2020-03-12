@@ -60,7 +60,7 @@ kubectl-sql let you select Kubernetes resources based on the value of one or mor
 human readable easy to use SQL like query language. It is also posible to find connected resources useing the
 `join` command.
 
-[More kubectl-sql examples](https://github.com/yaacov/kubectl-sql/blob/master/README_config.md)
+[More kubectl-sql examples](https://github.com/yaacov/kubectl-sql/blob/master/README_examples.md)
 
 ``` bash
 # Get all pods from current namespace scope, that has a name starting with "virt-" and
