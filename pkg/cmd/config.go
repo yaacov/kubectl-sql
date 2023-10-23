@@ -22,7 +22,6 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"k8s.io/cli-runtime/pkg/genericclioptions"
@@ -55,7 +54,7 @@ type SQLOptions struct {
 	genericclioptions.IOStreams
 }
 
-// SQLConfig describes configuration overides for SQL queries.
+// SQLConfig describes configuration overrides for SQL queries.
 type SQLConfig struct {
 	Aliases     map[string]string       `json:"aliases"`
 	TableFields printers.TableFieldsMap `json:"table-fields"`
@@ -82,12 +81,12 @@ func (o *SQLOptions) readConfigFile(filename string) error {
 		return nil
 	}
 
-	file, err := ioutil.ReadFile(filename)
+	file, err := os.ReadFile(filename)
 	if err != nil {
 		return fmt.Errorf("can't read file '%s', %v", filename, err)
 	}
 
-	err = json.Unmarshal([]byte(file), &userConfig)
+	err = json.Unmarshal(file, &userConfig)
 	if err != nil {
 		return fmt.Errorf("can't parse json file '%s', %v", filename, err)
 	}
