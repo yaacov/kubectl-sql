@@ -122,9 +122,9 @@ func (o *SQLOptions) printFilteredResources(c client.Config) error {
 	return nil
 }
 
-// checkColumnName checks if a coulumn name has an alias.
+// checkColumnName checks if a column name has an alias.
 func (o *SQLOptions) checkColumnName(s string) (string, error) {
-	// Chekc for aliases.
+	// Check for aliases.
 	if v, ok := o.defaultAliases[s]; ok {
 		return v, nil
 	}

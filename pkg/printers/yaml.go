@@ -22,19 +22,19 @@ package printers
 import (
 	"fmt"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 // YAML prints items in YAML format
 func (c *Config) YAML(items []unstructured.Unstructured) error {
 	for _, item := range items {
-		yaml, err := yaml.Marshal(item)
+		y, err := yaml.Marshal(item)
 		if err != nil {
 			return err
 		}
 
-		fmt.Fprintf(c.Out, "\n%+v\n", string(yaml))
+		fmt.Fprintf(c.Out, "\n%+v\n", string(y))
 	}
 
 	return nil

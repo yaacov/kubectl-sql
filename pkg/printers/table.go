@@ -107,7 +107,7 @@ func (c *Config) Table(items []unstructured.Unstructured) error {
 	// Get table fields for the items.
 	fields := c.getTableColumns(items)
 
-	// Pring table head
+	// Print table head
 	fmt.Fprintf(c.Out, "KIND: %s\tCOUNT: %d\n", items[0].GetKind(), len(items))
 	for _, field := range fields {
 		if field.Width > 0 {
