@@ -32,7 +32,14 @@ Using [krew](https://sigs.k8s.io/krew) plugin manager to install:
 kubectl krew install sql
 kubectl sql --help
 ```
- 
+
+Using Fedora Copr:
+
+``` bash
+dnf copr enable yaacov/kubesql
+dnf install kubectl-sql
+```
+
 From source:
 
 ``` bash
