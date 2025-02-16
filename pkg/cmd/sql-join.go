@@ -20,6 +20,7 @@ Author: 2020 Yaacov Zamir <kobi.zamir@gmail.com>
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -71,6 +72,7 @@ func (o *SQLOptions) CompleteJoin(cmd *cobra.Command, args []string) error {
 
 // Join two resource list.
 func (o *SQLOptions) Join(config *rest.Config) error {
+	ctx := context.Background()
 	var err error
 	var filteredList []unstructured.Unstructured
 
@@ -86,13 +88,13 @@ func (o *SQLOptions) Join(config *rest.Config) error {
 	}
 
 	// Get the primary resources lists.
-	list1, err := c.List(o.requestedResources[0])
+	list1, err := c.List(ctx, o.requestedResources[0])
 	if err != nil {
 		return err
 	}
 
 	// Get the joined resources lists.
-	list2, err := c.List(o.requestedResources[1])
+	list2, err := c.List(ctx, o.requestedResources[1])
 	if err != nil {
 		return err
 	}

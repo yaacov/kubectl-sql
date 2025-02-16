@@ -20,6 +20,7 @@ Author: 2020 Yaacov Zamir <kobi.zamir@gmail.com>
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -78,8 +79,9 @@ func (o *SQLOptions) Get(config *rest.Config) error {
 
 // printResources prints resources lists.
 func (o *SQLOptions) printResources(c client.Config) error {
+	ctx := context.Background()
 	for _, r := range o.requestedResources {
-		list, err := c.List(r)
+		list, err := c.List(ctx, r)
 		if err != nil {
 			return err
 		}
@@ -95,6 +97,7 @@ func (o *SQLOptions) printResources(c client.Config) error {
 
 // printFilteredResources prints filtered resource list.
 func (o *SQLOptions) printFilteredResources(c client.Config) error {
+	ctx := context.Background()
 	f := filter.Config{
 		CheckColumnName: o.checkColumnName,
 		Query:           o.requestedQuery,
@@ -102,7 +105,7 @@ func (o *SQLOptions) printFilteredResources(c client.Config) error {
 
 	// Print resources lists.
 	for _, r := range o.requestedResources {
-		list, err := c.List(r)
+		list, err := c.List(ctx, r)
 		if err != nil {
 			return err
 		}

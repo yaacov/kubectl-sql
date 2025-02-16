@@ -20,6 +20,7 @@ Author: 2020 Yaacov Zamir <kobi.zamir@gmail.com>
 package client
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -39,7 +40,7 @@ type Config struct {
 }
 
 // List resources by resource name.
-func (c Config) List(resourceName string) ([]unstructured.Unstructured, error) {
+func (c Config) List(ctx context.Context, resourceName string) ([]unstructured.Unstructured, error) {
 	var err error
 	var list *unstructured.UnstructuredList
 
@@ -62,9 +63,9 @@ func (c Config) List(resourceName string) ([]unstructured.Unstructured, error) {
 
 	// Check for namespace
 	if !c.AllNamespaces && len(c.Namespace) > 0 && resource.Namespaced {
-		list, err = res.Namespace(c.Namespace).List(v1.ListOptions{})
+		list, err = res.Namespace(c.Namespace).List(ctx, v1.ListOptions{})
 	} else {
-		list, err = res.List(v1.ListOptions{})
+		list, err = res.List(ctx, v1.ListOptions{})
 	}
 
 	if err != nil {
