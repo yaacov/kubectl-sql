@@ -25,7 +25,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/yaacov/tree-search-language/v5/pkg/walkers/semantics"
+	"github.com/yaacov/tree-search-language/v6/pkg/walkers/semantics"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
@@ -110,13 +110,13 @@ func extractValue(item unstructured.Unstructured, key string) (interface{}, bool
 		return nil, true
 	}
 
-	switch object.(type) {
+	switch object := object.(type) {
 	case float64:
-		return object.(float64), true
+		return object, true
 	case int64:
-		return float64(object.(int64)), true
+		return float64(object), true
 	case string:
-		v := stringValue(object.(string))
+		v := stringValue(object)
 
 		return v, true
 	}

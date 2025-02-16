@@ -22,9 +22,9 @@ package filter
 import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
-	"github.com/yaacov/tree-search-language/v5/pkg/tsl"
-	"github.com/yaacov/tree-search-language/v5/pkg/walkers/ident"
-	"github.com/yaacov/tree-search-language/v5/pkg/walkers/semantics"
+	"github.com/yaacov/tree-search-language/v6/pkg/tsl"
+	"github.com/yaacov/tree-search-language/v6/pkg/walkers/ident"
+	"github.com/yaacov/tree-search-language/v6/pkg/walkers/semantics"
 
 	"github.com/yaacov/kubectl-sql/pkg/eval"
 )
@@ -42,7 +42,7 @@ type Config struct {
 // Filter filters items using query.
 func (c *Config) Filter(list []unstructured.Unstructured) ([]unstructured.Unstructured, error) {
 	var (
-		tree tsl.Node
+		tree *tsl.TSLNode
 		err  error
 	)
 
@@ -51,26 +51,26 @@ func (c *Config) Filter(list []unstructured.Unstructured) ([]unstructured.Unstru
 	if err != nil {
 		return nil, err
 	}
+	defer tree.Free()
 
 	// Check and replace user identifiers if alias exist.
-	tree, err = ident.Walk(tree, c.CheckColumnName)
+	newTree, err := ident.Walk(tree, c.CheckColumnName)
 	if err != nil {
 		return nil, err
 	}
+	defer newTree.Free()
 
 	// Filter items using a query.
 	items := []unstructured.Unstructured{}
 	for _, item := range list {
 		// If we have a query, check item.
-		matchingFilter, err := semantics.Walk(tree, eval.Factory(item))
+		matchingFilter, err := semantics.Walk(newTree, eval.Factory(item))
 		if err != nil {
 			continue
 		}
-		if !matchingFilter {
-			continue
+		if match, ok := matchingFilter.(bool); ok && match {
+			items = append(items, item)
 		}
-
-		items = append(items, item)
 	}
 
 	return items, nil
@@ -79,7 +79,7 @@ func (c *Config) Filter(list []unstructured.Unstructured) ([]unstructured.Unstru
 // Filter2 filters items using query and a left side item.
 func (c *Config) Filter2(list []unstructured.Unstructured) ([]unstructured.Unstructured, error) {
 	var (
-		tree tsl.Node
+		tree *tsl.TSLNode
 		err  error
 	)
 
@@ -88,26 +88,26 @@ func (c *Config) Filter2(list []unstructured.Unstructured) ([]unstructured.Unstr
 	if err != nil {
 		return nil, err
 	}
+	defer tree.Free()
 
 	// Check and replace user identifiers if alias exist.
-	tree, err = ident.Walk(tree, c.CheckColumnName)
+	newTree, err := ident.Walk(tree, c.CheckColumnName)
 	if err != nil {
 		return nil, err
 	}
+	defer newTree.Free()
 
 	// Filter items using query.
 	items := []unstructured.Unstructured{}
 	for _, item := range list {
 		// If we have a query, check item.
-		matchingFilter, err := semantics.Walk(tree, eval.Factory2(c.Item, item, c.Prefix1, c.Prefix2))
+		matchingFilter, err := semantics.Walk(newTree, eval.Factory2(c.Item, item, c.Prefix1, c.Prefix2))
 		if err != nil {
 			continue
 		}
-		if !matchingFilter {
-			continue
+		if match, ok := matchingFilter.(bool); ok && match {
+			items = append(items, item)
 		}
-
-		items = append(items, item)
 	}
 
 	return items, nil
