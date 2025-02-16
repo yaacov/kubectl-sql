@@ -33,20 +33,25 @@ Using [krew](https://sigs.k8s.io/krew) plugin manager to install:
 kubectl krew install sql
 kubectl sql --help
 ```
+ 
+From source:
+
+``` bash
+# Clone code
+git clone git@github.com:yaacov/kubectl-sql.git
+cd kubectl-sql
+
+# Build kubectl-sql
+make
+
+# Install into local machine PATH
+sudo install ./kubectl-sql /usr/local/bin/
+```
 
 <p align="center">
    <a href="https://asciinema.org/a/jPQQCjFG2qGqlZ6HKXWoQjFWa" target="_blank"><img src="https://asciinema.org/a/jPQQCjFG2qGqlZ6HKXWoQjFWa.svg" /></a>
 <p>
-  
-From source:
-
-``` bash
-git clone git@github.com:yaacov/kubectl-sql.git
-cd kubectl-sql
-
-make
-```
-
+ 
 ## What can I do with it ?
 
 kubectl-sql let you select Kubernetes resources based on the value of one or more resource fields, using
