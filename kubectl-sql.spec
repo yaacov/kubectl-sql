@@ -9,7 +9,7 @@
 %define debug_package %{nil}
 
 Name:           %{repo}
-Version:        0.2.11
+Version:        0.3.14
 Release:        1%{?dist}
 Summary:        kubectl-sql uses sql like language to query the Kubernetes cluster manager
 License:        Apache
@@ -17,7 +17,7 @@ URL:            https://%{import_path}
 Source0:        https://github.com/yaacov/kubectl-sql/archive/v%{version}.tar.gz
 
 BuildRequires:  git
-BuildRequires:  golang >= 1.2.8
+BuildRequires:  golang >= 1.23.0
 
 %description
 kubectl-sql let you select Kubernetes resources based on the value of one or more resource fields, using human readable easy to use SQL like query langauge.
@@ -42,6 +42,9 @@ install -p -m 0755 ./kubectl-sql %{buildroot}%{_bindir}/kubectl-sql
 %{_bindir}/kubectl-sql
 
 %changelog
+
+* Sun Feb 16 2025 Yaacov Zamir <kobi.zamir@gmail.com> 0.3.14-1
+- use TSL v6
 
 * Mon Mar 9 2020 Yaacov Zamir <kobi.zamir@gmail.com> 0.2.11-1
 - version should start with v
