@@ -34,13 +34,6 @@ kubectl krew install sql
 kubectl sql --help
 ```
 
-Using Fedora Copr:
-
-```
-dnf copr enable yaacov/kubesql
-dnf install kubectl-sql
-```
-
 <p align="center">
    <a href="https://asciinema.org/a/jPQQCjFG2qGqlZ6HKXWoQjFWa" target="_blank"><img src="https://asciinema.org/a/jPQQCjFG2qGqlZ6HKXWoQjFWa.svg" /></a>
 <p>
