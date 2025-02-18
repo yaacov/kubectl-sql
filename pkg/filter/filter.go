@@ -64,7 +64,7 @@ func (c *Config) Filter(list []unstructured.Unstructured) ([]unstructured.Unstru
 	items := []unstructured.Unstructured{}
 	for _, item := range list {
 		// If we have a query, check item.
-		matchingFilter, err := semantics.Walk(newTree, eval.Factory(item))
+		matchingFilter, err := semantics.Walk(newTree, eval.EvalFunctionFactory(item))
 		if err != nil {
 			continue
 		}
@@ -101,7 +101,7 @@ func (c *Config) Filter2(list []unstructured.Unstructured) ([]unstructured.Unstr
 	items := []unstructured.Unstructured{}
 	for _, item := range list {
 		// If we have a query, check item.
-		matchingFilter, err := semantics.Walk(newTree, eval.Factory2(c.Item, item, c.Prefix1, c.Prefix2))
+		matchingFilter, err := semantics.Walk(newTree, eval.JoinEvalFunctionFactory(c.Item, item, c.Prefix1, c.Prefix2))
 		if err != nil {
 			continue
 		}

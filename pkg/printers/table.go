@@ -71,7 +71,7 @@ func (c *Config) getTableColumns(items []unstructured.Unstructured) tableFields 
 
 	// Calculte field widths
 	for _, item := range items {
-		evalFunc = eval.Factory(item)
+		evalFunc = eval.EvalFunctionFactory(item)
 
 		for i, field := range fields {
 			if value, found := evalFunc(field.Name); found && value != nil {
@@ -118,7 +118,7 @@ func (c *Config) Table(items []unstructured.Unstructured) error {
 
 	// Print table rows
 	for _, item := range items {
-		evalFunc = eval.Factory(item)
+		evalFunc = eval.EvalFunctionFactory(item)
 
 		for _, field := range fields {
 			if field.Width > 0 {
