@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
@@ -49,12 +50,47 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 	o := NewSQLOptions(streams)
 
 	cmd := &cobra.Command{
-		Use:              "sql [command] [flags] [options]",
-		Short:            sqlCmdShort,
+		Use:              "sql [query|command] [flags] [options]",
+		Short:            "Query Kubernetes resources using SQL-like syntax or subcommands",
 		Long:             sqlCmdLong,
 		Example:          sqlCmdExample,
 		TraverseChildren: true,
 		RunE: func(c *cobra.Command, args []string) error {
+			if len(args) == 0 {
+				return fmt.Errorf(errUsageTemplate, "missing query or sub command")
+			}
+
+			// If the first argument starts with "SELECT", treat it as an SQL query
+			if strings.HasPrefix(strings.ToUpper(args[0]), "SELECT") {
+				if err := o.Complete(c, args); err != nil {
+					return err
+				}
+
+				if err := o.CompleteSQL(args[0]); err != nil {
+					return err
+				}
+
+				if err := o.Validate(); err != nil {
+					return err
+				}
+
+				config, err := o.rawConfig.ClientConfig()
+				if err != nil {
+					return err
+				}
+
+				// Execute query based on number of resources and presence of ON clause
+				switch {
+				case len(o.requestedResources) == 2 && o.requestedOnQuery != "":
+					return o.Join(config)
+				case len(o.requestedResources) >= 1:
+					return o.Get(config)
+				default:
+					return fmt.Errorf("invalid number of resources in query")
+				}
+			}
+
+			// If not an SQL query, show error about missing subcommand
 			return fmt.Errorf(errUsageTemplate, "missing sub command")
 		},
 	}
