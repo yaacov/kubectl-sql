@@ -13,7 +13,7 @@ func isValidFieldIdentifier(field string) bool {
 	// Matches patterns like:
 	// - simple: name, first_name, my.field
 	// - array access: items[0], my.array[123]
-	pattern := `^[a-zA-Z_][a-zA-Z0-9_.]*(?:\[\d+\])?$`
+	pattern := `^[a-zA-Z_]([a-zA-Z0-9_.]*(?:\[\d+\])?)*$`
 	match, _ := regexp.MatchString(pattern, field)
 	return match
 }
