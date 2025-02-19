@@ -133,16 +133,16 @@ func (c *Config) Table(items []unstructured.Unstructured) error {
 			if field.Width > 0 {
 				if v, found := evalFunc(field.Name); found && v != nil {
 					value := v
-					switch v.(type) {
+					switch v := v.(type) {
 					case bool:
 						value = "false"
-						if v.(bool) {
+						if v {
 							value = "true"
 						}
 					case float64:
-						value = strconv.FormatFloat(v.(float64), 'f', -1, 64)
+						value = strconv.FormatFloat(v, 'f', -1, 64)
 					case time.Time:
-						value = v.(time.Time).Format(time.RFC3339)
+						value = v.Format(time.RFC3339)
 					}
 
 					fmt.Fprintf(c.Out, field.Template, value)
