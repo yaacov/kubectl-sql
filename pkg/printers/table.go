@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 	"time"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -30,14 +31,14 @@ import (
 	"github.com/yaacov/kubectl-sql/pkg/eval"
 )
 
-// tableField describes how to print the SQL results table.
-type tableField struct {
+// TableField describes how to print the SQL results table.
+type TableField struct {
 	Title    string `json:"title"`
 	Name     string `json:"name"`
 	Width    int
 	Template string
 }
-type tableFields []tableField
+type tableFields []TableField
 
 // TableFieldsMap a map of lists of table field descriptions.
 type TableFieldsMap map[string]tableFields
@@ -58,9 +59,17 @@ func (c *Config) getTableColumns(items []unstructured.Unstructured) tableFields 
 
 	// Get the default template for this kind.
 	kind := items[0].GetKind()
+
+	// Try different variations of kind name
 	fields, ok := c.TableFields[kind]
 	if !ok {
-		fields = c.TableFields["other"]
+		fields, ok = c.TableFields[strings.ToLower(kind)]
+		if !ok {
+			fields, ok = c.TableFields[strings.ToLower(kind)+"s"]
+			if !ok {
+				fields = c.TableFields["other"]
+			}
+		}
 	}
 
 	// Zero out field width
