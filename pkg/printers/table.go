@@ -23,7 +23,6 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-	"strings"
 	"time"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -53,6 +52,11 @@ type Config struct {
 	ErrOut io.Writer
 }
 
+const (
+	// SelectedFields is used to identify fields specifically selected in a SQL query
+	SelectedFields = "selected"
+)
+
 // Get the table column titles and fields for the items.
 func (c *Config) getTableColumns(items []unstructured.Unstructured) tableFields {
 	var evalFunc func(string) (interface{}, bool)
@@ -61,14 +65,11 @@ func (c *Config) getTableColumns(items []unstructured.Unstructured) tableFields 
 	kind := items[0].GetKind()
 
 	// Try different variations of kind name
-	fields, ok := c.TableFields[kind]
-	if !ok {
-		fields, ok = c.TableFields[strings.ToLower(kind)]
-		if !ok {
-			fields, ok = c.TableFields[strings.ToLower(kind)+"s"]
-			if !ok {
-				fields = c.TableFields["other"]
-			}
+	fields, ok := c.TableFields[SelectedFields]
+	if !ok || fields == nil {
+		fields, ok = c.TableFields[kind]
+		if !ok || fields == nil {
+			fields = c.TableFields["other"]
 		}
 	}
 
