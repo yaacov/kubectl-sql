@@ -1,4 +1,3 @@
-
 <p align="center">
   <img src="https://raw.githubusercontent.com/yaacov/kubectl-sql/master/img/kubesql-162.png" alt="kubectl-sql Logo">
 </p>
@@ -66,6 +65,14 @@ kubectl-sql --all-namespaces "select * from rs where spec.replicas = 3 and statu
 # Display non running pods by nodes for all namespaces.
 kubectl-sql join nodes,pods on \
     "nodes.status.addresses[1].address = pods.status.hostIP and not pods.phase ~= 'Running'" -A
+...
+```
+
+#### Escaping Identifiers
+
+``` bash
+# Square brackets can be used for identifiers that include special characters.
+./kubectl-sql --all-namespaces "select * from pods where name ~= 'cni' and metadata.labels[openshift.io/component] = 'network'"
 ...
 ```
 
