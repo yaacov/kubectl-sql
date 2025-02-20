@@ -11,8 +11,41 @@ func getNestedObject(object interface{}, key string) (interface{}, bool) {
 		return object, true
 	}
 
-	keys := strings.Split(key, ".")
+	keys := splitKeys(key)
 	return getNestedValue(object, keys)
+}
+
+// splitKeys splits the key by dots, but keeps parts enclosed in square brackets together
+func splitKeys(key string) []string {
+	var keys []string
+	var currentKey strings.Builder
+	inBrackets := false
+
+	for _, char := range key {
+		switch char {
+		case '.':
+			if inBrackets {
+				currentKey.WriteRune(char)
+			} else {
+				keys = append(keys, currentKey.String())
+				currentKey.Reset()
+			}
+		case '[':
+			inBrackets = true
+			currentKey.WriteRune(char)
+		case ']':
+			inBrackets = false
+			currentKey.WriteRune(char)
+		default:
+			currentKey.WriteRune(char)
+		}
+	}
+
+	if currentKey.Len() > 0 {
+		keys = append(keys, currentKey.String())
+	}
+
+	return keys
 }
 
 // getNestedValue recursively traverses the object using the keys array
