@@ -38,10 +38,10 @@ var (
   kubectl sql version
 
   # List all pods where name starts with "test-" case insensitive.
-  kubectl sql get pods where "name ilike 'test-%%'"
+  kubectl sql "select * from pods where name ilike 'test-%%'"
 
   # Display pods by nodes using matching IP address.
-  kubectl sql join nodes,pods on "nodes.status.addresses.1.address = pods.status.hostIP"
+  kubectl sql "select * from nodes join pods on nodes.status.addresses.1.address = pods.status.hostIP"
   
   # Print current available aliases.
   kubectl sql aliases
@@ -67,10 +67,10 @@ namespace unless you pass --all-namespaces`
   kubectl sql get rc,services --output json
 
   # List all pods where name starts with "test-" case insensitive.
-  kubectl sql get pods where "name ilike 'test-%%'"
+  kubectl sql select * from pods where name ilike 'test-%%'"
 
   # List all pods where the memory request for the first container is lower or equal to 200Mi.
-  kubectl sql --all-namespaces get pods where "spec.containers.1.resources.requests.memory <= 200Mi"`
+  kubectl sql --all-namespaces "select * from pods where spec.containers[1].resources.requests.memory <= 200Mi"`
 
 	// sql get command.
 	sqlJoinShort = "Uses SQL-like language to join two resources"
@@ -81,16 +81,16 @@ If the desired resource type is namespaced you will only see results in your cur
 namespace unless you pass --all-namespaces`
 
 	sqlJoinExample = `  # List all virtual machine instanaces and pods joined on vim is owner of pod.
-  kubectl sql join vmis,pods on "vmis.metadata.uid = pods.metadata.ownerReferences.1.uid"
+  kubectl sql "select * from vmis join pods on vmis.metadata.uid = pods.metadata.ownerReferences[1].uid"
 
   # List all virtual machine instanaces and pods joined on vim is owner of pod for vmis with name matching 'test' regexp.
-  kubectl sql join vmis,pods on "vmis.metadata.uid = pods.metadata.ownerReferences.1.uid" where "name ~= 'test'" -A
+  kubectl sql "select * from vmis join pods on vmis.metadata.uid = pods.metadata.ownerReferences[1].uid where name ~= 'test'" -A
 
   # Join deployment sets with pods using the uid aliases.
-  kubectl sql join ds,pods on "ds.uid = pods.owner.uid"
+  kubectl sql "select ds join pods on ds.uid = pods.owner.uid"
 
   # Display non running pods by nodes for all namespaces.
-  kubectl sql join nodes,pods on "nodes.status.addresses.1.address = pods.status.hostIP and not pods.phase ~= 'Running'" -A `
+  kubectl sql "select nodes join pods on nodes.status.addresses[1].address = pods.status.hostIP and not pods.phase ~= 'Running'" -A `
 
 	// Errors.
 	errNoContext     = fmt.Errorf("no context is currently set, use %q to select a new one", "kubectl config use-context <context>")

@@ -15,8 +15,8 @@
 
 ``` bash
 # Get pods that hase name containing "ovs"
-kubectl-sql --all-namespaces get pods where "name ~= 'ovs'"
-AMESPACE    	NAME               	PHASE  	hostIP        	CREATION_TIME(RFC3339)       	
+kubectl-sql --all-namespaces "select * from pods where name ~= 'cni'"
+NAMESPACE    	NAME               	PHASE  	hostIP        	CREATION_TIME(RFC3339)       	
 openshift-cnv	ovs-cni-amd64-5vgcg	Running	192.168.126.58	2020-02-10T23:26:31+02:00    	
 openshift-cnv	ovs-cni-amd64-8ts4w	Running	192.168.126.12	2020-02-10T22:01:59+02:00    	
 openshift-cnv	ovs-cni-amd64-d6vdb	Running	192.168.126.53	2020-02-10T23:13:45+02:00
@@ -28,8 +28,8 @@ openshift-cnv	ovs-cni-amd64-d6vdb	Running	192.168.126.53	2020-02-10T23:13:45+02:
 ``` bash
 # Get all pods from current namespace scope, that has a name starting with "virt-" and
 # IP that ends with ".84"
-kubectl-sql get pods where "name ~= '^virt-' and status.podIP ~= '[.]84$'"
-AMESPACE	NAME                          	PHASE  	hostIP        	CREATION_TIME(RFC3339)       	
+kubectl-sql -n default "select * from pods where name ~= '^virt-' and status.podIP ~= '[.]84$'"
+NAMESPACE	NAME                          	PHASE  	hostIP        	CREATION_TIME(RFC3339)       	
 default  	virt-launcher-test-bdw2p-lcrwx	Running	192.168.126.56	2020-02-12T14:14:01+02:00
 ...
 ```
@@ -38,7 +38,7 @@ default  	virt-launcher-test-bdw2p-lcrwx	Running	192.168.126.56	2020-02-12T14:14
 
 ``` bash
 # Get all persistant volume clames that are less then 20Gi, and output as json.
-kubectl-sql -o json get pvc where "spec.resources.requests.storage < 20Gi"
+kubectl-sql --all-namespaces -o json "select * from pvc where spec.resources.requests.storage < 20Gi"
 
 ...  json
 {
@@ -51,7 +51,7 @@ kubectl-sql -o json get pvc where "spec.resources.requests.storage < 20Gi"
 
 ``` bash
 # Get replicas sets with 3 replicas but less ready relicas
-kubectl-sql --all-namespaces get rs where "spec.replicas = 3 and status.readyReplicas < spec.replicas"
+kubectl-sql --all-namespaces "select * from rs where spec.replicas = 3 and status.readyReplicas < spec.replicas"
 
 ...
 ```

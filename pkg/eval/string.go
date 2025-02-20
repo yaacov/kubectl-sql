@@ -8,6 +8,9 @@ import (
 
 // stringValue parses a string to appropriate type (number, boolean, date, or string)
 func stringValue(str string) interface{} {
+	if v := parseNumber(str); v != nil {
+		return v
+	}
 	if v := parseSINumber(str); v != nil {
 		return v
 	}
@@ -18,6 +21,18 @@ func stringValue(str string) interface{} {
 		return *v
 	}
 	return str
+}
+
+func parseNumber(str string) interface{} {
+	// Try parsing as integer first
+	if i, err := strconv.ParseInt(str, 10, 64); err == nil {
+		return i
+	}
+	// Try parsing as float
+	if f, err := strconv.ParseFloat(str, 64); err == nil {
+		return f
+	}
+	return nil
 }
 
 func parseSINumber(s string) interface{} {

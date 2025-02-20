@@ -69,7 +69,7 @@ human readable easy to use SQL like query language. It is also posible to find c
 ``` bash
 # Get all pods from current namespace scope, that has a name starting with "virt-" and
 # IP that ends with ".84"
-kubectl-sql get pods where "name ~= '^virt-' and status.podIP ~= '[.]84$'"
+kubectl-sql "select * from pods where name ~= '^virt-' and status.podIP ~= '[.]84$'"
 AMESPACE	NAME                          	PHASE  	hostIP        	CREATION_TIME(RFC3339)       	
 default  	virt-launcher-test-bdw2p-lcrwx	Running	192.168.126.56	2020-02-12T14:14:01+02:00
 ...
@@ -77,20 +77,20 @@ default  	virt-launcher-test-bdw2p-lcrwx	Running	192.168.126.56	2020-02-12T14:14
 
 ``` bash
 # Get all persistant volume clames that are less then 20Gi, and output as json.
-kubectl-sql -o json get pvc where "spec.resources.requests.storage < 20Gi"
+kubectl-sql -o json "select * from pvc where spec.resources.requests.storage < 20Gi"
 ...
 ```
   
 ``` bash
 # Display non running pods by nodes for all namespaces.
-kubectl-sql join nodes,pods on \
-    "nodes.status.addresses.1.address = pods.status.hostIP and not pods.phase ~= 'Running'" -A
+kubectl-sql "select * from nodes join pods on \
+    nodes.status.addresses[1].address = pods.status.hostIP and not pods.phase ~= 'Running'" -A
 ...
 ```
 
 ``` bash
 # Filter replica sets with less ready-replicas then replicas"
-kubectl-sql --all-namespaces get rs where "status.readyReplicas < status.replicas"
+kubectl-sql --all-namespaces "select * from rs where status.readyReplicas < status.replicas"
 ```
 
 <p align="center">

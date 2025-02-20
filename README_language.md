@@ -70,10 +70,5 @@ kubectl-sql support resource paths that include lists by using the list index as
 
 ``` bash
 # Get the memory request for the first container.
-kubectl-sql --all-namespaces get pods where "spec.containers.1.resources.requests.memory = 200Mi"
+kubectl-sql --all-namespaces "select * from pods where spec.containers.1.resources.requests.memory = 200Mi"
 ```
-
-#### Identifier escaping
-
-If identifier include characters that need escaping ( e.g. "-" or ":") it is possible
-to escape the identifier name by wrapping it with `[...]` , `` `...` `` or `"..."`
