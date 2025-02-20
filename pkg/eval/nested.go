@@ -31,11 +31,12 @@ func splitKeys(key string) []string {
 				currentKey.Reset()
 			}
 		case '[':
+			keys = append(keys, currentKey.String())
+			currentKey.Reset()
+
 			inBrackets = true
-			currentKey.WriteRune(char)
 		case ']':
 			inBrackets = false
-			currentKey.WriteRune(char)
 		default:
 			currentKey.WriteRune(char)
 		}
