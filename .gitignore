@@ -15,3 +15,5 @@
 # vendor/
 
 /kubectl-sql
+/kubectl-sql.tar.gz
+/kubectl-sql.tar.gz.sha256sum
