@@ -1,7 +1,7 @@
 {
     "aliases": {
-        "owner.name": "metadata.ownerReferences.1.name",
-        "owner.kind": "metadata.ownerReferences.1.kind",
+        "owner.name": "metadata.ownerReferences[1].name",
+        "owner.kind": "metadata.ownerReferences[1].kind",
         "hostIP": "status.hostIP",
         "podIP": "status.podIP"
     },
@@ -21,7 +21,7 @@
             },
             {
                 "title": "IP",
-                "name":  "status.interfaces.1.ipAddress"
+                "name":  "status.interfaces[1].ipAddress"
             },
             {
                 "title": "CREATION_TIME(RFC3339)",

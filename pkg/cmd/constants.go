@@ -41,7 +41,7 @@ var (
   kubectl sql "select * from pods where name ilike 'test-%%'"
 
   # Display pods by nodes using matching IP address.
-  kubectl sql "select * from nodes join pods on nodes.status.addresses.1.address = pods.status.hostIP"
+  kubectl sql "select * from nodes join pods on nodes.status.addresses[1].address = pods.status.hostIP"
   
   # Print current available aliases.
   kubectl sql aliases
@@ -100,7 +100,7 @@ namespace unless you pass --all-namespaces`
 	defaultAliases = map[string]string{
 		"phase":     "status.phase",
 		"uid":       "metadata.uid",
-		"owner.uid": "metadata.ownerReferences.1.uid",
+		"owner.uid": "metadata.ownerReferences[1].uid",
 	}
 	defaultTableFields = printers.TableFieldsMap{
 		"other": {

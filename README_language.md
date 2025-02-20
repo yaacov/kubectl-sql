@@ -49,7 +49,7 @@ https://github.com/yaacov/tree-search-language
 | Unit | Multiplier | Example |
 |----|---|---|
 | Ki | 1024 | |
-| Mi | 1024^2 | `spec.containers.1.resources.requests.memory = 200Mi` |
+| Mi | 1024^2 | `spec.containers[1].resources.requests.memory = 200Mi` |
 | Gi | 1024^3 | |
 | Ti | 1024^4 | |
 | Pi | 1024^5 | |
@@ -57,12 +57,12 @@ https://github.com/yaacov/tree-search-language
 #### Booleans:
 | Example |
 |---|
-| `status.conditions.1.status = true` |
+| `status.conditions[1].status = true` |
 
 #### Dates:
 | Format | Example |
 |---|---|
-| RFC3339 | `status.conditions.1.lastTransitionTime > 2020-02-20T11:12:38Z`  |
+| RFC3339 | `status.conditions[1].lastTransitionTime > 2020-02-20T11:12:38Z`  |
 | Short date | `created <= 2020-02-20` |
 
 #### Arrays and lists:
@@ -70,5 +70,5 @@ kubectl-sql support resource paths that include lists by using the list index as
 
 ``` bash
 # Get the memory request for the first container.
-kubectl-sql --all-namespaces "select * from pods where spec.containers.1.resources.requests.memory = 200Mi"
+kubectl-sql --all-namespaces "select * from pods where spec.containers[1].resources.requests.memory = 200Mi"
 ```
