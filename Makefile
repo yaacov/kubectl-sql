@@ -23,14 +23,14 @@
 VERSION_GIT := $(shell git describe --tags)
 VERSION ?= ${VERSION_GIT}
 
+all: kubectl-sql
+
 .PHONY: install-tools
 install-tools:
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
 kubesql_cmd := $(wildcard ./cmd/kubectl-sql/*.go)
 kubesql_pkg := $(wildcard ./pkg/**/*.go)
-
-all: kubectl-sql
 
 kubectl-sql: $(kubesql_cmd) $(kubesql_pkg)
 	go build -ldflags='-X github.com/yaacov/kubectl-sql/pkg/cmd.clientVersion=${VERSION}' -o kubectl-sql $(kubesql_cmd)
