@@ -112,13 +112,16 @@ func (o *SQLOptions) Join(config *rest.Config) error {
 
 	for _, r := range filteredList {
 		// Print one item.
-		o.Printer([]unstructured.Unstructured{r})
+		err := o.Printer([]unstructured.Unstructured{r})
+		if err != nil {
+			return err
+		}
 
 		// Print separator.
 		fmt.Fprintf(o.Out, "\n")
 
 		// Print joined items.
-		if err := o.printJoinedResources(c, r, list2); err != nil {
+		if err := o.printJoinedResources(r, list2); err != nil {
 			return err
 		}
 
@@ -130,7 +133,7 @@ func (o *SQLOptions) Join(config *rest.Config) error {
 }
 
 // printJoinedResources prints joined resource list.
-func (o *SQLOptions) printJoinedResources(c client.Config, item unstructured.Unstructured, list2 []unstructured.Unstructured) error {
+func (o *SQLOptions) printJoinedResources(item unstructured.Unstructured, list2 []unstructured.Unstructured) error {
 	f := filter.Config{
 		CheckColumnName: o.checkColumnName2,
 		Query:           o.requestedOnQuery,

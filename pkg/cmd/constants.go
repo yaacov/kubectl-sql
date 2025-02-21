@@ -20,8 +20,6 @@ Author: 2020 Yaacov Zamir <kobi.zamir@gmail.com>
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/yaacov/kubectl-sql/pkg/printers"
 )
 
@@ -29,8 +27,7 @@ var (
 	clientVersion = "GIT-master"
 
 	// sql command.
-	sqlCmdShort = "Uses SQL-like language to filter and display one or many resources"
-	sqlCmdLong  = `Uses SQL-like language to filter and display one or many resources.
+	sqlCmdLong = `Uses SQL-like language to filter and display one or many resources.
 
   kubectl sql prints information about kubernetes resources filtered using SQL-like query`
 
@@ -93,7 +90,6 @@ namespace unless you pass --all-namespaces`
   kubectl sql "select nodes join pods on nodes.status.addresses[1].address = pods.status.hostIP and not pods.phase ~= 'Running'" -A `
 
 	// Errors.
-	errNoContext     = fmt.Errorf("no context is currently set, use %q to select a new one", "kubectl config use-context <context>")
 	errUsageTemplate = "bad command or command usage, %s"
 
 	// Defaults.

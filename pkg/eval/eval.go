@@ -32,9 +32,9 @@ func extractValue(item unstructured.Unstructured, key string) (interface{}, bool
 	case "namespace":
 		return item.GetNamespace(), true
 	case "created":
-		return item.GetCreationTimestamp().Time, true
+		return item.GetCreationTimestamp().Time.UTC(), true
 	case "deleted":
-		return item.GetDeletionTimestamp().Time, true
+		return item.GetDeletionTimestamp().Time.UTC(), true
 	}
 
 	// Check for labels and annotations.

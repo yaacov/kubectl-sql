@@ -86,9 +86,11 @@ func parseBoolean(str string) *bool {
 
 func parseDate(str string) *time.Time {
 	if t, err := time.Parse(time.RFC3339, str); err == nil {
+		t = t.UTC()
 		return &t
 	}
 	if t, err := time.Parse("2006-01-02", str); err == nil {
+		t = t.UTC()
 		return &t
 	}
 	return nil

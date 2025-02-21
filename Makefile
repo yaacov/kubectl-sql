@@ -14,8 +14,18 @@
 # limitations under the License.
 #
 
+# Prerequisites:
+#   - go 1.16 or higher
+#   - curl or wget
+#
+# Run `make install-tools` to install required development tools
+
 VERSION_GIT := $(shell git describe --tags)
 VERSION ?= ${VERSION_GIT}
+
+.PHONY: install-tools
+install-tools:
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
 kubesql_cmd := $(wildcard ./cmd/kubectl-sql/*.go)
 kubesql_pkg := $(wildcard ./pkg/**/*.go)
@@ -27,12 +37,12 @@ kubectl-sql: $(kubesql_cmd) $(kubesql_pkg)
 
 .PHONY: lint
 lint:
-	golint ./pkg/...
-	golint ./cmd/...
+	go vet ./pkg/... ./cmd/...
+	golangci-lint run ./pkg/... ./cmd/...
 
 .PHONY: fmt
 fmt:
-	gofmt -s -w $(kubesql_cmd) $(kubesql_pkg)
+	go fmt ./pkg/... ./cmd/...
 
 .PHONY: dist
 dist: kubectl-sql
@@ -44,4 +54,11 @@ clean:
 	rm -f kubectl-sql
 	rm -f kubectl-sql.tar.gz
 	rm -f kubectl-sql.tar.gz.sha256sum
+
+.PHONY: test
+test:
+	go test -v -cover ./pkg/... ./cmd/...
+	go test -coverprofile=coverage.out ./pkg/... ./cmd/...
+	go tool cover -func=coverage.out
+	@rm coverage.out
 

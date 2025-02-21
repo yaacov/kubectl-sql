@@ -158,7 +158,10 @@ func (o *SQLOptions) Printer(items []unstructured.Unstructured) error {
 	case "name":
 		return p.Name(items)
 	default:
-		p.Table(items)
+		err := p.Table(items)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
