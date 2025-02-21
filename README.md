@@ -67,11 +67,15 @@ human readable easy to use SQL like query language. It is also posible to find c
 [More kubectl-sql examples](https://github.com/yaacov/kubectl-sql/blob/master/README_examples.md)
 
 ``` bash
-# Get all pods from current namespace scope, that has a name starting with "virt-" and
-# IP that ends with ".84"
-kubectl-sql "select * from pods where name ~= '^virt-' and status.podIP ~= '[.]84$'"
-AMESPACE	NAME                          	PHASE  	hostIP        	CREATION_TIME(RFC3339)       	
-default  	virt-launcher-test-bdw2p-lcrwx	Running	192.168.126.56	2020-02-12T14:14:01+02:00
+# Get pods in namespace "openshift-multus" that hase name containing "cni"
+# Select the fields name, status.phase as phase, status.podIP as ip
+kubectl-sql "select name, status.phase as phase, status.podIP as ip \
+  from openshift-multus/pods \
+  where name ~= 'cni' and (ip ~= '5$' or phase = 'Running')"
+KIND: Pod	COUNT: 2
+name                               	phase  	ip          	
+multus-additional-cni-plugins-7kcsd	Running	10.130.10.85	
+multus-additional-cni-plugins-kc8sz	Running	10.131.6.65 
 ...
 ```
 

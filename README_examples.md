@@ -22,6 +22,48 @@ openshift-cnv	ovs-cni-amd64-d6vdb	Running	192.168.126.53	2020-02-10T23:13:45+02:
 ...
 ```
 
+#### Namespaced
+
+``` bash
+# Get pods in namespace "openshift-multus" that hase name containing "ovs"
+kubectl-sql "select * from openshift-multus/pods where name ~= 'cni'"
+KIND: Pod	COUNT: 3
+NAMESPACE       	NAME                               	PHASE  	CREATION_TIME(RFC3339)       	
+openshift-multus	multus-additional-cni-plugins-7kcsd	Running	2024-12-02T11:41:45Z         	
+openshift-multus	multus-additional-cni-plugins-kc8sz	Running	2024-12-02T11:41:45Z         	
+openshift-multus	multus-additional-cni-plugins-vrpx9	Running	2024-12-02T11:41:45Z  
+...
+```
+
+#### Select fields
+
+``` bash
+# Get pods in namespace "openshift-multus" that hase name containing "ovs"
+# Select the fields name, status.phase, status.podIP
+kubectl-sql "select name, status.phase, status.podIP from openshift-multus/pods where name ~= 'cni'"
+KIND: Pod	COUNT: 3
+name                               	status.phase	status.podIP	
+multus-additional-cni-plugins-7kcsd	Running     	10.130.10.85	
+multus-additional-cni-plugins-kc8sz	Running     	10.131.6.65 	
+multus-additional-cni-plugins-vrpx9	Running     	10.129.8.252
+...
+```
+
+#### Alias selected fields
+
+``` bash
+# Get pods in namespace "openshift-multus" that hase name containing "ovs"
+# Select the fields name, status.phase as phase, status.podIP as ip
+kubectl-sql "select name, status.phase as phase, status.podIP as ip \
+  from openshift-multus/pods \
+  where name ~= 'cni' and ip ~= '5$' and phase = 'Running'"
+KIND: Pod	COUNT: 2
+name                               	phase  	ip          	
+multus-additional-cni-plugins-7kcsd	Running	10.130.10.85	
+multus-additional-cni-plugins-kc8sz	Running	10.131.6.65 
+...
+```
+
 #### Using Regexp
 
 ``` bash
@@ -63,8 +105,8 @@ kubectl-sql --all-namespaces "select * from rs where spec.replicas = 3 and statu
   
 ``` bash
 # Display non running pods by nodes for all namespaces.
-kubectl-sql join nodes,pods on \
-    "nodes.status.addresses[1].address = pods.status.hostIP and not pods.phase ~= 'Running'" -A
+kubectl-sql "select nodes join pods on \
+    nodes.status.addresses[1].address = pods.status.hostIP and not pods.phase ~= 'Running'" -A
 ...
 ```
 

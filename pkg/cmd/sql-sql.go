@@ -47,21 +47,43 @@ func (o *SQLOptions) parseFields(selectFields string) error {
 	}
 
 	fields := strings.Split(selectFields, ",")
-
-	for _, field := range fields {
-		field = strings.TrimSpace(field)
-		if !isValidFieldIdentifier(field) {
-			return fmt.Errorf("invalid field identifier: %s", field)
-		}
-	}
-
 	tableFields := make([]printers.TableField, 0, len(fields))
+
 	for _, field := range fields {
 		field = strings.TrimSpace(field)
+
+		// Check for AS syntax
+		parts := strings.Split(strings.ToUpper(field), " AS ")
+		var name, title string
+
+		if len(parts) == 2 {
+			// We have an AS clause
+			name = strings.TrimSpace(field[:strings.Index(strings.ToUpper(field), " AS ")])
+			title = strings.TrimSpace(field[strings.Index(strings.ToUpper(field), " AS ")+4:])
+
+			if !isValidFieldIdentifier(name) {
+				return fmt.Errorf("invalid field identifier before AS: %s", name)
+			}
+			if !isValidFieldIdentifier(title) {
+				return fmt.Errorf("invalid field identifier after AS: %s", title)
+			}
+		} else {
+			// No AS clause, use field as both name and title
+			if !isValidFieldIdentifier(field) {
+				return fmt.Errorf("invalid field identifier: %s", field)
+			}
+			name = field
+			title = field
+		}
+
+		// Append to table fields
 		tableFields = append(tableFields, printers.TableField{
-			Title: field,
-			Name:  field,
+			Name:  name,
+			Title: title,
 		})
+
+		// Append to default aliases
+		o.defaultAliases[title] = name
 	}
 
 	o.defaultTableFields[printers.SelectedFields] = tableFields
@@ -71,10 +93,27 @@ func (o *SQLOptions) parseFields(selectFields string) error {
 // parseResources validates and sets the requested resources
 func (o *SQLOptions) parseResources(resources []string, queryType QueryType) error {
 	for i, r := range resources {
-		resources[i] = strings.TrimSpace(r)
-		if !isValidK8sResourceName(resources[i]) {
-			return fmt.Errorf("invalid resource name: %s", resources[i])
+		r = strings.TrimSpace(r)
+
+		// Split resource on "/" to check for namespace
+		parts := strings.Split(r, "/")
+		var resourceName string
+
+		switch len(parts) {
+		case 1:
+			resourceName = parts[0]
+		case 2:
+			o.namespace = parts[0]
+			resourceName = parts[1]
+		default:
+			return fmt.Errorf("invalid resource format: %s, expected [namespace/]resource", r)
 		}
+
+		if !isValidK8sResourceName(resourceName) {
+			return fmt.Errorf("invalid resource name: %s", resourceName)
+		}
+
+		resources[i] = resourceName
 	}
 
 	if queryType == SimpleQuery && len(resources) != 1 {
