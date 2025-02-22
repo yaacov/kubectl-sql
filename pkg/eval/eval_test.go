@@ -53,7 +53,7 @@ func TestExtractValue(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1 := extractValue(item, tt.key)
+			got, got1 := ExtractValue(item, tt.key)
 			if got != tt.want {
 				t.Errorf("extractValue() got = %v, want %v", got, tt.want)
 			}

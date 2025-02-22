@@ -23,8 +23,8 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-// extractValue extract a value from an item using a key.
-func extractValue(item unstructured.Unstructured, key string) (interface{}, bool) {
+// ExtractValue extract a value from an item using a key.
+func ExtractValue(item unstructured.Unstructured, key string) (interface{}, bool) {
 	// Check for reserved words.
 	switch key {
 	case "name":
