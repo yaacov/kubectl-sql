@@ -28,7 +28,8 @@ kubectl-sql is a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubect
 
 Using [krew](https://sigs.k8s.io/krew) plugin manager to install:
 
-```
+``` bash
+# Available for linux-amd64
 kubectl krew install sql
 kubectl sql --help
 ```
@@ -36,6 +37,7 @@ kubectl sql --help
 Using Fedora Copr:
 
 ``` bash
+# Available for F41 and F42 (linux-amd64)
 dnf copr enable yaacov/kubesql
 dnf install kubectl-sql
 ```
