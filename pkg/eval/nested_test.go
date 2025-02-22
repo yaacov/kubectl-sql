@@ -40,6 +40,13 @@ func TestGetNestedObject(t *testing.T) {
 			wantBool: true,
 		},
 		{
+			name:     "array access by index (2)",
+			obj:      testObj,
+			key:      "items[2]",
+			want:     map[string]interface{}{"name": "item2"},
+			wantBool: true,
+		},
+		{
 			name:     "array access with dot notation",
 			obj:      testObj,
 			key:      "items.1",
@@ -86,11 +93,26 @@ func TestSplitKeys(t *testing.T) {
 			key:  "spec.containers[1].name",
 			want: []string{"spec", "containers", "1", "name"},
 		},
+		{
+			name: "array access with dot notation",
+			key:  "items.1.name",
+			want: []string{"items", "1", "name"},
+		},
+		{
+			name: "multiple array accesses with dot notation",
+			key:  "pods.2.containers.0.name",
+			want: []string{"pods", "2", "containers", "0", "name"},
+		},
+		{
+			name: "mixed array access notation",
+			key:  "pods.2.containers[0].name",
+			want: []string{"pods", "2", "containers", "0", "name"},
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := splitKeys(tt.key); !reflect.DeepEqual(got, tt.want) {
+			if got := SplitKeys(tt.key); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("splitKeys() = %v, want %v", got, tt.want)
 			}
 		})
