@@ -17,6 +17,8 @@
 # Prerequisites:
 #   - go 1.16 or higher
 #   - curl or wget
+#   - CGO enabled
+#   - musl-gcc package installed for static binary compilation
 #
 # Run `make install-tools` to install required development tools
 
@@ -34,6 +36,13 @@ kubesql_pkg := $(wildcard ./pkg/**/*.go)
 
 kubectl-sql: $(kubesql_cmd) $(kubesql_pkg)
 	go build -ldflags='-X github.com/yaacov/kubectl-sql/pkg/cmd.clientVersion=${VERSION}' -o kubectl-sql $(kubesql_cmd)
+
+kubectl-sql-static: $(kubesql_cmd) $(kubesql_pkg)
+	CGO_ENABLED=1 CC=musl-gcc go build \
+		-tags netgo \
+		-ldflags '-linkmode external -extldflags "-static" -X github.com/yaacov/kubectl-sql/pkg/cmd.clientVersion=${VERSION}' \
+		-o kubectl-sql \
+		$(kubesql_cmd)
 
 .PHONY: lint
 lint:
