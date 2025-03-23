@@ -27,6 +27,19 @@ func isValidK8sResourceName(resource string) bool {
 	return match
 }
 
+// isValidNamespace checks if a namespace name is valid according to Kubernetes naming conventions
+// or if it's the special "*" value for all namespaces
+func isValidNamespace(namespace string) bool {
+	// Special case for "all namespaces"
+	if namespace == "*" {
+		return true
+	}
+
+	pattern := `^[a-z0-9]([a-z0-9\-]*[a-z0-9])?$`
+	match, _ := regexp.MatchString(pattern, namespace)
+	return match
+}
+
 // QueryType represents the type of SQL query
 type QueryType int
 
@@ -103,10 +116,21 @@ func (o *SQLOptions) parseResources(resources []string, queryType QueryType) err
 		case 1:
 			resourceName = parts[0]
 		case 2:
-			o.namespace = parts[0]
+			// Check for namespace validity
+			namespace := parts[0]
+			if !isValidNamespace(namespace) {
+				return fmt.Errorf("invalid namespace: %s", namespace)
+			}
+
+			// Set namespace options
+			if namespace == "*" {
+				o.allNamespaces = true
+			} else {
+				o.namespace = namespace
+			}
 			resourceName = parts[1]
 		default:
-			return fmt.Errorf("invalid resource format: %s, expected [namespace/]resource", r)
+			return fmt.Errorf("invalid resource format: %s, expected [namespace/]resource or */resource for all namespaces", r)
 		}
 
 		if !isValidK8sResourceName(resourceName) {
