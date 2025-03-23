@@ -98,6 +98,12 @@ kubectl-sql "select * from nodes join */pods on \
 kubectl-sql --all-namespaces "select * from rs where status.readyReplicas < status.replicas"
 ```
 
+``` bash
+# Find all non running pods by node address
+kubectl-sql "select * from nodes join */pods on \
+        nodes.status.addresses[1].address = pods.status.hostIP and not pods.phase ~= 'Running'"
+```
+
 <p align="center">
    <a href="https://asciinema.org/a/vOSwHzeOLbVhQb79ajFmql2uk" target="_blank"><img src="https://asciinema.org/a/vOSwHzeOLbVhQb79ajFmql2uk.svg" /></a>
 <p>
