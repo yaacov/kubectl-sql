@@ -70,7 +70,6 @@ human readable easy to use SQL like query language. It is also posible to find c
 
 ``` bash
 # Get pods in namespace "openshift-multus" that hase name containing "cni"
-# Select the fields name, status.phase as phase, status.podIP as ip
 kubectl-sql "select name, status.phase as phase, status.podIP as ip \
   from openshift-multus/pods \
   where name ~= 'cni' and (ip ~= '5$' or phase = 'Running')"
