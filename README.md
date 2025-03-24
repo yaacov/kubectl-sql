@@ -104,6 +104,11 @@ kubectl-sql "select * from nodes join */pods on \
         nodes.status.addresses[1].address = pods.status.hostIP and not pods.phase ~= 'Running'"
 ```
 
+```bash
+# Get only first 10 pods ordered by name
+kubectl-sql "SELECT name, status.phase FROM */pods ORDER BY name LIMIT 10"
+```
+
 <p align="center">
    <a href="https://asciinema.org/a/vOSwHzeOLbVhQb79ajFmql2uk" target="_blank"><img src="https://asciinema.org/a/vOSwHzeOLbVhQb79ajFmql2uk.svg" /></a>
 <p>
