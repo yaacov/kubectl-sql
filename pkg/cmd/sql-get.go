@@ -149,6 +149,7 @@ func (o *SQLOptions) Printer(items []unstructured.Unstructured) error {
 		Limit:         o.limit,
 		Out:           o.Out,
 		ErrOut:        o.ErrOut,
+		NoHeaders:     o.noHeaders,
 	}
 
 	// Print out

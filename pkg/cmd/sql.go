@@ -233,6 +233,8 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 		"Path to the kubectl-sql.json file to use for kubectl-sql requests.")
 	cmd.Flags().StringVarP(&o.outputFormat, "output", "o", o.outputFormat,
 		"Output format. One of: json|yaml|table|name")
+	cmd.Flags().BoolVarP(&o.noHeaders, "no-headers", "H", false,
+		"When using the table output format, don't print headers (column titles)")
 
 	o.configFlags.AddFlags(cmd.Flags())
 
