@@ -144,9 +144,11 @@ func (o *SQLOptions) Printer(items []unstructured.Unstructured) error {
 	}
 
 	p := printers.Config{
-		TableFields: o.defaultTableFields,
-		Out:         o.Out,
-		ErrOut:      o.ErrOut,
+		TableFields:   o.defaultTableFields,
+		OrderByFields: o.orderByFields,
+		Limit:         o.limit,
+		Out:           o.Out,
+		ErrOut:        o.ErrOut,
 	}
 
 	// Print out

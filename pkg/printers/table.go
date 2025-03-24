@@ -22,6 +22,8 @@ package printers
 import (
 	"fmt"
 	"io"
+	"reflect"
+	"sort"
 	"strconv"
 	"time"
 
@@ -46,6 +48,10 @@ type TableFieldsMap map[string]tableFields
 type Config struct {
 	// TableFields describe table field columns
 	TableFields TableFieldsMap
+	// OrderByFields describes how to sort the table results
+	OrderByFields []OrderByField
+	// Limit restricts the number of results displayed (0 means no limit)
+	Limit int
 	// Out think, os.Stdout
 	Out io.Writer
 	// ErrOut think, os.Stderr
@@ -110,15 +116,95 @@ func (c *Config) getTableColumns(items []unstructured.Unstructured) tableFields 
 	return fields
 }
 
+// sortItems sorts the slice of unstructured items based on the OrderByFields
+func (c *Config) sortItems(items []unstructured.Unstructured) {
+	if len(c.OrderByFields) == 0 {
+		return
+	}
+
+	sort.SliceStable(items, func(i, j int) bool {
+		for _, orderBy := range c.OrderByFields {
+			evalFuncI := eval.EvalFunctionFactory(items[i])
+			evalFuncJ := eval.EvalFunctionFactory(items[j])
+
+			valueI, foundI := evalFuncI(orderBy.Name)
+			valueJ, foundJ := evalFuncJ(orderBy.Name)
+
+			// If either value is not found, prioritize the found value
+			if !foundI && foundJ {
+				return !orderBy.Descending
+			}
+			if foundI && !foundJ {
+				return orderBy.Descending
+			}
+			if !foundI && !foundJ {
+				continue
+			}
+
+			// Both values found, compare them
+			if valueI == nil && valueJ != nil {
+				return !orderBy.Descending
+			}
+			if valueI != nil && valueJ == nil {
+				return orderBy.Descending
+			}
+
+			// Compare values
+			switch vI := valueI.(type) {
+			case bool:
+				vJ := valueJ.(bool)
+				if vI != vJ {
+					return vI != orderBy.Descending
+				}
+			case float64:
+				vJ := valueJ.(float64)
+				if vI != vJ {
+					return vI < vJ != orderBy.Descending
+				}
+			case string:
+				vJ := valueJ.(string)
+				if vI != vJ {
+					return vI < vJ != orderBy.Descending
+				}
+			case time.Time:
+				vJ := valueJ.(time.Time)
+				if !vI.Equal(vJ) {
+					return vI.Before(vJ) != orderBy.Descending
+				}
+			default:
+				// Fallback to reflect.DeepEqual for other types
+				if !reflect.DeepEqual(valueI, valueJ) {
+					return reflect.DeepEqual(valueI, valueJ) != orderBy.Descending
+				}
+			}
+		}
+		return false
+	})
+}
+
 // Table prints items in Table format
 func (c *Config) Table(items []unstructured.Unstructured) error {
 	var evalFunc func(string) (interface{}, bool)
 
+	// Sort items if OrderByFields is set
+	c.sortItems(items)
+
 	// Get table fields for the items.
 	fields := c.getTableColumns(items)
 
+	// Apply limit if set
+	displayCount := len(items)
+	if c.Limit > 0 && c.Limit < displayCount {
+		displayCount = c.Limit
+	}
+
 	// Print table head
-	fmt.Fprintf(c.Out, "KIND: %s\tCOUNT: %d\n", items[0].GetKind(), len(items))
+	fmt.Fprintf(c.Out, "KIND: %s\tCOUNT: %d", items[0].GetKind(), len(items))
+	if c.Limit > 0 && c.Limit < len(items) {
+		fmt.Fprintf(c.Out, "\tDISPLAYING: %d", displayCount)
+	}
+	fmt.Fprintf(c.Out, "\n")
+
 	for _, field := range fields {
 		if field.Width > 0 {
 			fmt.Fprintf(c.Out, field.Template, field.Title)
@@ -127,7 +213,12 @@ func (c *Config) Table(items []unstructured.Unstructured) error {
 	fmt.Print("\n")
 
 	// Print table rows
-	for _, item := range items {
+	for i, item := range items {
+		// Respect the limit if set
+		if c.Limit > 0 && i >= c.Limit {
+			break
+		}
+
 		evalFunc = eval.EvalFunctionFactory(item)
 
 		for _, field := range fields {
