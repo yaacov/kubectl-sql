@@ -42,6 +42,8 @@ type SQLOptions struct {
 
 	defaultAliases     map[string]string
 	defaultTableFields printers.TableFieldsMap
+	orderByFields      []printers.OrderByField
+	limit              int
 
 	namespace          string
 	allNamespaces      bool
@@ -56,15 +58,19 @@ type SQLOptions struct {
 
 // SQLConfig describes configuration overrides for SQL queries.
 type SQLConfig struct {
-	Aliases     map[string]string       `json:"aliases"`
-	TableFields printers.TableFieldsMap `json:"table-fields"`
+	Aliases       map[string]string       `json:"aliases"`
+	TableFields   printers.TableFieldsMap `json:"table-fields"`
+	OrderByFields []printers.OrderByField `json:"order-by-fields,omitempty"`
+	Limit         int                     `json:"limit,omitempty"`
 }
 
 // NewSQLConfig provides an instance of SQLConfig with default values
 func NewSQLConfig() *SQLConfig {
 	return &SQLConfig{
-		Aliases:     defaultAliases,
-		TableFields: defaultTableFields,
+		Aliases:       defaultAliases,
+		TableFields:   defaultTableFields,
+		OrderByFields: []printers.OrderByField{},
+		Limit:         0, // Default to no limit
 	}
 }
 
@@ -75,6 +81,8 @@ func (o *SQLOptions) readConfigFile(filename string) error {
 	// Init default config.
 	o.defaultAliases = userConfig.Aliases
 	o.defaultTableFields = userConfig.TableFields
+	o.orderByFields = userConfig.OrderByFields
+	o.limit = userConfig.Limit
 
 	// If file is missing, fail quietly.
 	if !fileExists(o.requestedSQLConfigPath) {
@@ -103,6 +111,16 @@ func (o *SQLOptions) readConfigFile(filename string) error {
 		for k, v := range userConfig.TableFields {
 			o.defaultTableFields[k] = v
 		}
+	}
+
+	// Set OrderByFields from config if specified
+	if len(userConfig.OrderByFields) > 0 {
+		o.orderByFields = userConfig.OrderByFields
+	}
+
+	// Set limit from config if specified
+	if userConfig.Limit > 0 {
+		o.limit = userConfig.Limit
 	}
 
 	return nil
