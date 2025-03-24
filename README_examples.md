@@ -29,6 +29,31 @@
 
 ---
 
+**Sorting and Limiting Results**
+
+* **Sort pods by creation time (newest first):**
+    ```bash
+    kubectl sql "SELECT name, metadata.creationTimestamp FROM */pods ORDER BY metadata.creationTimestamp DESC"
+    ```
+* **Get the 5 oldest deployments:**
+    ```bash
+    kubectl sql "SELECT name, metadata.creationTimestamp FROM */deployments ORDER BY metadata.creationTimestamp ASC LIMIT 5"
+    ```
+* **Sort pods by name and limit to 10 results:**
+    ```bash
+    kubectl sql "SELECT name, status.phase FROM */pods ORDER BY name LIMIT 10"
+    ```
+* **Get pods with most restarts:**
+    ```bash
+    kubectl sql "SELECT name, status.containerStatuses[1].restartCount FROM */pods ORDER BY status.containerStatuses[1].restartCount DESC LIMIT 5"
+    ```
+* **Sort services by number of ports (multiple-column sorting):**
+    ```bash
+    kubectl sql "SELECT name, namespace FROM */services ORDER BY namespace ASC, name DESC"
+    ```
+
+---
+
 **Filtering with `WHERE` Clause**
 
 * **Pods with label `app=my-app`:**
