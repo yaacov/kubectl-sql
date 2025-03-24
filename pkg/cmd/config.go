@@ -52,6 +52,7 @@ type SQLOptions struct {
 	requestedOnQuery   string
 
 	outputFormat string
+	noHeaders    bool
 
 	genericclioptions.IOStreams
 }

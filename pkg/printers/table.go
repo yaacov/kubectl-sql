@@ -52,6 +52,8 @@ type Config struct {
 	OrderByFields []OrderByField
 	// Limit restricts the number of results displayed (0 means no limit)
 	Limit int
+	// NoHeaders if true, don't print header rows
+	NoHeaders bool
 	// Out think, os.Stdout
 	Out io.Writer
 	// ErrOut think, os.Stderr
@@ -198,19 +200,21 @@ func (c *Config) Table(items []unstructured.Unstructured) error {
 		displayCount = c.Limit
 	}
 
-	// Print table head
-	fmt.Fprintf(c.Out, "KIND: %s\tCOUNT: %d", items[0].GetKind(), len(items))
-	if c.Limit > 0 && c.Limit < len(items) {
-		fmt.Fprintf(c.Out, "\tDISPLAYING: %d", displayCount)
-	}
-	fmt.Fprintf(c.Out, "\n")
-
-	for _, field := range fields {
-		if field.Width > 0 {
-			fmt.Fprintf(c.Out, field.Template, field.Title)
+	// Print table head if headers are not disabled
+	if !c.NoHeaders {
+		fmt.Fprintf(c.Out, "KIND: %s\tCOUNT: %d", items[0].GetKind(), len(items))
+		if c.Limit > 0 && c.Limit < len(items) {
+			fmt.Fprintf(c.Out, "\tDISPLAYING: %d", displayCount)
 		}
+		fmt.Fprintf(c.Out, "\n")
+
+		for _, field := range fields {
+			if field.Width > 0 {
+				fmt.Fprintf(c.Out, field.Template, field.Title)
+			}
+		}
+		fmt.Print("\n")
 	}
-	fmt.Print("\n")
 
 	// Print table rows
 	for i, item := range items {
