@@ -70,7 +70,6 @@ human readable easy to use SQL like query language. It is also posible to find c
 
 ``` bash
 # Get pods in namespace "openshift-multus" that hase name containing "cni"
-# Select the fields name, status.phase as phase, status.podIP as ip
 kubectl-sql "select name, status.phase as phase, status.podIP as ip \
   from openshift-multus/pods \
   where name ~= 'cni' and (ip ~= '5$' or phase = 'Running')"
@@ -89,14 +88,26 @@ kubectl-sql -o json "select * from pvc where spec.resources.requests.storage < 2
   
 ``` bash
 # Display non running pods by nodes for all namespaces.
-kubectl-sql "select * from nodes join pods on \
-    nodes.status.addresses[1].address = pods.status.hostIP and not pods.phase ~= 'Running'" -A
+kubectl-sql "select * from nodes join */pods on \
+    nodes.status.addresses[1].address = pods.status.hostIP and not pods.phase ~= 'Running'"
 ...
 ```
 
 ``` bash
 # Filter replica sets with less ready-replicas then replicas"
 kubectl-sql --all-namespaces "select * from rs where status.readyReplicas < status.replicas"
+```
+
+``` bash
+# Find all non running pods by node address
+kubectl-sql "select * from nodes join */pods on \
+        nodes.status.addresses[1].address = pods.status.hostIP and \
+        not pods.phase ~= 'Running'"
+```
+
+```bash
+# Get only first 10 pods ordered by name
+kubectl-sql "SELECT name, status.phase FROM */pods ORDER BY name LIMIT 10"
 ```
 
 <p align="center">

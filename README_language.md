@@ -68,6 +68,8 @@ https://github.com/yaacov/tree-search-language
 #### Arrays and lists:
 kubectl-sql support resource paths that include lists by using the list index as a field key.
 
+*Important*: first element in array is 1.
+
 ``` bash
 # Get the memory request for the first container.
 kubectl-sql --all-namespaces "select * from pods where spec.containers[1].resources.requests.memory = 200Mi"

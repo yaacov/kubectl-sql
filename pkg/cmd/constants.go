@@ -40,6 +40,9 @@ var (
   # Display pods by nodes using matching IP address.
   kubectl sql "select * from nodes join pods on nodes.status.addresses[1].address = pods.status.hostIP"
   
+  # List first 5 pods ordered by creation time in descending order (newest first).
+  kubectl sql "select * from pods order by created desc limit 5"
+  
   # Print current available aliases.
   kubectl sql aliases
 
@@ -67,7 +70,10 @@ namespace unless you pass --all-namespaces`
   kubectl sql select * from pods where name ilike 'test-%%'"
 
   # List all pods where the memory request for the first container is lower or equal to 200Mi.
-  kubectl sql --all-namespaces "select * from pods where spec.containers[1].resources.requests.memory <= 200Mi"`
+  kubectl sql --all-namespaces "select * from pods where spec.containers[1].resources.requests.memory <= 200Mi"
+  
+  # List pods ordered by name, limiting to 10 results.
+  kubectl sql "select * from pods order by name limit 10"`
 
 	// sql get command.
 	sqlJoinShort = "Uses SQL-like language to join two resources"
@@ -87,7 +93,10 @@ namespace unless you pass --all-namespaces`
   kubectl sql "select ds join pods on ds.uid = pods.owner.uid"
 
   # Display non running pods by nodes for all namespaces.
-  kubectl sql "select nodes join pods on nodes.status.addresses[1].address = pods.status.hostIP and not pods.phase ~= 'Running'" -A `
+  kubectl sql "select nodes join pods on nodes.status.addresses[1].address = pods.status.hostIP and not pods.phase ~= 'Running'" -A 
+  
+  # Display pods by nodes for all namespaces, ordered by node name and limited to 5 results.
+  kubectl sql "select nodes join pods on nodes.status.addresses[1].address = pods.status.hostIP order by nodes.name limit 5" -A`
 
 	// Errors.
 	errUsageTemplate = "bad command or command usage, %s"

@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/yaacov/kubectl-sql/pkg/printers"
@@ -24,6 +25,19 @@ func isValidK8sResourceName(resource string) bool {
 	// Examples: pods, deployments, apps/v1/deployments
 	pattern := `^[a-z]+([a-z0-9-]*[a-z0-9])?(/[a-z0-9]+)*$`
 	match, _ := regexp.MatchString(pattern, resource)
+	return match
+}
+
+// isValidNamespace checks if a namespace name is valid according to Kubernetes naming conventions
+// or if it's the special "*" value for all namespaces
+func isValidNamespace(namespace string) bool {
+	// Special case for "all namespaces"
+	if namespace == "*" {
+		return true
+	}
+
+	pattern := `^[a-z0-9]([a-z0-9\-]*[a-z0-9])?$`
+	match, _ := regexp.MatchString(pattern, namespace)
 	return match
 }
 
@@ -103,10 +117,21 @@ func (o *SQLOptions) parseResources(resources []string, queryType QueryType) err
 		case 1:
 			resourceName = parts[0]
 		case 2:
-			o.namespace = parts[0]
+			// Check for namespace validity
+			namespace := parts[0]
+			if !isValidNamespace(namespace) {
+				return fmt.Errorf("invalid namespace: %s", namespace)
+			}
+
+			// Set namespace options
+			if namespace == "*" {
+				o.allNamespaces = true
+			} else {
+				o.namespace = namespace
+			}
 			resourceName = parts[1]
 		default:
-			return fmt.Errorf("invalid resource format: %s, expected [namespace/]resource", r)
+			return fmt.Errorf("invalid resource format: %s, expected [namespace/]resource or */resource for all namespaces", r)
 		}
 
 		if !isValidK8sResourceName(resourceName) {
@@ -135,11 +160,13 @@ func (o *SQLOptions) identifyQueryType(query string) (QueryType, map[string]int,
 	}
 
 	indices := map[string]int{
-		"SELECT": 0,
-		"FROM":   strings.Index(upperQuery, " FROM "),
-		"JOIN":   strings.Index(upperQuery, " JOIN "),
-		"ON":     strings.Index(upperQuery, " ON "),
-		"WHERE":  strings.Index(upperQuery, " WHERE "),
+		"SELECT":   0,
+		"FROM":     strings.Index(upperQuery, " FROM "),
+		"JOIN":     strings.Index(upperQuery, " JOIN "),
+		"ON":       strings.Index(upperQuery, " ON "),
+		"WHERE":    strings.Index(upperQuery, " WHERE "),
+		"ORDER BY": strings.Index(upperQuery, " ORDER BY "),
+		"LIMIT":    strings.Index(upperQuery, " LIMIT "),
 	}
 
 	if indices["FROM"] == -1 {
@@ -161,6 +188,89 @@ func (o *SQLOptions) identifyQueryType(query string) (QueryType, map[string]int,
 	return JoinWhereQuery, indices, nil
 }
 
+// parseOrderBy extracts and validates the ORDER BY clause
+func (o *SQLOptions) parseOrderBy(query string, indices map[string]int) error {
+	if indices["ORDER BY"] == -1 {
+		return nil
+	}
+
+	orderByStart := indices["ORDER BY"] + 9
+	var orderByEnd int
+	if indices["LIMIT"] != -1 {
+		orderByEnd = indices["LIMIT"]
+	} else {
+		orderByEnd = len(query)
+	}
+
+	orderByStr := strings.TrimSpace(query[orderByStart:orderByEnd])
+	if orderByStr == "" {
+		return fmt.Errorf("ORDER BY clause cannot be empty")
+	}
+
+	fields := strings.Split(orderByStr, ",")
+	orderByFields := make([]printers.OrderByField, 0, len(fields))
+
+	for _, field := range fields {
+		field = strings.TrimSpace(field)
+		if field == "" {
+			continue
+		}
+
+		parts := strings.Fields(field)
+		if len(parts) == 0 {
+			continue
+		}
+
+		fieldName := parts[0]
+		// Check for possible alias
+		if alias, err := o.checkColumnName(fieldName); err == nil {
+			fieldName = alias
+		}
+
+		orderBy := printers.OrderByField{
+			Name:       fieldName,
+			Descending: false,
+		}
+
+		// Check for DESC/ASC modifier
+		if len(parts) > 1 && strings.ToUpper(parts[1]) == "DESC" {
+			orderBy.Descending = true
+		}
+
+		orderByFields = append(orderByFields, orderBy)
+	}
+
+	o.orderByFields = orderByFields
+	return nil
+}
+
+// parseLimit extracts and validates the LIMIT clause
+func (o *SQLOptions) parseLimit(query string, indices map[string]int) error {
+	if indices["LIMIT"] == -1 {
+		return nil
+	}
+
+	limitStart := indices["LIMIT"] + 6
+	limitStr := strings.TrimSpace(query[limitStart:])
+
+	// Check if there are other clauses after LIMIT
+	if space := strings.Index(limitStr, " "); space != -1 {
+		limitStr = limitStr[:space]
+	}
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil {
+		return fmt.Errorf("invalid LIMIT value: %s", limitStr)
+	}
+
+	if limit < 0 {
+		return fmt.Errorf("LIMIT cannot be negative: %d", limit)
+	}
+
+	o.limit = limit
+	return nil
+}
+
 // parseQueryParts extracts and validates different parts of the query
 func (o *SQLOptions) parseQueryParts(query string, indices map[string]int, queryType QueryType) error {
 	// Parse FROM resource (only one resource allowed)
@@ -169,6 +279,10 @@ func (o *SQLOptions) parseQueryParts(query string, indices map[string]int, query
 		fromEnd = indices["JOIN"]
 	} else if indices["WHERE"] != -1 {
 		fromEnd = indices["WHERE"]
+	} else if indices["ORDER BY"] != -1 {
+		fromEnd = indices["ORDER BY"]
+	} else if indices["LIMIT"] != -1 {
+		fromEnd = indices["LIMIT"]
 	} else {
 		fromEnd = len(query)
 	}
@@ -203,8 +317,14 @@ func (o *SQLOptions) parseQueryParts(query string, indices map[string]int, query
 	// Parse ON clause for JOIN queries
 	if queryType != SimpleQuery {
 		onStart := indices["ON"] + 3
-		onEnd := indices["WHERE"]
-		if onEnd == -1 {
+		var onEnd int
+		if indices["WHERE"] != -1 {
+			onEnd = indices["WHERE"]
+		} else if indices["ORDER BY"] != -1 {
+			onEnd = indices["ORDER BY"]
+		} else if indices["LIMIT"] != -1 {
+			onEnd = indices["LIMIT"]
+		} else {
 			onEnd = len(query)
 		}
 		o.requestedOnQuery = strings.TrimSpace(query[onStart:onEnd])
@@ -215,11 +335,30 @@ func (o *SQLOptions) parseQueryParts(query string, indices map[string]int, query
 
 	// Parse WHERE clause if present
 	if indices["WHERE"] != -1 {
-		wherePart := strings.TrimSpace(query[indices["WHERE"]+6:])
+		whereStart := indices["WHERE"] + 6
+		var whereEnd int
+		if indices["ORDER BY"] != -1 {
+			whereEnd = indices["ORDER BY"]
+		} else if indices["LIMIT"] != -1 {
+			whereEnd = indices["LIMIT"]
+		} else {
+			whereEnd = len(query)
+		}
+		wherePart := strings.TrimSpace(query[whereStart:whereEnd])
 		if wherePart == "" {
 			return fmt.Errorf("WHERE clause cannot be empty")
 		}
 		o.requestedQuery = wherePart
+	}
+
+	// Parse ORDER BY clause if present
+	if err := o.parseOrderBy(query, indices); err != nil {
+		return err
+	}
+
+	// Parse LIMIT clause if present
+	if err := o.parseLimit(query, indices); err != nil {
+		return err
 	}
 
 	return nil
