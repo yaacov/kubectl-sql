@@ -34,7 +34,7 @@ kubesql_pkg := $(wildcard ./pkg/**/*.go)
 GOOS := $(shell go env GOOS)
 GOARCH := $(shell go env GOARCH)
 
-kubectl-sql: $(kubesql_cmd) $(kubesql_pkg)
+kubectl-sql: clean $(kubesql_cmd) $(kubesql_pkg)
 	@echo "Building for ${GOOS}/${GOARCH}"
 	go build -ldflags='-X github.com/yaacov/kubectl-sql/pkg/cmd.clientVersion=${VERSION}' -o kubectl-sql $(kubesql_cmd)
 
