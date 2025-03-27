@@ -25,6 +25,7 @@ import (
 	"os"
 
 	"k8s.io/cli-runtime/pkg/genericclioptions"
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/yaacov/kubectl-sql/pkg/printers"
