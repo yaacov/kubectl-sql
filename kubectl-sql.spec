@@ -9,7 +9,7 @@
 %define debug_package %{nil}
 
 Name:           %{repo}
-Version:        0.3.31
+Version:        0.3.32
 Release:        1%{?dist}
 Summary:        kubectl-sql uses sql like language to query the Kubernetes cluster manager
 License:        Apache
