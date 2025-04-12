@@ -122,6 +122,39 @@
 
 ---
 
+**Array Operations (`any`, `all`, `len`)**
+
+* **Pods with any container using nginx image:**
+    ```bash
+    kubectl sql "SELECT name FROM */pods WHERE any(spec.containers[*].image ~= 'nginx')"
+    ```
+* **Pods with any container requesting more than 1Gi memory:**
+    ```bash
+    kubectl sql "SELECT name FROM */pods WHERE any(spec.containers[*].resources.requests.memory > 1Gi)"
+    ```
+* **Deployments where all containers have resource limits:**
+    ```bash
+    kubectl sql "SELECT name FROM */deployments WHERE all(spec.template.spec.containers[*].resources.limits is not null)"
+    ```
+* **Pods where all containers are ready:**
+    ```bash
+    kubectl sql "SELECT name FROM */pods WHERE all(status.containerStatuses[*].ready = true)"
+    ```
+* **Deployments with more than 2 containers:**
+    ```bash
+    kubectl sql "SELECT name FROM */deployments WHERE len(spec.template.spec.containers) > 2"
+    ```
+* **Nodes with many pods:**
+    ```bash
+    kubectl sql "SELECT name FROM nodes WHERE len(status.conditions) > 5"
+    ```
+* **Pods with empty volumes list:**
+    ```bash
+    kubectl sql "SELECT name FROM */pods WHERE len(spec.volumes) = 0"
+    ```
+
+---
+
 **All namespaces**
 
 * **Get pods that have name containing "ovs" using regular kubectl all namespaces arg:**

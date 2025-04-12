@@ -1,4 +1,3 @@
-
 <p align="center">
   <img src="https://raw.githubusercontent.com/yaacov/kubectl-sql/master/img/kubesql-162.png" alt="kubectl-sql Logo">
 </p>
@@ -68,9 +67,17 @@ https://github.com/yaacov/tree-search-language
 #### Arrays and lists:
 kubectl-sql support resource paths that include lists by using the list index as a field key.
 
-*Important*: first element in array is 1.
-
 ``` bash
 # Get the memory request for the first container.
-kubectl-sql --all-namespaces "select * from pods where spec.containers[1].resources.requests.memory = 200Mi"
+kubectl-sql --all-namespaces "select * from pods where spec.containers[0].resources.requests.memory = 200Mi"
 ```
+
+#### Array Operations:
+kubectl-sql supports array operations such as `any`, `all`, and `len`.
+
+| Operation | Example |
+|----|---|
+| `any` | `any(spec.containers[*].resources.requests.memory = 200Mi)` |
+| `all` | `all(spec.containers[*].resources.requests.memory = 200Mi)` |
+| `len` | `len(spec.containers[*]) > 2` |
+
