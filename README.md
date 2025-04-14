@@ -63,8 +63,7 @@ sudo install ./kubectl-sql /usr/local/bin/
 ## What can I do with it ?
 
 kubectl-sql let you select Kubernetes resources based on the value of one or more resource fields, using
-human readable easy to use SQL like query language. It is also posible to find connected resources useing the
-`join` command.
+human readable easy to use SQL like query language.
 
 [More kubectl-sql examples](https://github.com/yaacov/kubectl-sql/blob/master/README_examples.md)
 
@@ -85,26 +84,7 @@ multus-additional-cni-plugins-kc8sz	Running	10.131.6.65
 kubectl-sql -o json "select * from pvc where spec.resources.requests.storage < 20Gi"
 ...
 ```
-  
-``` bash
-# Display non running pods by nodes for all namespaces.
-kubectl-sql "select * from nodes join */pods on \
-    nodes.status.addresses[1].address = pods.status.hostIP and not pods.phase ~= 'Running'"
-...
-```
-
-``` bash
-# Filter replica sets with less ready-replicas then replicas"
-kubectl-sql --all-namespaces "select * from rs where status.readyReplicas < status.replicas"
-```
-
-``` bash
-# Find all non running pods by node address
-kubectl-sql "select * from nodes join */pods on \
-        nodes.status.addresses[1].address = pods.status.hostIP and \
-        not pods.phase ~= 'Running'"
-```
-
+ 
 ```bash
 # Get only first 10 pods ordered by name
 kubectl-sql "SELECT name, status.phase FROM */pods ORDER BY name LIMIT 10"

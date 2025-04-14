@@ -255,21 +255,6 @@
 
 ---
 
-**Join**
-
-<p align="center">
-   <a href="https://asciinema.org/a/AiBPT3SL7R9MgHCJV1tI0k6fU" target="_blank"><img src="https://asciinema.org/a/AiBPT3SL7R9MgHCJV1tI0k6fU.svg" /></a>
-<p>
-  
-* **Display non-running pods by nodes for all namespaces:**
-    ```bash
-    kubectl-sql "select * from nodes join */pods on \
-        nodes.status.addresses[1].address = pods.status.hostIP and not pods.phase ~= 'Running'"
-    ...
-    ```
-
----
-
 **Escaping Identifiers**
 
 * **Use square brackets for identifiers with special characters:**
