@@ -117,6 +117,7 @@ memory in [1Gi, 2Gi, 4Gi]
 | `any`  | `any (spec.containers[*].resources.requests.memory = 200Mi)` |
 | `all`  | `all (spec.containers[*].resources.requests.memory != null)`  |
 | `len`  | `len spec.containers[*] > 2`                               |
+| `sum`  | `sum spec.containers[*].requested.memory > 2Gi`                               |
 
 `any`, `all`, and `len` may be called *with or without* parentheses: `any expr` is equivalent to `any(expr)`.
 
