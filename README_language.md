@@ -2,82 +2,128 @@
   <img src="https://raw.githubusercontent.com/yaacov/kubectl-sql/master/img/kubesql-162.png" alt="kubectl-sql Logo">
 </p>
 
-# kubectl-sql
+# kubectl‑sql — Query Language Reference
 
-## Query language
+kubectl‑sql uses **Tree Search Language (TSL)** – a human‑readable filtering grammar shared with the [`tree-search-language`](https://github.com/yaacov/tree-search-language) project.  The tables below document operators, literals and helper supported by the TSL.
 
-kubectl-sql uses Tree Search Language (TSL). TSL is a wonderful human readable filtering language.
+---
 
-https://github.com/yaacov/tree-search-language
+## Operators
 
+| Category         | Operators                                                         | Example                                                         |
+| ---------------- | ----------------------------------------------------------------- | --------------------------------------------------------------- |
+| Equality / regex | `=`, `!=`, `~=` *(regex match)*, `~!` *(regex ****not**** match)* | `name ~! '^test-'`                                              |
+| Pattern          | `like`, `not like`, `ilike`, `not ilike`                          | `phase not ilike 'run%'`                                        |
+| Comparison       | `>`, `<`, `>=`, `<=`                                              | `created < 2020‑01‑15T00:00:00Z`                                |
+| Null tests       | `is null`, `is not null`                                          | `spec.domain.cpu.dedicatedCpuPlacement is not null`             |
+| Membership       | `in`, `not in`                                                    | `memory in [1Gi, 2Gi]`                                          |
+| Ranges           | `between`, `not between`                                          | `memory between 1Gi and 4Gi`                                    |
+| Boolean          | `and`, `or`, `not`                                                | `name ~= 'virt-' and not namespace = 'default'`                 |
+| Grouping         | `( … )`                                                           | `(phase='Running' or phase='Succeeded') and namespace~='^cnv-'` |
 
-#### Available Operators:
+---
 
-| Operators | Example |
-|----|---|
-| `=`, `~=` | `name ~= '^test-'`  |
-| `like`, `ilike` | `phase ilike 'run%'`  | 
-|`!=`, `!~` |  `namespace != 'default'` |
-|`>`, `<`, `<=` and `>=` | `created < 2020-01-15T00:00:00Z` |
-|`is null`, `is not null`| `spec.domain.cpu.dedicatedCpuPlacement is not null` |
-| `in`   |  `spec.domain.resources.limits.memory in (1Gi, 2Gi)` |
-| `between`   |  `spec.domain.resources.limits.memory between 1Gi and 2Gi` |
-| `or`, `and` and `not` | `name ~= 'virt-' and namespace != 'test-wegsb'` |
-| `( )`|  `phase = 'Running' and (namespace ~= 'cnv-' or namespace ~= 'virt-')`|
+## Math & Unary Operators
 
-#### Available Math Operators:
+| Operator      | Description                                                   |
+| ------------- | ------------------------------------------------------------- |
+| `+`, `-`      | Addition & subtraction *(prefix **`+x`** / **`-x`** allowed)* |
+| `*`, `/`, `%` | Multiplication, division, modulo                              |
+| `( … )`       | Parentheses to override precedence                            |
 
-| Operators | Notes |
-|----|---|
-| `+`, `-` | Addition and Subtraction |
-| `*`, `/` | Multiplication and Division |
-| `( )`|  |
+---
 
-#### Aliases:
-| Alias | Resource Path | Example |
-|----|---|---|
-| name | metadata.name | |
-| namespace | metadata.namespace | `namespace ~= '^test-[a-z]+$'` |
-| labels | metadata.labels | |
-| annotations | metadata.annotations | |
-| created | creation timestamp | |
-| deleted | deletion timestamp | |
-| phase | status.phase | `phase = 'Running'` |
+## Aliases
 
-#### SI Units:
-| Unit | Multiplier | Example |
-|----|---|---|
-| Ki | 1024 | |
-| Mi | 1024^2 | `spec.containers[1].resources.requests.memory = 200Mi` |
-| Gi | 1024^3 | |
-| Ti | 1024^4 | |
-| Pi | 1024^5 | |
+| Alias         | Resource path          | Example                      |
+| ------------- | ---------------------- | ---------------------------- |
+| `name`        | `metadata.name`        | `name ~= '^test-'`           |
+| `namespace`   | `metadata.namespace`   | `namespace != 'kube-system'` |
+| `labels`      | `metadata.labels`      | `labels.env = 'prod'`        |
+| `annotations` | `metadata.annotations` |                              |
+| `created`     | creationTimestamp      | `created > 2023‑01‑01`       |
+| `deleted`     | deletionTimestamp      |                              |
+| `phase`       | `status.phase`         | `phase = 'Running'`          |
 
-#### Booleans:
-| Example |
-|---|
-| `status.conditions[1].status = true` |
+---
 
-#### Dates:
-| Format | Example |
-|---|---|
-| RFC3339 | `status.conditions[1].lastTransitionTime > 2020-02-20T11:12:38Z`  |
-| Short date | `created <= 2020-02-20` |
+## Size & Time Literals
 
-#### Arrays and lists:
-kubectl-sql support resource paths that include lists by using the list index as a field key.
+### SI / IEC units
 
-``` bash
-# Get the memory request for the first container.
-kubectl-sql --all-namespaces "select * from pods where spec.containers[0].resources.requests.memory = 200Mi"
+#### SI units (powers of 1000)
+
+| Suffix | Multiplier |
+| ------ | ---------- |
+| k / K  | 10³         |
+| M      | 10⁶         |
+| G      | 10⁹         |
+| T      | 10¹²        |
+| P      | 10¹⁵        |
+
+#### IEC units (powers of 1024)
+
+| Suffix | Multiplier |
+| ------ | ---------- |
+| Ki     | 1024¹       |
+| Mi     | 1024²       |
+| Gi     | 1024³       |
+| Ti     | 1024⁴       |
+| Pi     | 1024⁵       |
+
+### Scientific notation
+
+Numbers may be written as `6.02e23`, `2.5E‑3`, etc.
+
+---
+
+## Booleans
+
+The literals `true` and `false` (case‑insensitive) evaluate to boolean values.
+
+---
+
+## Dates
+
+| Format     | Example                                     |
+| ---------- | ------------------------------------------- |
+| RFC 3339   | `lastTransitionTime > 2025‑02‑20T11:12:38Z` |
+| Short date | `created <= 2025‑02‑20`                     |
+
+---
+
+## Arrays & Lists
+
+Fields may include list indices, wildcards or named keys:
+
+```tsl
+spec.containers[0].resources.requests.memory = 200Mi
+spec.ports[*].protocol = 'TCP'
+spec.ports[http‑port].port = 80
 ```
 
-#### Array Operations:
-kubectl-sql supports array operations such as `any`, `all`, and `len`.
+### Membership tests with lists
 
-| Operation | Example |
-|----|---|
-| `any` | `any(spec.containers[*].resources.requests.memory = 200Mi)` |
-| `all` | `all(spec.containers[*].resources.requests.memory = 200Mi)` |
-| `len` | `len(spec.containers[*]) > 2` |
+Use **square‑bracket literals** when testing membership:
 
+```tsl
+memory in [1Gi, 2Gi, 4Gi]
+```
+
+### Array helpers
+
+| Helper | Example                                                     |
+| ------ | ----------------------------------------------------------- |
+| `any`  | `any (spec.containers[*].resources.requests.memory = 200Mi)` |
+| `all`  | `all (spec.containers[*].resources.requests.memory != null)`  |
+| `len`  | `len spec.containers[*] > 2`                               |
+
+`any`, `all`, and `len` may be called *with or without* parentheses: `any expr` is equivalent to `any(expr)`.
+
+---
+
+> **Tip – mixing selectors**: Combine aliases, regex, math and list helpers to build expressive filters, e.g.
+>
+> ```tsl
+> any(phase = 'Running') and namespace ~= '^(cnv|virt)-'
+> ```
