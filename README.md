@@ -10,9 +10,9 @@
 
 kubectl-sql is a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/) that use SQL like language to query the [Kubernetes](https://kubernetes.io/) cluster manager
 
-  - [Install](#install)
-  - [What can I do with it ?](#what-can-i-do-with-it-)
-  - [Alternatives](#alternatives)
+- [Install](#install)
+- [What can I do with it ?](#what-can-i-do-with-it-)
+- [Alternatives](#alternatives)
 
 <p align="center">
   <a href="https://asciinema.org/a/308607" target="_blank"><img src="https://asciinema.org/a/308607.svg" /></a>
@@ -20,9 +20,9 @@ kubectl-sql is a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubect
 
 ## More docs
 
- - [kubectl-sql's query language](https://github.com/yaacov/kubectl-sql/blob/master/README_language.md)
- - [More kubectl-sql examples](https://github.com/yaacov/kubectl-sql/blob/master/README_examples.md)
- - [Using the config file](https://github.com/yaacov/kubectl-sql/blob/master/README_config.md)
+- [kubectl-sql's query language](https://github.com/yaacov/kubectl-sql/blob/master/README_language.md)
+- [More kubectl-sql examples](https://github.com/yaacov/kubectl-sql/blob/master/README_examples.md)
+- [Using the config file](https://github.com/yaacov/kubectl-sql/blob/master/README_config.md)
 
 ## Install
 
@@ -59,7 +59,7 @@ sudo install ./kubectl-sql /usr/local/bin/
 <p align="center">
    <a href="https://asciinema.org/a/jPQQCjFG2qGqlZ6HKXWoQjFWa" target="_blank"><img src="https://asciinema.org/a/jPQQCjFG2qGqlZ6HKXWoQjFWa.svg" /></a>
 <p>
- 
+
 ## What can I do with it ?
 
 kubectl-sql let you select Kubernetes resources based on the value of one or more resource fields, using
@@ -72,10 +72,10 @@ human readable easy to use SQL like query language.
 kubectl-sql "select name, status.phase as phase, status.podIP as ip \
   from openshift-multus/pods \
   where name ~= 'cni' and (ip ~= '5$' or phase = 'Running')"
-KIND: Pod	COUNT: 2
-name                               	phase  	ip          	
-multus-additional-cni-plugins-7kcsd	Running	10.130.10.85	
-multus-additional-cni-plugins-kc8sz	Running	10.131.6.65 
+KIND: Pod COUNT: 2
+name                                phase   ip           
+multus-additional-cni-plugins-7kcsd Running 10.130.10.85 
+multus-additional-cni-plugins-kc8sz Running 10.131.6.65 
 ...
 ```
 
@@ -84,7 +84,7 @@ multus-additional-cni-plugins-kc8sz	Running	10.131.6.65
 kubectl-sql -o json "select * from pvc where spec.resources.requests.storage < 20Gi"
 ...
 ```
- 
+
 ```bash
 # Get only first 10 pods ordered by name
 kubectl-sql "SELECT name, status.phase FROM */pods ORDER BY name LIMIT 10"
@@ -102,7 +102,8 @@ kubectl-sql "SELECT name, status.phase FROM */pods ORDER BY name LIMIT 10"
    <a href="https://asciinema.org/a/308434" target="_blank"><img src="https://asciinema.org/a/308434.svg" /></a>
 <p>
 
-#### Output formats:
+#### Output formats
+
 | --output flag | Print format |
 |----|---|
 | table | Table |
@@ -117,10 +118,10 @@ kubectl-sql "SELECT name, status.phase FROM */pods ORDER BY name LIMIT 10"
 `jq` is a lightweight and flexible command-line JSON processor. It is possible to
 pipe the kubectl command output into the `jq` command to create complicated searches ( [Illustrated jq toturial](https://github.com/MoserMichael/jq-illustrated) )
 
-https://stedolan.github.io/jq/manual/#select(boolean_expression)
+<https://stedolan.github.io/jq/manual/#select(boolean_expression)>
 
 #### kubectl --field-selector
 
 Field selectors let you select Kubernetes resources based on the value of one or more resource fields. Here are some examples of field selector queries.
 
-https://kubernetes.io/docs/concepts/overview/working-with-objects/field-selectors/
+<https://kubernetes.io/docs/concepts/overview/working-with-objects/field-selectors/>
