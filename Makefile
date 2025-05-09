@@ -74,3 +74,9 @@ test:
 	go tool cover -func=coverage.out
 	@rm coverage.out
 
+.PHONY: e2e-test
+e2e-test: kubectl-sql
+	@echo "Running end-to-end tests against CRC cluster"
+	@chmod +x ./test/e2e/run-tests.sh
+	./test/e2e/run-tests.sh
+

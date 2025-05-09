@@ -8,7 +8,7 @@ require (
 	github.com/spf13/cobra v1.9.0
 	github.com/spf13/pflag v1.0.6
 	github.com/yaacov/tree-search-language/v6 v6.0.7
-	gopkg.in/yaml.v3 v3.0.1
+	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/apimachinery v0.32.2
 	k8s.io/cli-runtime v0.32.2
 	k8s.io/client-go v0.32.2
@@ -59,6 +59,7 @@ require (
 	google.golang.org/protobuf v1.36.1 // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.12.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/api v0.32.2 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20241105132330-32ad38e42d3f // indirect

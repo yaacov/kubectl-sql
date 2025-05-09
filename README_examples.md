@@ -57,7 +57,7 @@
 * **Get pods with most restarts:**
 
     ```bash
-    kubectl sql "SELECT name, status.containerStatuses[1].restartCount FROM */pods ORDER BY status.containerStatuses[1].restartCount DESC LIMIT 5"
+    kubectl sql "SELECT name, status.containerStatuses[0].restartCount FROM */pods ORDER BY status.containerStatuses[0].restartCount DESC LIMIT 5"
     ```
 
 * **Sort services by number of ports (multiple-column sorting):**
@@ -79,7 +79,7 @@
 * **Deployments with image `nginx.*`:**
 
     ```bash
-    kubectl sql "SELECT name FROM */deployments WHERE spec.template.spec.containers[1].image ~= 'nginx.*'"
+    kubectl sql "SELECT name FROM */deployments WHERE spec.template.spec.containers[0].image ~= 'nginx.*'"
     ```
 
 * **Services of type `LoadBalancer`:**
@@ -97,7 +97,7 @@
 * **Pods with container named nginx:**
 
     ```bash
-    kubectl sql "SELECT name from */pods where spec.containers[1].name = 'nginx'"
+    kubectl sql "SELECT name from */pods where spec.containers[0].name = 'nginx'"
     ```
 
 ---
@@ -113,7 +113,7 @@
 * **Alias container image to `container_image`:**
 
     ```bash
-    kubectl sql "SELECT name, spec.template.spec.containers[1].image AS container_image FROM */deployments"
+    kubectl sql "SELECT name, spec.template.spec.containers[0].image AS container_image FROM */deployments"
     ```
 
 ---
@@ -139,7 +139,7 @@
 * **Deployments with memory request < 512Mi:**
 
     ```bash
-    kubectl sql "SELECT name, spec.template.spec.containers[1].resources.requests.memory FROM */deployments WHERE spec.template.spec.containers[1].resources.requests.memory < 512Mi"
+    kubectl sql "SELECT name, spec.template.spec.containers[0].resources.requests.memory FROM */deployments WHERE spec.template.spec.containers[0].resources.requests.memory < 512Mi"
     ```
 
 * **PVCs with storage request > 10Gi:**
@@ -151,7 +151,7 @@
 * **Pods with container memory limit > 1Gi:**
 
     ```bash
-    kubectl sql "SELECT name, spec.containers[1].resources.limits.memory FROM */pods WHERE spec.containers[1].resources.limits.memory > 1Gi"
+    kubectl sql "SELECT name, spec.containers[0].resources.limits.memory FROM */pods WHERE spec.containers[0].resources.limits.memory > 1Gi"
     ```
 
 ---
@@ -204,10 +204,10 @@
 
 **All namespaces**
 
-* **Get pods that have name containing "ovs" using regular kubectl all namespaces arg:**
+* **Get pods that have name containing "ovs":**
 
     ```bash
-    kubectl-sql --all-namespaces "select * from pods where name ~= 'cni'"
+    kubectl-sql "select * from */pods where name ~= 'cni'"
     NAMESPACE     NAME                PHASE   hostIP         CREATION_TIME(RFC3339)        
     openshift-cnv ovs-cni-amd64-5vgcg Running 192.168.126.58 2020-02-10T23:26:31+02:00     
     openshift-cnv ovs-cni-amd64-8ts4w Running 192.168.126.12 2020-02-10T22:01:59+02:00     
@@ -302,7 +302,7 @@
 * **Get replica sets with 3 replicas but less ready replicas:**
 
     ```bash
-    kubectl-sql --all-namespaces "select * from rs where spec.replicas = 3 and status.readyReplicas < spec.replicas"
+    kubectl-sql "select * from */rs where spec.replicas = 3 and status.readyReplicas < spec.replicas"
 
     ...
     ```
@@ -314,7 +314,7 @@
 * **Use square brackets for identifiers with special characters:**
 
     ```bash
-    ./kubectl-sql --all-namespaces "select * from pods where name ~= 'cni' and metadata.labels[openshift.io/component] = 'network'"
+    ./kubectl-sql "select * from */pods where name ~= 'cni' and metadata.labels[openshift.io/component] = 'network'"
     ...
     ```
 

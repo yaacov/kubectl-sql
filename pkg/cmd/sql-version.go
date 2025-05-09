@@ -21,28 +21,60 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 
+	"github.com/spf13/cobra"
+	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/discovery"
-	"k8s.io/client-go/rest"
+
+	"github.com/yaacov/kubectl-sql/pkg/client"
 )
 
-// Version prints the plugin version.
-func (o *SQLOptions) Version(config *rest.Config) error {
-	serverVersionStr := ""
+// NewVersionCmd creates a command that displays version information
+func NewVersionCmd(streams *genericIOStreams) *cobra.Command {
+	o := NewSQLOptions(genericclioptions.IOStreams{
+		In:     streams.In,
+		Out:    streams.Out,
+		ErrOut: streams.ErrOut,
+	})
 
-	discoveryClient, err := discovery.NewDiscoveryClientForConfig(config)
-	if err != nil {
-		return err
+	cmd := &cobra.Command{
+		Use:          "version",
+		Short:        VersionCmdShort,
+		SilenceUsage: true,
+		RunE: func(versionCmd *cobra.Command, args []string) error {
+			config, err := client.NewFromCLIArgs(versionCmd, args, o.configFlags)
+			if err != nil {
+				return err
+			}
+
+			return ShowVersion(&streams.Out, config)
+		},
 	}
 
-	serverVersion, err := discoveryClient.ServerVersion()
+	// Add config flags to the version command
+	o.configFlags.AddFlags(cmd.Flags())
+
+	return cmd
+}
+
+// ShowVersion prints the client and server version information
+func ShowVersion(w *io.Writer, config *client.Config) error {
+	serverVersionStr := "unknown"
+
+	// Get server version if possible
+	discoveryClient, err := discovery.NewDiscoveryClientForConfig(config.Config)
 	if err == nil {
-		serverVersionStr = fmt.Sprintf("%v", serverVersion)
+		serverVersion, err := discoveryClient.ServerVersion()
+		if err == nil {
+			serverVersionStr = fmt.Sprintf("%v", serverVersion)
+		}
 	}
 
-	fmt.Fprintf(o.Out, "Client version: %s\n", clientVersion)
-	fmt.Fprintf(o.Out, "Server version: %s\n", serverVersionStr)
-	fmt.Fprintf(o.Out, "Current namespace: %s\n", o.namespace)
+	// Print version information
+	fmt.Fprintf(*w, "Client version: %s\n", clientVersion)
+	fmt.Fprintf(*w, "Server version: %s\n", serverVersionStr)
+	fmt.Fprintf(*w, "Current namespace: %s\n", config.Namespace)
 
 	return nil
 }

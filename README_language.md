@@ -90,6 +90,26 @@ The literals `true` and `false` (case‑insensitive) evaluate to boolean values.
 | RFC 3339   | `lastTransitionTime > 2025‑02‑20T11:12:38Z` |
 | Short date | `created <= 2025‑02‑20`                     |
 
+Use `date` utitlity to use relative times:
+
+```bash
+# Current time (now)
+date -u +"%Y-%m-%dT%H:%M:%SZ"
+# Example: created > $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+# Tomorrow (24 hours from now)
+date -u -d "+1 day" +"%Y-%m-%dT%H:%M:%SZ"
+# Example: expirationTime < $(date -u -d "+1 day" +"%Y-%m-%dT%H:%M:%SZ")
+
+# Two hours from now
+date -u -d "+2 hours" +"%Y-%m-%dT%H:%M:%SZ"
+# Example: lastTransitionTime < $(date -u -d "+2 hours" +"%Y-%m-%dT%H:%M:%SZ")
+
+# One week ago
+date -u -d "-7 days" +"%Y-%m-%dT%H:%M:%SZ"
+# Example: created > $(date -u -d "-7 days" +"%Y-%m-%dT%H:%M:%SZ")
+```
+
 ---
 
 ## Arrays & Lists
@@ -98,7 +118,7 @@ Fields may include list indices, wildcards or named keys:
 
 ```tsl
 spec.containers[0].resources.requests.memory = 200Mi
-spec.ports[*].protocol = 'TCP'
+spec.ports[*].protocol
 spec.ports[http‑port].port = 80
 ```
 
@@ -120,6 +140,11 @@ memory in [1Gi, 2Gi, 4Gi]
 | `sum`  | `sum spec.containers[*].requested.memory > 2Gi`                               |
 
 `any`, `all`, and `len` may be called *with or without* parentheses: `any expr` is equivalent to `any(expr)`.
+
+```tsl
+len spec.containers
+any (spec.ports[*].port = 80)
+```
 
 ---
 
