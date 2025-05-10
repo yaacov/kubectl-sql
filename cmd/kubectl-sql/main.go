@@ -29,10 +29,18 @@ import (
 )
 
 func main() {
+	// Initialize the flag set
 	flags := pflag.NewFlagSet("kubectl-sql", pflag.ExitOnError)
 	pflag.CommandLine = flags
 
-	root := cmd.NewCmdSQL(genericclioptions.IOStreams{In: os.Stdin, Out: os.Stdout, ErrOut: os.Stderr})
+	// Create and execute the root command
+	streams := genericclioptions.IOStreams{
+		In:     os.Stdin,
+		Out:    os.Stdout,
+		ErrOut: os.Stderr,
+	}
+
+	root := cmd.NewCmdSQL(streams)
 	if err := root.Execute(); err != nil {
 		os.Exit(1)
 	}

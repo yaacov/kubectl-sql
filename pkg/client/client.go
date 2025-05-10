@@ -24,9 +24,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/spf13/cobra"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
@@ -35,15 +37,49 @@ import (
 
 // Config provides information required to query the kubernetes server.
 type Config struct {
-	Config        *rest.Config
-	Namespace     string
-	AllNamespaces bool
+	Config    *rest.Config
+	Namespace string
+}
+
+// Complete sets all information required for updating the current context
+func NewFromCLIArgs(cmd *cobra.Command, args []string, configFlags *genericclioptions.ConfigFlags) (*Config, error) {
+	var err error
+	c := &Config{}
+
+	// If no config flags provided, create new ones
+	if configFlags == nil {
+		configFlags = genericclioptions.NewConfigFlags(true)
+		configFlags.AddFlags(cmd.Flags())
+	}
+
+	// Read kubeconfig and set the default namespace if not specified
+	rawConfig := configFlags.ToRawKubeConfigLoader()
+	if c.Namespace, _, err = rawConfig.Namespace(); err != nil {
+		return c, err
+	}
+
+	c.Config, err = rawConfig.ClientConfig()
+	if err != nil {
+		return c, err
+	}
+
+	return c, nil
 }
 
 // List resources by resource name.
-func (c Config) List(ctx context.Context, resourceName string) ([]unstructured.Unstructured, error) {
+func (c *Config) List(ctx context.Context, resourceName, resourceNamespace string, allNamespaces bool) ([]unstructured.Unstructured, error) {
 	var err error
 	var list *unstructured.UnstructuredList
+
+	// Check for empty resource name
+	if len(resourceName) == 0 {
+		return nil, fmt.Errorf("resource name is empty")
+	}
+
+	// Check for empty resource namespace
+	if len(resourceNamespace) == 0 {
+		resourceNamespace = c.Namespace
+	}
 
 	resource, group, version, err := c.getResourceGroupVersion(resourceName)
 	if err != nil {
@@ -63,8 +99,8 @@ func (c Config) List(ctx context.Context, resourceName string) ([]unstructured.U
 	})
 
 	// Check for namespace
-	if !c.AllNamespaces && len(c.Namespace) > 0 && resource.Namespaced {
-		list, err = res.Namespace(c.Namespace).List(ctx, v1.ListOptions{})
+	if !allNamespaces && len(resourceNamespace) > 0 && resource.Namespaced {
+		list, err = res.Namespace(resourceNamespace).List(ctx, v1.ListOptions{})
 	} else {
 		list, err = res.List(ctx, v1.ListOptions{})
 	}
@@ -76,8 +112,23 @@ func (c Config) List(ctx context.Context, resourceName string) ([]unstructured.U
 	return list.Items, err
 }
 
+// ListAsMap resources by resource name and returns them as a slice of maps.
+func (c *Config) ListAsMap(ctx context.Context, resourceName, resourceNamespace string, allNamespaces bool) ([]map[string]interface{}, error) {
+	items, err := c.List(ctx, resourceName, resourceNamespace, allNamespaces)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]map[string]interface{}, len(items))
+	for i, item := range items {
+		result[i] = item.Object
+	}
+
+	return result, nil
+}
+
 // Look for a resource matching request resource name.
-func (c Config) getResourceGroupVersion(resourceName string) (v1.APIResource, string, string, error) {
+func (c *Config) getResourceGroupVersion(resourceName string) (v1.APIResource, string, string, error) {
 	discoveryClient, err := discovery.NewDiscoveryClientForConfig(c.Config)
 	if err != nil {
 		return v1.APIResource{}, "", "", err
@@ -106,7 +157,7 @@ func (c Config) getResourceGroupVersion(resourceName string) (v1.APIResource, st
 	}
 
 	if len(resource.Name) == 0 {
-		return v1.APIResource{}, "", "", fmt.Errorf("Failed to find resource")
+		return v1.APIResource{}, "", "", fmt.Errorf("failed to find resource")
 	}
 
 	group, version := getGroupVersion(resourceList)

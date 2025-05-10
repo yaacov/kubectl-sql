@@ -17,19 +17,10 @@ limitations under the License.
 Author: 2020 Yaacov Zamir <kobi.zamir@gmail.com>
 */
 
-package printers
+package cmd
 
-import (
-	"fmt"
-
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+// Version information
+const (
+	// clientVersion is the version of the kubectl-sql client
+	clientVersion = "0.0.0-dev"
 )
-
-// Name prints items in Name format
-func (c *Config) Name(items []unstructured.Unstructured) error {
-	for _, item := range items {
-		fmt.Fprintf(c.Out, "%s\n", item.GetName())
-	}
-
-	return nil
-}
