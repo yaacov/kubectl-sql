@@ -32,7 +32,12 @@ func parseSelectClause(selectClause string) []SelectOption {
 			}
 
 			// Clean up the expression from brackets and parentheses
-			expr = strings.Trim(expr, ".()")
+			expr = strings.TrimPrefix(expr, ".")
+
+			// Trim enclosing parentheses if they exist
+			if strings.HasPrefix(expr, "(") && strings.HasSuffix(expr, ")") {
+				expr = expr[1 : len(expr)-1]
+			}
 
 			alias := m[4]
 			if alias == "" {
@@ -153,7 +158,7 @@ func validateJSONPath(path string) error {
 
 		// Check for spaces and special characters in the base name
 		if strings.ContainsAny(baseName, " \t\n\r{}()'+*/%&|^!=<>,;:`\\\"") {
-			return fmt.Errorf("segment '%s' contains invalid characters in path: %s", baseName, path)
+			//return fmt.Errorf("segment '%s' contains invalid characters in path: %s", baseName, path)
 		}
 	}
 

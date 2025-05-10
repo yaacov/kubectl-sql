@@ -49,7 +49,7 @@ func TestGetValueByPathString(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetValueByPathString(obj, tt.path)
+			got, err := GetValueByPathString(obj, tt.path, 0)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("err = %v, wantErr %v", err, tt.wantErr)
 			}

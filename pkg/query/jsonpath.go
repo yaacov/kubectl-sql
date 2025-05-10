@@ -11,7 +11,12 @@ import (
 
 // GetValueByPathString gets a value from an object using a string path
 // The path can use dot notation (e.g. "metadata.name") and array indexing (e.g. "spec.containers[0].name")
-func GetValueByPathString(obj interface{}, path string) (interface{}, error) {
+// If debugLevel > 0, debug information will be printed to stderr
+func GetValueByPathString(obj interface{}, path string, debugLevel int) (interface{}, error) {
+	if debugLevel > 0 {
+		fmt.Fprintf(os.Stderr, "DEBUG: GetValueByPathString input path: %q\n", path)
+	}
+
 	// Remove JSONPath notation if present
 	path = strings.TrimPrefix(path, "{{")
 	path = strings.TrimSuffix(path, "}}")
@@ -19,6 +24,10 @@ func GetValueByPathString(obj interface{}, path string) (interface{}, error) {
 
 	// Remove leading dot if present
 	path = strings.TrimPrefix(path, ".")
+
+	if debugLevel > 0 {
+		fmt.Fprintf(os.Stderr, "DEBUG: Cleaned path: %q\n", path)
+	}
 
 	// Split the path into parts, handling brackets and dots
 	// e.g. "spec.containers[0].name" -> ["spec", "containers[0]", "name"]
@@ -53,21 +62,77 @@ func GetValueByPathString(obj interface{}, path string) (interface{}, error) {
 		parts = append(parts, currentPart.String())
 	}
 
-	return getValueByPath(obj, parts)
+	if debugLevel > 0 {
+		debugInfo := map[string]interface{}{
+			"originalPath": path,
+			"parsedParts":  parts,
+		}
+		debugJSON, _ := json.MarshalIndent(debugInfo, "", "  ")
+		fmt.Fprintf(os.Stderr, "DEBUG: Path parsing results:\n%s\n", string(debugJSON))
+	}
+
+	// Forward debug level to getValueByPath if needed
+	result, err := getValueByPath(obj, parts, debugLevel)
+
+	if debugLevel > 0 {
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "DEBUG: GetValueByPathString error: %v\n", err)
+		} else {
+			resultType := fmt.Sprintf("%T", result)
+			resultPreview := "nil"
+			if result != nil {
+				// Create a preview of the result
+				resultJSON, jsonErr := json.Marshal(result)
+				if jsonErr == nil {
+					if len(resultJSON) > 100 {
+						resultPreview = string(resultJSON[:97]) + "..."
+					} else {
+						resultPreview = string(resultJSON)
+					}
+				} else {
+					resultPreview = fmt.Sprintf("%v", result)
+				}
+			}
+
+			fmt.Fprintf(os.Stderr, "DEBUG: GetValueByPathString result: type=%s, value=%s\n",
+				resultType, resultPreview)
+		}
+	}
+
+	return result, err
 }
 
 // getValueByPath recursively traverses an object following a path
-func getValueByPath(obj interface{}, pathParts []string) (interface{}, error) {
+func getValueByPath(obj interface{}, pathParts []string, debugLevel int) (interface{}, error) {
+	if debugLevel > 0 {
+		fmt.Fprintf(os.Stderr, "DEBUG: getValueByPath processing path parts: %v\n", pathParts)
+		if obj != nil {
+			fmt.Fprintf(os.Stderr, "DEBUG: Current object type: %T\n", obj)
+		} else {
+			fmt.Fprintf(os.Stderr, "DEBUG: Current object is nil\n")
+		}
+	}
+
 	if len(pathParts) == 0 {
+		if debugLevel > 0 {
+			fmt.Fprintf(os.Stderr, "DEBUG: No more path parts, returning object\n")
+		}
 		return obj, nil
 	}
 
 	if obj == nil {
+		if debugLevel > 0 {
+			fmt.Fprintf(os.Stderr, "DEBUG: Cannot access %s on nil value\n", strings.Join(pathParts, "."))
+		}
 		return nil, fmt.Errorf("cannot access %s on nil value", strings.Join(pathParts, "."))
 	}
 
 	part := pathParts[0]
 	remainingParts := pathParts[1:]
+
+	if debugLevel > 0 {
+		fmt.Fprintf(os.Stderr, "DEBUG: Processing part: %q, remaining parts: %v\n", part, remainingParts)
+	}
 
 	// Check if part has array indexing notation [i], map key notation [key], or wildcard [*]
 	arrayIndex := -1
@@ -83,18 +148,30 @@ func getValueByPath(obj interface{}, pathParts []string) (interface{}, error) {
 	if len(wildcardMatch) == 2 {
 		part = wildcardMatch[1]
 		isWildcard = true
+		if debugLevel > 0 {
+			fmt.Fprintf(os.Stderr, "DEBUG: Detected wildcard notation, base part: %q\n", part)
+		}
 	} else if len(arrayMatch) == 3 {
 		part = arrayMatch[1]
 		index, err := strconv.Atoi(arrayMatch[2])
 		if err != nil {
+			if debugLevel > 0 {
+				fmt.Fprintf(os.Stderr, "DEBUG: Invalid array index in path: %s\n", part)
+			}
 			return nil, fmt.Errorf("invalid array index in path: %s", part)
 		}
 		arrayIndex = index
+		if debugLevel > 0 {
+			fmt.Fprintf(os.Stderr, "DEBUG: Detected array index notation, base part: %q, index: %d\n", part, arrayIndex)
+		}
 	} else if len(mapMatch) == 3 {
 		part = mapMatch[1]
 		mapKey = mapMatch[2]
 		// Remove quotes if present
 		mapKey = strings.Trim(mapKey, `"'`)
+		if debugLevel > 0 {
+			fmt.Fprintf(os.Stderr, "DEBUG: Detected map key notation, base part: %q, key: %q\n", part, mapKey)
+		}
 	}
 
 	switch objTyped := obj.(type) {
@@ -103,7 +180,14 @@ func getValueByPath(obj interface{}, pathParts []string) (interface{}, error) {
 		value, exists := objTyped[part]
 		if !exists {
 			// Don't fail if the part is not found, just return nil
+			if debugLevel > 0 {
+				fmt.Fprintf(os.Stderr, "DEBUG: Key %q not found in map\n", part)
+			}
 			return nil, nil
+		}
+
+		if debugLevel > 0 {
+			fmt.Fprintf(os.Stderr, "DEBUG: Found value for key %q, type: %T\n", part, value)
 		}
 
 		// Handle wildcard for arrays
@@ -111,23 +195,42 @@ func getValueByPath(obj interface{}, pathParts []string) (interface{}, error) {
 			// Check if the value is an array
 			arr, ok := value.([]interface{})
 			if !ok {
+				if debugLevel > 0 {
+					fmt.Fprintf(os.Stderr, "DEBUG: Cannot apply wildcard to non-array value: %s\n", part)
+				}
 				return nil, fmt.Errorf("cannot apply wildcard to non-array value: %s", part)
+			}
+
+			if debugLevel > 0 {
+				fmt.Fprintf(os.Stderr, "DEBUG: Processing wildcard on array with %d elements\n", len(arr))
 			}
 
 			// For wildcard, collect results from all array elements
 			var results []interface{}
-			for _, item := range arr {
-				result, err := getValueByPath(item, remainingParts)
+			for i, item := range arr {
+				if debugLevel > 0 {
+					fmt.Fprintf(os.Stderr, "DEBUG: Processing wildcard array element %d\n", i)
+				}
+				result, err := getValueByPath(item, remainingParts, debugLevel)
 				if err == nil && result != nil {
 					// Check if result is an array itself and flatten if needed
 					if resultArray, isArray := result.([]interface{}); isArray {
 						// Flatten by appending individual elements
+						if debugLevel > 0 {
+							fmt.Fprintf(os.Stderr, "DEBUG: Flattening array result with %d elements\n", len(resultArray))
+						}
 						results = append(results, resultArray...)
 					} else {
 						// Non-array result, append as is
+						if debugLevel > 0 {
+							fmt.Fprintf(os.Stderr, "DEBUG: Adding non-array result to results\n")
+						}
 						results = append(results, result)
 					}
 				}
+			}
+			if debugLevel > 0 {
+				fmt.Fprintf(os.Stderr, "DEBUG: Wildcard processing complete, collected %d results\n", len(results))
 			}
 			return results, nil
 		}
@@ -137,10 +240,19 @@ func getValueByPath(obj interface{}, pathParts []string) (interface{}, error) {
 			// Check if the value is an array
 			if arr, ok := value.([]interface{}); ok {
 				if arrayIndex >= len(arr) {
+					if debugLevel > 0 {
+						fmt.Fprintf(os.Stderr, "DEBUG: Array index out of bounds: %d (array length: %d)\n", arrayIndex, len(arr))
+					}
 					return nil, fmt.Errorf("array index out of bounds: %d", arrayIndex)
+				}
+				if debugLevel > 0 {
+					fmt.Fprintf(os.Stderr, "DEBUG: Accessing array element at index %d\n", arrayIndex)
 				}
 				value = arr[arrayIndex]
 			} else {
+				if debugLevel > 0 {
+					fmt.Fprintf(os.Stderr, "DEBUG: Cannot apply array index to non-array value: %s\n", part)
+				}
 				return nil, fmt.Errorf("cannot apply array index to non-array value: %s", part)
 			}
 		}
@@ -151,23 +263,41 @@ func getValueByPath(obj interface{}, pathParts []string) (interface{}, error) {
 			if m, ok := value.(map[string]interface{}); ok {
 				mapValue, exists := m[mapKey]
 				if !exists {
+					if debugLevel > 0 {
+						fmt.Fprintf(os.Stderr, "DEBUG: Map key %q not found\n", mapKey)
+					}
 					return nil, nil
+				}
+				if debugLevel > 0 {
+					fmt.Fprintf(os.Stderr, "DEBUG: Accessing map with key %q\n", mapKey)
 				}
 				value = mapValue
 			} else {
+				if debugLevel > 0 {
+					fmt.Fprintf(os.Stderr, "DEBUG: Cannot apply map key to non-map value: %s\n", part)
+				}
 				return nil, fmt.Errorf("cannot apply map key to non-map value: %s", part)
 			}
 		}
 
 		// If this is the last part, return the value
 		if len(remainingParts) == 0 {
+			if debugLevel > 0 {
+				fmt.Fprintf(os.Stderr, "DEBUG: Reached end of path, returning final value of type %T\n", value)
+			}
 			return value, nil
 		}
 
 		// Otherwise, continue recursing
-		return getValueByPath(value, remainingParts)
+		if debugLevel > 0 {
+			fmt.Fprintf(os.Stderr, "DEBUG: Continuing recursion with remaining parts\n")
+		}
+		return getValueByPath(value, remainingParts, debugLevel)
 
 	default:
+		if debugLevel > 0 {
+			fmt.Fprintf(os.Stderr, "DEBUG: Cannot access property %s on non-object value of type %T\n", part, obj)
+		}
 		return nil, fmt.Errorf("cannot access property %s on non-object value", part)
 	}
 }
@@ -229,7 +359,7 @@ func GetValue(obj interface{}, name string, queryOpts *QueryOptions) (interface{
 	}
 
 	// Fetch the raw value
-	val, err := GetValueByPathString(obj, path)
+	val, err := GetValueByPathString(obj, path, debugLevel)
 	if err != nil {
 		return nil, err
 	}

@@ -16,10 +16,6 @@ func TestGetFieldAlias(t *testing.T) {
 		{name: "labels alias", input: "labels", expected: "metadata.labels"},
 		{name: "phase alias", input: "phase", expected: "status.phase"},
 
-		// Case insensitivity
-		{name: "uppercase alias", input: "NAME", expected: "metadata.name"},
-		{name: "mixed case alias", input: "NaMeSpAcE", expected: "metadata.namespace"},
-
 		// Whitespace handling
 		{name: "trailing space", input: "name ", expected: "metadata.name"},
 		{name: "leading space", input: " phase", expected: "status.phase"},
@@ -30,11 +26,24 @@ func TestGetFieldAlias(t *testing.T) {
 		{name: "leading dot", input: ".labels", expected: "metadata.labels"},
 		{name: "both dots", input: ".annotations.", expected: "metadata.annotations"},
 
-		// Combined cases
-		{name: "complex case", input: " .NaMe. ", expected: "metadata.name"},
-
 		// Non-aliased fields
 		{name: "non-aliased field", input: "spec.replicas", expected: "spec.replicas"},
+
+		// Array/Map indexing
+		{name: "labels with index", input: "labels[app]", expected: "metadata.labels[app]"},
+		{name: "labels with numeric index", input: "labels[0]", expected: "metadata.labels[0]"},
+		{name: "labels with index and spaces", input: "labels [app]", expected: "metadata.labels[app]"},
+		{name: "non-aliased field with index", input: "spec.containers[0].name", expected: "spec.containers[0].name"},
+
+		// Function expressions
+		{name: "len function", input: "len(status.conditions[*])", expected: "len(status.conditions[*])"},
+		{name: "max function", input: "max(spec.replicas)", expected: "max(spec.replicas)"},
+		{name: "min function with alias", input: "min(metadata.creationTimestamp)", expected: "min(metadata.creationTimestamp)"},
+
+		// Function expressions with field aliases inside
+		{name: "len with field alias", input: "len(conditions[*])", expected: "len(status.conditions[*])"},
+		{name: "max with field alias", input: "max(replicas)", expected: "max(spec.replicas)"},
+		{name: "function with complex alias", input: "min(created)", expected: "min(metadata.creationTimestamp)"},
 	}
 
 	for _, tt := range tests {

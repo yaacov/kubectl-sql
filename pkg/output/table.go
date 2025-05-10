@@ -152,7 +152,7 @@ func (t *TablePrinter) extractValue(item map[string]interface{}, header Header) 
 		return valueToString(val)
 	}
 
-	value, err := query.GetValueByPathString(item, header.JSONPath)
+	value, err := query.GetValueByPathString(item, header.JSONPath, t.debugLevel)
 	if err != nil {
 		return ""
 	}

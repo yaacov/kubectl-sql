@@ -86,7 +86,7 @@ func (n *NamePrinter) extractName(item map[string]interface{}) string {
 		return valueToString(val)
 	}
 
-	value, err := query.GetValueByPathString(item, n.nameField)
+	value, err := query.GetValueByPathString(item, n.nameField, n.queryOptions.DebugLevel)
 	if err != nil {
 		return ""
 	}

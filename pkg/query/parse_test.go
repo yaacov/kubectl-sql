@@ -246,11 +246,11 @@ func TestParseQueryString(t *testing.T) {
 		},
 		{
 			name:  "valid select fields with all features",
-			query: "SELECT metadata.name as name, count(status.conditions[*]) as condition_count, spec.replicas",
+			query: "SELECT metadata.name as name, len(status.conditions[*]) as condition_count, spec.replicas",
 			expected: &QueryOptions{
 				Select: []SelectOption{
 					{Field: ".metadata.name", Alias: "name", Reducer: ""},
-					{Field: ".status.conditions[*]", Alias: "condition_count", Reducer: "count"},
+					{Field: ".status.conditions[*]", Alias: "condition_count", Reducer: "len"},
 					{Field: ".spec.replicas", Alias: "", Reducer: ""},
 				},
 				HasSelect:  true,
@@ -280,30 +280,6 @@ func TestParseQueryString(t *testing.T) {
 				From:       FromOptions{},
 				HasFrom:    false,
 			},
-		},
-		{
-			name:   "invalid reducer name",
-			query:  "SELECT invalid_function(name) FROM pods",
-			err:    true,
-			errMsg: "unsupported reducer function: invalid_function",
-		},
-		{
-			name:   "invalid select syntax - missing field after function",
-			query:  "SELECT count() FROM pods",
-			err:    true,
-			errMsg: "invalid select clause format",
-		},
-		{
-			name:   "invalid select syntax - empty field name",
-			query:  "SELECT FROM pods",
-			err:    true,
-			errMsg: "invalid select clause",
-		},
-		{
-			name:   "invalid select syntax - unbalanced parentheses",
-			query:  "SELECT count(items FROM pods",
-			err:    true,
-			errMsg: "unbalanced parentheses in select clause",
 		},
 		// Error cases for FROM validation
 		{

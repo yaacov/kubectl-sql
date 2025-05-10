@@ -20,6 +20,7 @@ Author: 2020 Yaacov Zamir <kobi.zamir@gmail.com>
 package query
 
 import (
+	"regexp"
 	"strings"
 )
 
@@ -32,16 +33,48 @@ var fieldAliases = map[string]string{
 	"created":     "metadata.creationTimestamp",
 	"deleted":     "metadata.deletionTimestamp",
 	"phase":       "status.phase",
+	"replicas":    "spec.replicas",
+	"conditions":  "status.conditions",
 }
+
+// Function pattern matches expressions like "len(field)"
+var functionPattern = regexp.MustCompile(`^(\w+)\((.*)\)$`)
+
+// Array pattern matches expressions like "field[index]"
+var arrayPattern = regexp.MustCompile(`^(.+?)(\[.+\])$`)
 
 // GetDefaultFieldAlias returns the full path for a field alias or the original field if no alias exists
 func GetDefaultFieldAlias(field string) string {
+	// Check for function format (e.g., len(field))
+	if matches := functionPattern.FindStringSubmatch(field); matches != nil {
+		functionName := matches[1]
+		argument := matches[2]
+
+		// Apply field alias resolution to the argument
+		resolvedArgument := GetDefaultFieldAlias(argument)
+
+		// Reconstruct the function call
+		return functionName + "(" + resolvedArgument + ")"
+	}
+
+	// Check for array format (field[...])
+	var baseField string
+	var arrayIndex string
+
+	if matches := arrayPattern.FindStringSubmatch(field); matches != nil {
+		baseField = matches[1]
+		arrayIndex = matches[2]
+	} else {
+		baseField = field
+		arrayIndex = ""
+	}
+
 	// Create normalized field name: lowercase, trim spaces and dots from ends
-	normalizedField := strings.Trim(strings.TrimSpace(strings.ToLower(field)), ".")
+	normalizedField := strings.Trim(baseField, " .")
 
 	// Use the mapped field if it exists, otherwise keep the original
 	if fullPath, exists := fieldAliases[normalizedField]; exists {
-		return fullPath
+		return fullPath + arrayIndex
 	}
 
 	return field
