@@ -46,8 +46,6 @@ type QueryType int
 
 const (
 	SimpleQuery QueryType = iota
-	JoinQuery
-	JoinWhereQuery
 )
 
 // parseFields extracts and validates SELECT fields
@@ -141,11 +139,8 @@ func (o *SQLOptions) parseResources(resources []string, queryType QueryType) err
 		resources[i] = resourceName
 	}
 
-	if queryType == SimpleQuery && len(resources) != 1 {
-		return fmt.Errorf("without ON clause, exactly one resource must be specified")
-	}
-	if (queryType == JoinQuery || queryType == JoinWhereQuery) && len(resources) != 2 {
-		return fmt.Errorf("when using ON clause, exactly two resources must be specified")
+	if len(resources) != 1 {
+		return fmt.Errorf("exactly one resource must be specified")
 	}
 
 	o.requestedResources = resources
@@ -173,19 +168,7 @@ func (o *SQLOptions) identifyQueryType(query string) (QueryType, map[string]int,
 		return 0, nil, fmt.Errorf("missing FROM clause in query")
 	}
 
-	if indices["JOIN"] == -1 {
-		return SimpleQuery, indices, nil
-	}
-
-	if indices["ON"] == -1 {
-		return 0, nil, fmt.Errorf("JOIN clause requires ON condition")
-	}
-
-	if indices["WHERE"] == -1 {
-		return JoinQuery, indices, nil
-	}
-
-	return JoinWhereQuery, indices, nil
+	return SimpleQuery, indices, nil
 }
 
 // parseOrderBy extracts and validates the ORDER BY clause
@@ -275,9 +258,7 @@ func (o *SQLOptions) parseLimit(query string, indices map[string]int) error {
 func (o *SQLOptions) parseQueryParts(query string, indices map[string]int, queryType QueryType) error {
 	// Parse FROM resource (only one resource allowed)
 	var fromEnd int
-	if indices["JOIN"] != -1 {
-		fromEnd = indices["JOIN"]
-	} else if indices["WHERE"] != -1 {
+	if indices["WHERE"] != -1 {
 		fromEnd = indices["WHERE"]
 	} else if indices["ORDER BY"] != -1 {
 		fromEnd = indices["ORDER BY"]
@@ -293,16 +274,7 @@ func (o *SQLOptions) parseQueryParts(query string, indices map[string]int, query
 		return fmt.Errorf("only one resource allowed in FROM clause")
 	}
 
-	// If JOIN exists, add the joined resource
-	var allResources []string
-	if queryType != SimpleQuery {
-		joinStart := indices["JOIN"] + 5
-		joinEnd := indices["ON"]
-		joinResource := strings.TrimSpace(query[joinStart:joinEnd])
-		allResources = []string{resources[0], joinResource}
-	} else {
-		allResources = []string{resources[0]}
-	}
+	allResources := []string{resources[0]}
 
 	if err := o.parseResources(allResources, queryType); err != nil {
 		return err
@@ -312,25 +284,6 @@ func (o *SQLOptions) parseQueryParts(query string, indices map[string]int, query
 	selectFields := strings.TrimSpace(query[6:indices["FROM"]])
 	if err := o.parseFields(selectFields); err != nil {
 		return err
-	}
-
-	// Parse ON clause for JOIN queries
-	if queryType != SimpleQuery {
-		onStart := indices["ON"] + 3
-		var onEnd int
-		if indices["WHERE"] != -1 {
-			onEnd = indices["WHERE"]
-		} else if indices["ORDER BY"] != -1 {
-			onEnd = indices["ORDER BY"]
-		} else if indices["LIMIT"] != -1 {
-			onEnd = indices["LIMIT"]
-		} else {
-			onEnd = len(query)
-		}
-		o.requestedOnQuery = strings.TrimSpace(query[onStart:onEnd])
-		if o.requestedOnQuery == "" {
-			return fmt.Errorf("ON clause cannot be empty")
-		}
 	}
 
 	// Parse WHERE clause if present

@@ -79,13 +79,10 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 					return err
 				}
 
-				// Execute query based on number of resources and presence of ON clause
-				switch {
-				case len(o.requestedResources) == 2 && o.requestedOnQuery != "":
-					return o.Join(config)
-				case len(o.requestedResources) >= 1:
+				// Execute query based on number of resources
+				if len(o.requestedResources) >= 1 {
 					return o.Get(config)
-				default:
+				} else {
 					return fmt.Errorf("invalid number of resources in query")
 				}
 			}
@@ -121,39 +118,6 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 			}
 
 			if err := o.Get(config); err != nil {
-				return err
-			}
-
-			return nil
-		},
-	}
-
-	cmdJoin := &cobra.Command{
-		Use:              "join <resource,resource> on \"<SQL-like query>\" [where \"<SQL-like query>\"] [flags] [options]",
-		Short:            sqlJoinShort,
-		Long:             sqlJoinLong,
-		Example:          sqlJoinExample,
-		TraverseChildren: true,
-		SilenceUsage:     true,
-		RunE: func(c *cobra.Command, args []string) error {
-			if err := o.Complete(c, args); err != nil {
-				return err
-			}
-
-			if err := o.CompleteJoin(c, args); err != nil {
-				return err
-			}
-
-			if err := o.Validate(); err != nil {
-				return err
-			}
-
-			config, err := o.rawConfig.ClientConfig()
-			if err != nil {
-				return err
-			}
-
-			if err := o.Join(config); err != nil {
 				return err
 			}
 
@@ -225,7 +189,7 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 		},
 	}
 
-	cmd.AddCommand(cmdGet, cmdJoin, cmdVersion, cmdAliases)
+	cmd.AddCommand(cmdGet, cmdVersion, cmdAliases)
 
 	cmd.Flags().BoolVarP(&o.allNamespaces, "all-namespaces", "A", o.allNamespaces,
 		"If present, list the requested object(s) across all namespaces. Namespace in current context is ignored even if specified with --namespace.")
@@ -239,7 +203,6 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 	o.configFlags.AddFlags(cmd.Flags())
 
 	cmdGet.Flags().AddFlagSet(cmd.Flags())
-	cmdJoin.Flags().AddFlagSet(cmd.Flags())
 	cmdAliases.Flags().AddFlagSet(cmd.Flags())
 	cmdVersion.Flags().AddFlagSet(cmd.Flags())
 
