@@ -43,9 +43,6 @@ var (
   # Print current available aliases.
   kubectl sql aliases
 
-  # Print current available aliases while using a config file.
-  kubectl sql aliases -q ./kubectl-sql.json
-
   # Print this help message.
   kubectl sql help`
 
@@ -53,9 +50,7 @@ var (
 	sqlGetShort = "Uses SQL-like language to filter and display one or many resources"
 	sqlGetLong  = `Uses SQL-like language to filter and display one or many resources.
 
-  kubectl sql get prints information about kubernetes resources filtered using SQL-like query.
-If the desired resource type is namespaced you will only see results in your current
-namespace unless you pass --all-namespaces`
+  kubectl sql get prints information about kubernetes resources filtered using SQL-like query.`
 
 	sqlGetExample = `  # List all pods in table output format.
   kubectl sql get pods
@@ -67,7 +62,7 @@ namespace unless you pass --all-namespaces`
   kubectl sql select * from pods where name ilike 'test-%%'"
 
   # List all pods where the memory request for the first container is lower or equal to 200Mi.
-  kubectl sql --all-namespaces "select * from pods where spec.containers[1].resources.requests.memory <= 200Mi"
+  kubectl sql "select * from */pods where spec.containers[1].resources.requests.memory <= 200Mi"
   
   # List pods ordered by name, limiting to 10 results.
   kubectl sql "select * from pods order by name limit 10"`
@@ -77,9 +72,11 @@ namespace unless you pass --all-namespaces`
 
 	// Defaults.
 	defaultAliases = map[string]string{
+		"name":      "metadata.name",
+		"namespace": "metadata.namespace",
+		"created":   "metadata.creationTimestamp",
 		"phase":     "status.phase",
 		"uid":       "metadata.uid",
-		"owner.uid": "metadata.ownerReferences[1].uid",
 	}
 	defaultTableFields = printers.TableFieldsMap{
 		"other": {

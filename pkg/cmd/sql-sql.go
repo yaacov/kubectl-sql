@@ -122,11 +122,7 @@ func (o *SQLOptions) parseResources(resources []string, queryType QueryType) err
 			}
 
 			// Set namespace options
-			if namespace == "*" {
-				o.allNamespaces = true
-			} else {
-				o.namespace = namespace
-			}
+			o.namespace = namespace
 			resourceName = parts[1]
 		default:
 			return fmt.Errorf("invalid resource format: %s, expected [namespace/]resource or */resource for all namespaces", r)
@@ -319,12 +315,6 @@ func (o *SQLOptions) parseQueryParts(query string, indices map[string]int, query
 
 // CompleteSQL parses SQL query into components
 func (o *SQLOptions) CompleteSQL(query string) error {
-	// Read SQL plugin specific configurations
-	err := o.readConfigFile(o.requestedSQLConfigPath)
-	if err != nil {
-		return err
-	}
-
 	queryType, indices, err := o.identifyQueryType(query)
 	if err != nil {
 		return err

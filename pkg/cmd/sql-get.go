@@ -35,16 +35,10 @@ import (
 
 // CompleteGet sets all information required for updating the current context for get sub command.
 func (o *SQLOptions) CompleteGet(cmd *cobra.Command, args []string) error {
-	var err error
 	o.args = args
 
 	if len(o.args) != 1 && len(o.args) != 3 {
 		return fmt.Errorf(errUsageTemplate, "bad number of arguments")
-	}
-
-	// Read SQL plugin specific configurations.
-	if err = o.readConfigFile(o.requestedSQLConfigPath); err != nil {
-		return err
 	}
 
 	// get <resource list> [where <query>]
@@ -65,9 +59,8 @@ func (o *SQLOptions) CompleteGet(cmd *cobra.Command, args []string) error {
 // Get the resource list.
 func (o *SQLOptions) Get(config *rest.Config) error {
 	c := client.Config{
-		Config:        config,
-		Namespace:     o.namespace,
-		AllNamespaces: o.allNamespaces,
+		Config:    config,
+		Namespace: o.namespace,
 	}
 
 	if len(o.requestedQuery) > 0 {
