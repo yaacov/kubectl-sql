@@ -35,9 +35,8 @@ import (
 
 // Config provides information required to query the kubernetes server.
 type Config struct {
-	Config        *rest.Config
-	Namespace     string
-	AllNamespaces bool
+	Config    *rest.Config
+	Namespace string
 }
 
 // List resources by resource name.
@@ -63,7 +62,7 @@ func (c Config) List(ctx context.Context, resourceName string) ([]unstructured.U
 	})
 
 	// Check for namespace
-	if !c.AllNamespaces && len(c.Namespace) > 0 && resource.Namespaced {
+	if len(c.Namespace) > 0 && c.Namespace != "*" && resource.Namespaced {
 		list, err = res.Namespace(c.Namespace).List(ctx, v1.ListOptions{})
 	} else {
 		list, err = res.List(ctx, v1.ListOptions{})
