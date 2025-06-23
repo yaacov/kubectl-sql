@@ -36,9 +36,6 @@ var (
 
   # List all pods where name starts with "test-" case insensitive.
   kubectl sql "select * from pods where name ilike 'test-%%'"
-
-  # Display pods by nodes using matching IP address.
-  kubectl sql "select * from nodes join pods on nodes.status.addresses[1].address = pods.status.hostIP"
   
   # List first 5 pods ordered by creation time in descending order (newest first).
   kubectl sql "select * from pods order by created desc limit 5"
@@ -74,29 +71,6 @@ namespace unless you pass --all-namespaces`
   
   # List pods ordered by name, limiting to 10 results.
   kubectl sql "select * from pods order by name limit 10"`
-
-	// sql get command.
-	sqlJoinShort = "Uses SQL-like language to join two resources"
-	sqlJoinLong  = `Uses SQL-like language to join two resources.
-
-  kubectl sql join prints information about kubernetes resources joined using SQL-like query.
-If the desired resource type is namespaced you will only see results in your current
-namespace unless you pass --all-namespaces`
-
-	sqlJoinExample = `  # List all virtual machine instanaces and pods joined on vim is owner of pod.
-  kubectl sql "select * from vmis join pods on vmis.metadata.uid = pods.metadata.ownerReferences[1].uid"
-
-  # List all virtual machine instanaces and pods joined on vim is owner of pod for vmis with name matching 'test' regexp.
-  kubectl sql "select * from vmis join pods on vmis.metadata.uid = pods.metadata.ownerReferences[1].uid where name ~= 'test'" -A
-
-  # Join deployment sets with pods using the uid aliases.
-  kubectl sql "select ds join pods on ds.uid = pods.owner.uid"
-
-  # Display non running pods by nodes for all namespaces.
-  kubectl sql "select nodes join pods on nodes.status.addresses[1].address = pods.status.hostIP and not pods.phase ~= 'Running'" -A 
-  
-  # Display pods by nodes for all namespaces, ordered by node name and limited to 5 results.
-  kubectl sql "select nodes join pods on nodes.status.addresses[1].address = pods.status.hostIP order by nodes.name limit 5" -A`
 
 	// Errors.
 	errUsageTemplate = "bad command or command usage, %s"

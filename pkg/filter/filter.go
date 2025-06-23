@@ -33,10 +33,6 @@ import (
 type Config struct {
 	CheckColumnName func(s string) (string, error)
 	Query           string
-
-	Prefix1 string
-	Prefix2 string
-	Item    unstructured.Unstructured
 }
 
 // Filter filters items using query.
@@ -65,43 +61,6 @@ func (c *Config) Filter(list []unstructured.Unstructured) ([]unstructured.Unstru
 	for _, item := range list {
 		// If we have a query, check item.
 		matchingFilter, err := semantics.Walk(newTree, eval.EvalFunctionFactory(item))
-		if err != nil {
-			continue
-		}
-		if match, ok := matchingFilter.(bool); ok && match {
-			items = append(items, item)
-		}
-	}
-
-	return items, nil
-}
-
-// Filter2 filters items using query and a left side item.
-func (c *Config) Filter2(list []unstructured.Unstructured) ([]unstructured.Unstructured, error) {
-	var (
-		tree *tsl.TSLNode
-		err  error
-	)
-
-	// If we have a query, prepare the search tree.
-	tree, err = tsl.ParseTSL(c.Query)
-	if err != nil {
-		return nil, err
-	}
-	defer tree.Free()
-
-	// Check and replace user identifiers if alias exist.
-	newTree, err := ident.Walk(tree, c.CheckColumnName)
-	if err != nil {
-		return nil, err
-	}
-	defer newTree.Free()
-
-	// Filter items using query.
-	items := []unstructured.Unstructured{}
-	for _, item := range list {
-		// If we have a query, check item.
-		matchingFilter, err := semantics.Walk(newTree, eval.JoinEvalFunctionFactory(c.Item, item, c.Prefix1, c.Prefix2))
 		if err != nil {
 			continue
 		}

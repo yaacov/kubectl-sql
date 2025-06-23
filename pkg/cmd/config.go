@@ -50,7 +50,6 @@ type SQLOptions struct {
 	allNamespaces      bool
 	requestedResources []string
 	requestedQuery     string
-	requestedOnQuery   string
 
 	outputFormat string
 	noHeaders    bool
