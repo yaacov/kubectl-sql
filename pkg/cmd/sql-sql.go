@@ -1,11 +1,16 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
 
+	"k8s.io/client-go/rest"
+
+	"github.com/yaacov/kubectl-sql/pkg/client"
+	"github.com/yaacov/kubectl-sql/pkg/filter"
 	"github.com/yaacov/kubectl-sql/pkg/printers"
 )
 
@@ -322,6 +327,68 @@ func (o *SQLOptions) CompleteSQL(query string) error {
 
 	if err := o.parseQueryParts(query, indices, queryType); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// Get the resource list.
+func (o *SQLOptions) Get(config *rest.Config) error {
+	c := client.Config{
+		Config:    config,
+		Namespace: o.namespace,
+	}
+
+	if len(o.requestedQuery) > 0 {
+		return o.printFilteredResources(c)
+	}
+
+	return o.printResources(c)
+}
+
+// printResources prints resources lists.
+func (o *SQLOptions) printResources(c client.Config) error {
+	ctx := context.Background()
+	for _, r := range o.requestedResources {
+		list, err := c.List(ctx, r)
+		if err != nil {
+			return err
+		}
+
+		err = o.Printer(list)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// printFilteredResources prints filtered resource list.
+func (o *SQLOptions) printFilteredResources(c client.Config) error {
+	ctx := context.Background()
+	f := filter.Config{
+		CheckColumnName: o.checkColumnName,
+		Query:           o.requestedQuery,
+	}
+
+	// Print resources lists.
+	for _, r := range o.requestedResources {
+		list, err := c.List(ctx, r)
+		if err != nil {
+			return err
+		}
+
+		// Filter items by query.
+		filteredList, err := f.Filter(list)
+		if err != nil {
+			return err
+		}
+
+		err = o.Printer(filteredList)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
