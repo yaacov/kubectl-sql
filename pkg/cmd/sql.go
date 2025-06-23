@@ -21,7 +21,6 @@ package cmd
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -47,61 +46,24 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 	o := NewSQLOptions(streams)
 
 	cmd := &cobra.Command{
-		Use:              "sql [query|command] [flags] [options]",
-		Short:            "Query Kubernetes resources using SQL-like syntax or subcommands",
+		Use:              "sql <query> [flags] [options]",
+		Short:            "Query Kubernetes resources using SQL-like syntax",
 		Long:             sqlCmdLong,
 		Example:          sqlCmdExample,
 		TraverseChildren: true,
 		RunE: func(c *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return fmt.Errorf(errUsageTemplate, "missing query or sub command")
+				return fmt.Errorf(errUsageTemplate, "missing SQL query")
 			}
 
-			// If the first argument starts with "SELECT", treat it as an SQL query
-			if strings.HasPrefix(strings.ToUpper(args[0]), "SELECT") {
-				if err := o.Complete(c, args); err != nil {
-					return err
-				}
+			// All arguments should be treated as a single SQL query
+			query := strings.Join(args, " ")
 
-				if err := o.CompleteSQL(args[0]); err != nil {
-					return err
-				}
-
-				if err := o.Validate(); err != nil {
-					return err
-				}
-
-				config, err := o.rawConfig.ClientConfig()
-				if err != nil {
-					return err
-				}
-
-				// Execute query based on number of resources
-				if len(o.requestedResources) >= 1 {
-					return o.Get(config)
-				} else {
-					return fmt.Errorf("invalid number of resources in query")
-				}
-			}
-
-			// If not an SQL query, show error about missing subcommand
-			return fmt.Errorf(errUsageTemplate, "missing sub command")
-		},
-	}
-
-	cmdGet := &cobra.Command{
-		Use:              "get <resource[,...]> [where \"<SQL-like query>\"] [flags] [options]",
-		Short:            sqlGetShort,
-		Long:             sqlGetLong,
-		Example:          sqlGetExample,
-		TraverseChildren: true,
-		SilenceUsage:     true,
-		RunE: func(c *cobra.Command, args []string) error {
 			if err := o.Complete(c, args); err != nil {
 				return err
 			}
 
-			if err := o.CompleteGet(c, args); err != nil {
+			if err := o.CompleteSQL(query); err != nil {
 				return err
 			}
 
@@ -114,44 +76,12 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 				return err
 			}
 
-			if err := o.Get(config); err != nil {
-				return err
+			// Execute query based on number of resources
+			if len(o.requestedResources) >= 1 {
+				return o.Get(config)
+			} else {
+				return fmt.Errorf("invalid number of resources in query")
 			}
-
-			return nil
-		},
-	}
-
-	cmdAliases := &cobra.Command{
-		Use:          "aliases [flags] [options]",
-		Short:        "Display a list of currently used aliases",
-		SilenceUsage: true,
-		RunE: func(c *cobra.Command, args []string) error {
-			if err := o.Complete(c, args); err != nil {
-				return err
-			}
-
-			hardCodedAliases := map[string]string{
-				"name":      "resource name",
-				"namespace": "resource namespace",
-				"created":   "resource creation time",
-				"deleted":   "resource delition time",
-			}
-
-			fmt.Fprintf(o.Out, "%-12s\t%s\n", "ALIAS", "PATH")
-
-			// Print hard coded alias table.
-			for k, v := range hardCodedAliases {
-				fmt.Fprintf(o.Out, "%-12s\t%s\n", k, v)
-			}
-
-			// Print alias table, sorted by keys.
-			keys := sortedKeys(o.defaultAliases)
-			for _, k := range keys {
-				fmt.Fprintf(o.Out, "%-12s\t%s\n", k, o.defaultAliases[k])
-			}
-
-			return nil
 		},
 	}
 
@@ -181,7 +111,7 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 		},
 	}
 
-	cmd.AddCommand(cmdGet, cmdVersion, cmdAliases)
+	cmd.AddCommand(cmdVersion)
 
 	cmd.Flags().StringVarP(&o.outputFormat, "output", "o", o.outputFormat,
 		"Output format. One of: json|yaml|table|name")
@@ -190,8 +120,6 @@ func NewCmdSQL(streams genericclioptions.IOStreams) *cobra.Command {
 
 	o.configFlags.AddFlags(cmd.Flags())
 
-	cmdGet.Flags().AddFlagSet(cmd.Flags())
-	cmdAliases.Flags().AddFlagSet(cmd.Flags())
 	cmdVersion.Flags().AddFlagSet(cmd.Flags())
 
 	return cmd
@@ -219,15 +147,4 @@ func (o *SQLOptions) Validate() error {
 	}
 
 	return nil
-}
-
-// Get sorted map keys
-func sortedKeys(m map[string]string) []string {
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-
-	return keys
 }

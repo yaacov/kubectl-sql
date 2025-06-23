@@ -57,3 +57,14 @@ func initializeDefaults(o *SQLOptions) {
 	o.orderByFields = []printers.OrderByField{}
 	o.limit = 0 // Default to no limit
 }
+
+// checkColumnName checks if a column name has an alias.
+func (o *SQLOptions) checkColumnName(s string) (string, error) {
+	// Check for aliases.
+	if v, ok := o.defaultAliases[s]; ok {
+		return v, nil
+	}
+
+	// If not found in alias table, return the column name unchanged.
+	return s, nil
+}
