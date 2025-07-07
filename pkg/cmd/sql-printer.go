@@ -28,17 +28,8 @@ import (
 	"github.com/yaacov/kubectl-sql/pkg/printers"
 )
 
-// Printer printout a list of items.
-// This function now uses the new data-based approach internally
-// while maintaining backward compatibility.
+// Printer is the interface for printing items in various formats
 func (o *SQLOptions) Printer(items []unstructured.Unstructured) error {
-	return o.PrinterFromData(items)
-}
-
-// PrinterFromData prints out evaluated data using the new data-based approach.
-// This separates data evaluation from printing, allowing for better performance
-// and cleaner separation of concerns.
-func (o *SQLOptions) PrinterFromData(items []unstructured.Unstructured) error {
 	// Sanity check
 	if len(items) == 0 {
 		return nil
