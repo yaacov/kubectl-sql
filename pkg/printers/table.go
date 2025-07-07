@@ -22,14 +22,8 @@ package printers
 import (
 	"fmt"
 	"io"
-	"reflect"
-	"sort"
 	"strconv"
 	"time"
-
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-
-	"github.com/yaacov/kubectl-sql/pkg/eval"
 )
 
 // TableField describes how to print the SQL results table.
@@ -39,10 +33,12 @@ type TableField struct {
 	Width    int
 	Template string
 }
-type tableFields []TableField
+
+// TableFields is a slice of TableField
+type TableFields []TableField
 
 // TableFieldsMap a map of lists of table field descriptions.
-type TableFieldsMap map[string]tableFields
+type TableFieldsMap map[string]TableFields
 
 // Config provides information required filter item list by query.
 type Config struct {
@@ -65,19 +61,52 @@ const (
 	SelectedFields = "selected"
 )
 
-// Get the table column titles and fields for the items.
-func (c *Config) getTableColumns(items []unstructured.Unstructured) tableFields {
-	var evalFunc func(string) (interface{}, bool)
+// ExtractFieldNames extracts field names from TableField configurations
+func (tf TableFields) ExtractFieldNames() []string {
+	fieldNames := make([]string, len(tf))
+	for i, field := range tf {
+		fieldNames[i] = field.Name
+	}
+	return fieldNames
+}
 
-	// Get the default template for this kind.
-	kind := items[0].GetKind()
-
+// GetFieldNamesForKind returns the appropriate field names for a given kind
+func (tfm TableFieldsMap) GetFieldNamesForKind(kind string) []string {
 	// Try different variations of kind name
-	fields, ok := c.TableFields[SelectedFields]
+	fields, ok := tfm[SelectedFields]
 	if !ok || fields == nil {
-		fields, ok = c.TableFields[kind]
+		fields, ok = tfm[kind]
 		if !ok || fields == nil {
-			fields = c.TableFields["other"]
+			fields = tfm["other"]
+		}
+	}
+
+	return fields.ExtractFieldNames()
+}
+
+// GetTableFieldsForKind returns the appropriate table fields for a given kind
+func (tfm TableFieldsMap) GetTableFieldsForKind(kind string) TableFields {
+	// Try different variations of kind name
+	fields, ok := tfm[SelectedFields]
+	if !ok || fields == nil {
+		fields, ok = tfm[kind]
+		if !ok || fields == nil {
+			fields = tfm["other"]
+		}
+	}
+
+	return fields
+}
+
+// getTableColumnsFromData calculates table column widths and templates from evaluated data
+func (c *Config) getTableColumnsFromData(rows []map[string]interface{}, fieldNames []string) TableFields {
+	// Create fields based on the field names in the table data
+	fields := make(TableFields, len(fieldNames))
+	for i, fieldName := range fieldNames {
+		fields[i] = TableField{
+			Title: fieldName,
+			Name:  fieldName,
+			Width: 0,
 		}
 	}
 
@@ -87,12 +116,10 @@ func (c *Config) getTableColumns(items []unstructured.Unstructured) tableFields 
 		fields[i].Template = ""
 	}
 
-	// Calculte field widths
-	for _, item := range items {
-		evalFunc = eval.EvalFunctionFactory(item)
-
+	// Calculate field widths from the evaluated data
+	for _, row := range rows {
 		for i, field := range fields {
-			if value, found := evalFunc(field.Name); found && value != nil {
+			if value, found := row[field.Name]; found && value != nil {
 				length := len(fmt.Sprintf("%v", value))
 
 				if length > fields[i].Width {
@@ -102,10 +129,10 @@ func (c *Config) getTableColumns(items []unstructured.Unstructured) tableFields 
 		}
 	}
 
-	// Calculte field template
+	// Calculate field template
 	for i, field := range fields {
 		if field.Width > 0 {
-			// Ajdust for title length
+			// Adjust for title length
 			width := len(field.Title)
 			if width < field.Width {
 				width = field.Width
@@ -118,92 +145,26 @@ func (c *Config) getTableColumns(items []unstructured.Unstructured) tableFields 
 	return fields
 }
 
-// sortItems sorts the slice of unstructured items based on the OrderByFields
-func (c *Config) sortItems(items []unstructured.Unstructured) {
-	if len(c.OrderByFields) == 0 {
-		return
+// Table prints evaluated data in table format
+func (c *Config) Table(rows []map[string]interface{}, fieldNames []string) error {
+	if len(rows) == 0 {
+		return nil
 	}
 
-	sort.SliceStable(items, func(i, j int) bool {
-		for _, orderBy := range c.OrderByFields {
-			evalFuncI := eval.EvalFunctionFactory(items[i])
-			evalFuncJ := eval.EvalFunctionFactory(items[j])
-
-			valueI, foundI := evalFuncI(orderBy.Name)
-			valueJ, foundJ := evalFuncJ(orderBy.Name)
-
-			// If either value is not found, prioritize the found value
-			if !foundI && foundJ {
-				return !orderBy.Descending
-			}
-			if foundI && !foundJ {
-				return orderBy.Descending
-			}
-			if !foundI && !foundJ {
-				continue
-			}
-
-			// Both values found, compare them
-			if valueI == nil && valueJ != nil {
-				return !orderBy.Descending
-			}
-			if valueI != nil && valueJ == nil {
-				return orderBy.Descending
-			}
-
-			// Compare values
-			switch vI := valueI.(type) {
-			case bool:
-				vJ := valueJ.(bool)
-				if vI != vJ {
-					return vI != orderBy.Descending
-				}
-			case float64:
-				vJ := valueJ.(float64)
-				if vI != vJ {
-					return vI < vJ != orderBy.Descending
-				}
-			case string:
-				vJ := valueJ.(string)
-				if vI != vJ {
-					return vI < vJ != orderBy.Descending
-				}
-			case time.Time:
-				vJ := valueJ.(time.Time)
-				if !vI.Equal(vJ) {
-					return vI.Before(vJ) != orderBy.Descending
-				}
-			default:
-				// Fallback to reflect.DeepEqual for other types
-				if !reflect.DeepEqual(valueI, valueJ) {
-					return reflect.DeepEqual(valueI, valueJ) != orderBy.Descending
-				}
-			}
-		}
-		return false
-	})
-}
-
-// Table prints items in Table format
-func (c *Config) Table(items []unstructured.Unstructured) error {
-	var evalFunc func(string) (interface{}, bool)
-
-	// Sort items if OrderByFields is set
-	c.sortItems(items)
-
-	// Get table fields for the items.
-	fields := c.getTableColumns(items)
+	// Get table fields for the items using the evaluated data
+	fields := c.getTableColumnsFromData(rows, fieldNames)
 
 	// Apply limit if set
-	displayCount := len(items)
+	displayCount := len(rows)
 	if c.Limit > 0 && c.Limit < displayCount {
 		displayCount = c.Limit
 	}
 
 	// Print table head if headers are not disabled
 	if !c.NoHeaders {
-		fmt.Fprintf(c.Out, "KIND: %s\tCOUNT: %d", items[0].GetKind(), len(items))
-		if c.Limit > 0 && c.Limit < len(items) {
+		total := len(rows)
+		fmt.Fprintf(c.Out, "COUNT: %d", total)
+		if c.Limit > 0 && c.Limit < total {
 			fmt.Fprintf(c.Out, "\tDISPLAYING: %d", displayCount)
 		}
 		fmt.Fprintf(c.Out, "\n")
@@ -217,17 +178,15 @@ func (c *Config) Table(items []unstructured.Unstructured) error {
 	}
 
 	// Print table rows
-	for i, item := range items {
+	for i, row := range rows {
 		// Respect the limit if set
 		if c.Limit > 0 && i >= c.Limit {
 			break
 		}
 
-		evalFunc = eval.EvalFunctionFactory(item)
-
 		for _, field := range fields {
 			if field.Width > 0 {
-				if v, found := evalFunc(field.Name); found && v != nil {
+				if v, found := row[field.Name]; found && v != nil {
 					value := v
 					switch v := v.(type) {
 					case bool:

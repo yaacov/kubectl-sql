@@ -20,13 +20,25 @@ Author: 2020 Yaacov Zamir <kobi.zamir@gmail.com>
 package cmd
 
 import (
+	"fmt"
+
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
+	"github.com/yaacov/kubectl-sql/pkg/extract"
 	"github.com/yaacov/kubectl-sql/pkg/printers"
 )
 
 // Printer printout a list of items.
+// This function now uses the new data-based approach internally
+// while maintaining backward compatibility.
 func (o *SQLOptions) Printer(items []unstructured.Unstructured) error {
+	return o.PrinterFromData(items)
+}
+
+// PrinterFromData prints out evaluated data using the new data-based approach.
+// This separates data evaluation from printing, allowing for better performance
+// and cleaner separation of concerns.
+func (o *SQLOptions) PrinterFromData(items []unstructured.Unstructured) error {
 	// Sanity check
 	if len(items) == 0 {
 		return nil
@@ -41,7 +53,7 @@ func (o *SQLOptions) Printer(items []unstructured.Unstructured) error {
 		NoHeaders:     o.noHeaders,
 	}
 
-	// Print out
+	// For yaml, json, and name outputs, we can use items directly
 	switch o.outputFormat {
 	case "yaml":
 		return p.YAML(items)
@@ -50,11 +62,19 @@ func (o *SQLOptions) Printer(items []unstructured.Unstructured) error {
 	case "name":
 		return p.Name(items)
 	default:
-		err := p.Table(items)
-		if err != nil {
-			return err
-		}
-	}
+		// For table output, we need to evaluate items into table data
+		kind := items[0].GetKind()
+		fieldNames := o.defaultTableFields.GetFieldNamesForKind(kind)
 
-	return nil
+		// Create converter to transform unstructured objects to table data
+		converter := extract.NewUnstructuredToTableConverter(fieldNames)
+		rows := converter.ConvertToTableData(items)
+
+		// Print kind information before the table
+		if !o.noHeaders {
+			fmt.Fprintf(p.Out, "KIND: %s\t", kind)
+		}
+
+		return p.Table(rows, fieldNames)
+	}
 }
