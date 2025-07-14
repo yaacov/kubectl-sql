@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/yaacov/kubectl-sql/master/img/kubesql-162.png" alt="kubectl-sql Logo">
+  <img src="https://raw.githubusercontent.com/yaacov/kubectl-sql/master/.github/img/kubesql-162.png" alt="kubectl-sql Logo">
 </p>
 
 # kubectl‑sql — Query Language Reference
