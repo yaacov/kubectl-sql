@@ -47,14 +47,12 @@ func (c *Config) Filter(list []unstructured.Unstructured) ([]unstructured.Unstru
 	if err != nil {
 		return nil, err
 	}
-	defer tree.Free()
 
 	// Check and replace user identifiers if alias exist.
 	newTree, err := ident.Walk(tree, c.CheckColumnName)
 	if err != nil {
 		return nil, err
 	}
-	defer newTree.Free()
 
 	// Filter items using a query.
 	items := []unstructured.Unstructured{}

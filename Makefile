@@ -15,10 +15,8 @@
 #
 
 # Prerequisites:
-#   - go 1.16 or higher
+#   - go 1.23 or higher
 #   - curl or wget
-#   - CGO enabled
-#   - musl-gcc package installed for static binary compilation
 #
 # Run `make install-tools` to install required development tools
 
@@ -37,15 +35,74 @@ GOOS := $(shell go env GOOS)
 GOARCH := $(shell go env GOARCH)
 
 kubectl-sql: clean $(kubesql_cmd) $(kubesql_pkg)
-	@echo "Building for ${GOOS}/${GOARCH}"
-	go build -ldflags='-X github.com/yaacov/kubectl-sql/pkg/cmd.clientVersion=${VERSION}' -o kubectl-sql $(kubesql_cmd)
-
-kubectl-sql-static: $(kubesql_cmd) $(kubesql_pkg)
-	CGO_ENABLED=1 CC=musl-gcc go build \
-		-tags netgo \
-		-ldflags '-linkmode external -extldflags "-static" -X github.com/yaacov/kubectl-sql/pkg/cmd.clientVersion=${VERSION}' \
+	@echo "Building static binary for ${GOOS}/${GOARCH}"
+	CGO_ENABLED=0 go build \
+		-a \
+		-ldflags '-s -w -X github.com/yaacov/kubectl-sql/pkg/cmd.clientVersion=${VERSION}' \
 		-o kubectl-sql \
 		$(kubesql_cmd)
+
+# Cross-compilation targets
+.PHONY: build-linux-amd64 build-linux-arm64 build-darwin-amd64 build-darwin-arm64 build-windows-amd64
+build-linux-amd64: clean $(kubesql_cmd) $(kubesql_pkg)
+	@echo "Building for linux/amd64"
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+		-a \
+		-ldflags '-s -w -X github.com/yaacov/kubectl-sql/pkg/cmd.clientVersion=${VERSION}' \
+		-o kubectl-sql-linux-amd64 \
+		$(kubesql_cmd)
+
+build-linux-arm64: clean $(kubesql_cmd) $(kubesql_pkg)
+	@echo "Building for linux/arm64"
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build \
+		-a \
+		-ldflags '-s -w -X github.com/yaacov/kubectl-sql/pkg/cmd.clientVersion=${VERSION}' \
+		-o kubectl-sql-linux-arm64 \
+		$(kubesql_cmd)
+
+build-darwin-amd64: clean $(kubesql_cmd) $(kubesql_pkg)
+	@echo "Building for darwin/amd64"
+	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build \
+		-a \
+		-ldflags '-s -w -X github.com/yaacov/kubectl-sql/pkg/cmd.clientVersion=${VERSION}' \
+		-o kubectl-sql-darwin-amd64 \
+		$(kubesql_cmd)
+
+build-darwin-arm64: clean $(kubesql_cmd) $(kubesql_pkg)
+	@echo "Building for darwin/arm64"
+	CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build \
+		-a \
+		-ldflags '-s -w -X github.com/yaacov/kubectl-sql/pkg/cmd.clientVersion=${VERSION}' \
+		-o kubectl-sql-darwin-arm64 \
+		$(kubesql_cmd)
+
+build-windows-amd64: clean $(kubesql_cmd) $(kubesql_pkg)
+	@echo "Building for windows/amd64"
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build \
+		-a \
+		-ldflags '-s -w -X github.com/yaacov/kubectl-sql/pkg/cmd.clientVersion=${VERSION}' \
+		-o kubectl-sql-windows-amd64.exe \
+		$(kubesql_cmd)
+
+# Build all platforms
+.PHONY: build-all
+build-all: build-linux-amd64 build-linux-arm64 build-darwin-amd64 build-darwin-arm64 build-windows-amd64
+
+# Create release archives for all platforms
+.PHONY: dist-all
+dist-all: build-all
+	@echo "Creating release archives..."
+	tar -zcvf kubectl-sql-${VERSION}-linux-amd64.tar.gz LICENSE kubectl-sql-linux-amd64
+	tar -zcvf kubectl-sql-${VERSION}-linux-arm64.tar.gz LICENSE kubectl-sql-linux-arm64
+	tar -zcvf kubectl-sql-${VERSION}-darwin-amd64.tar.gz LICENSE kubectl-sql-darwin-amd64
+	tar -zcvf kubectl-sql-${VERSION}-darwin-arm64.tar.gz LICENSE kubectl-sql-darwin-arm64
+	zip kubectl-sql-${VERSION}-windows-amd64.zip LICENSE kubectl-sql-windows-amd64.exe
+	@echo "Generating individual checksums..."
+	sha256sum kubectl-sql-${VERSION}-linux-amd64.tar.gz > kubectl-sql-${VERSION}-linux-amd64.tar.gz.sha256sum
+	sha256sum kubectl-sql-${VERSION}-linux-arm64.tar.gz > kubectl-sql-${VERSION}-linux-arm64.tar.gz.sha256sum
+	sha256sum kubectl-sql-${VERSION}-darwin-amd64.tar.gz > kubectl-sql-${VERSION}-darwin-amd64.tar.gz.sha256sum
+	sha256sum kubectl-sql-${VERSION}-darwin-arm64.tar.gz > kubectl-sql-${VERSION}-darwin-arm64.tar.gz.sha256sum
+	sha256sum kubectl-sql-${VERSION}-windows-amd64.zip > kubectl-sql-${VERSION}-windows-amd64.zip.sha256sum
 
 .PHONY: lint
 lint:
@@ -63,9 +120,8 @@ dist: kubectl-sql
 
 .PHONY: clean
 clean:
-	rm -f kubectl-sql
-	rm -f kubectl-sql.tar.gz
-	rm -f kubectl-sql.tar.gz.sha256sum
+	rm -f kubectl-sql kubectl-sql-*
+	rm -f *.tar.gz *.zip *.sha256sum
 
 .PHONY: test
 test:
