@@ -77,6 +77,37 @@ jobs:
               
               console.log(`Uploaded ${archiveName} and ${checksumName}`);
             }
+            
+            console.log('All release assets uploaded successfully');
+
+      - name: Wait for assets to be available
+        run: |
+          echo "Waiting 30 seconds for GitHub to propagate release assets..."
+          sleep 30
+
+      - name: Verify all assets are available
+        run: |
+          VERSION="${{ github.event.release.tag_name }}"
+          ASSETS=(
+            "kubectl-sql-${VERSION}-linux-amd64.tar.gz"
+            "kubectl-sql-${VERSION}-linux-arm64.tar.gz" 
+            "kubectl-sql-${VERSION}-darwin-amd64.tar.gz"
+            "kubectl-sql-${VERSION}-darwin-arm64.tar.gz"
+            "kubectl-sql-${VERSION}-windows-amd64.zip"
+          )
+          
+          echo "Verifying release assets are downloadable..."
+          for asset in "${ASSETS[@]}"; do
+            url="https://github.com/yaacov/kubectl-sql/releases/download/${VERSION}/${asset}"
+            echo "Checking: $url"
+            if curl -sSL --fail -I "$url" > /dev/null; then
+              echo "✅ $asset is available"
+            else
+              echo "❌ $asset is not available"
+              exit 1
+            fi
+          done
+          echo "All assets verified successfully!"
 
       - name: Update Krew index
         uses: rajatjindal/krew-release-bot@v0.0.46
