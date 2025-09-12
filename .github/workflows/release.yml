@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    name: Upload Release Assets
+    name: Build Multi-Platform Binaries
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -18,34 +18,62 @@ jobs:
         with:
           go-version: '1.23'
           
-      - name: Install musl-gcc
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y musl-tools
-
-      - name: Build and package
-        run: |
-          make kubectl-sql-static
-          make dist
+      - name: Build multi-platform and package
+        run: make dist-all
         env:
           VERSION: ${{ github.event.release.tag_name }}
 
-      - name: Upload Release Assets
-        uses: actions/upload-release-asset@v1
+      - name: Upload release assets
+        uses: actions/github-script@v6
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ github.event.release.tag_name }}
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./kubectl-sql.tar.gz
-          asset_name: kubectl-sql.tar.gz
-          asset_content_type: application/gzip
-
-      - name: Upload Checksum
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./kubectl-sql.tar.gz.sha256sum
-          asset_name: kubectl-sql.tar.gz.sha256sum
-          asset_content_type: text/plain
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            
+            const platforms = [
+              { os: 'linux', arch: 'amd64', ext: 'tar.gz', contentType: 'application/gzip' },
+              { os: 'linux', arch: 'arm64', ext: 'tar.gz', contentType: 'application/gzip' },
+              { os: 'darwin', arch: 'amd64', ext: 'tar.gz', contentType: 'application/gzip' },
+              { os: 'darwin', arch: 'arm64', ext: 'tar.gz', contentType: 'application/gzip' },
+              { os: 'windows', arch: 'amd64', ext: 'zip', contentType: 'application/zip' }
+            ];
+            
+            const version = process.env.VERSION || '${{ github.event.release.tag_name }}';
+            const uploadUrl = context.payload.release.upload_url;
+            
+            for (const platform of platforms) {
+              const archiveName = `kubectl-sql-${version}-${platform.os}-${platform.arch}.${platform.ext}`;
+              const checksumName = `${archiveName}.sha256sum`;
+              
+              // Upload archive
+              const archiveData = fs.readFileSync(archiveName);
+              await github.rest.repos.uploadReleaseAsset({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: context.payload.release.id,
+                name: archiveName,
+                data: archiveData,
+                headers: {
+                  'content-type': platform.contentType,
+                  'content-length': archiveData.length
+                }
+              });
+              
+              // Upload checksum
+              const checksumData = fs.readFileSync(checksumName);
+              await github.rest.repos.uploadReleaseAsset({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: context.payload.release.id,
+                name: checksumName,
+                data: checksumData,
+                headers: {
+                  'content-type': 'text/plain',
+                  'content-length': checksumData.length
+                }
+              });
+              
+              console.log(`Uploaded ${archiveName} and ${checksumName}`);
+            }

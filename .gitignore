@@ -17,3 +17,19 @@
 /kubectl-sql
 /kubectl-sql.tar.gz
 /kubectl-sql.tar.gz.sha256sum
+
+# Cross-platform binaries
+/kubectl-sql-linux-amd64
+/kubectl-sql-linux-arm64
+/kubectl-sql-darwin-amd64
+/kubectl-sql-darwin-arm64
+/kubectl-sql-windows-amd64.exe
+
+# Cross-platform archives and checksums
+/kubectl-sql-*-linux-amd64.tar.gz
+/kubectl-sql-*-linux-arm64.tar.gz
+/kubectl-sql-*-darwin-amd64.tar.gz
+/kubectl-sql-*-darwin-arm64.tar.gz
+/kubectl-sql-*-windows-amd64.zip
+*.tar.gz.sha256sum
+*.zip.sha256sum
