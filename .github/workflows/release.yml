@@ -77,3 +77,6 @@ jobs:
               
               console.log(`Uploaded ${archiveName} and ${checksumName}`);
             }
+
+      - name: Update Krew index
+        uses: rajatjindal/krew-release-bot@v0.0.46
