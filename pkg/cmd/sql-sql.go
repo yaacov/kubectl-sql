@@ -16,6 +16,26 @@ import (
 
 // isValidFieldIdentifier checks if a field name matches the allowed pattern
 func isValidFieldIdentifier(field string) bool {
+	// Check for labels.* pattern
+	if strings.HasPrefix(field, "labels.") {
+		labelKey := field[7:] // Remove "labels." prefix
+		// K8s label keys: alphanumeric, hyphens, underscores, dots
+		// Must start and end with alphanumeric character
+		labelPattern := `^[a-zA-Z0-9]([a-zA-Z0-9\-_.]*[a-zA-Z0-9])?$`
+		match, _ := regexp.MatchString(labelPattern, labelKey)
+		return match
+	}
+
+	// Check for annotations.* pattern
+	if strings.HasPrefix(field, "annotations.") {
+		annotationKey := field[12:] // Remove "annotations." prefix
+		// K8s annotation keys: similar to labels but more flexible
+		// Can contain alphanumeric, hyphens, underscores, dots, and slashes
+		annotationPattern := `^[a-zA-Z0-9]([a-zA-Z0-9\-_./]*[a-zA-Z0-9])?$`
+		match, _ := regexp.MatchString(annotationPattern, annotationKey)
+		return match
+	}
+
 	// Matches patterns like:
 	// - simple: name, first_name, my.field
 	// - array access: items[0], my.array[123]
